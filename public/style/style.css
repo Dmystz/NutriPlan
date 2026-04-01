@@ -23,7 +23,7 @@ body {
     top: 0;
 }
 .prg {
-    padding-left: 3vw;
+    padding: 0 3vw;
 }
 .navbar-brand {
     margin-left: 6vw;
@@ -181,6 +181,65 @@ h2 {
     box-shadow: 5px 5px 10px rgba(0, 0, 0, 0.25);
     border-radius: 10px;
 }
+.card-2 {
+    width: 18rem;
+    height: 28.5rem;
+    background: #fff;
+    box-shadow: 5px 5px 10px rgba(0, 0, 0, 0.25);
+    border-radius: 10px;
+    z-index: 1;
+}
+.card-3 {
+    width: 27rem;
+    height: 12rem;
+    border-radius: 10px;
+    border: 1px solid #000;
+    background: #fff;
+    box-shadow: 10px 10px 10px 0 rgba(0, 0, 0, 0.25);
+    z-index: 2;
+    right: 0;
+    bottom: 0;
+}
+.fw-500 {
+    font-weight: 500;
+}
+.scale-1 {
+    width: 25%;
+    height: 10px;
+    background: #95cd41;
+    border-radius: 10px;
+}
+.scale-2 {
+    width: 25%;
+    height: 10px;
+    background: #3cb12c;
+    border-radius: 10px;
+}
+.scale-3 {
+    width: 25%;
+    height: 10px;
+    background: #fb923c;
+    border-radius: 10px;
+}
+.scale-4 {
+    width: 25%;
+    height: 10px;
+    background: #e4680f;
+    border-radius: 10px;
+}
+.n1950 {
+    color: #f00;
+    font-style: normal;
+    font-weight: 700;
+    line-height: 15px;
+    font-size: 1.3rem;
+}
+.kcal {
+    color: #000;
+    font-style: normal;
+    font-weight: 700;
+    line-height: 15px;
+}
 .txt-1 {
     color: #446611;
     font-weight: 700;
@@ -216,6 +275,9 @@ h2 {
     font-size: 0.625rem;
     padding: 0 0.5rem;
     border-radius: 5px;
+}
+.prg-1 {
+    padding: 0 3vw;
 }
 /* Media breakpoint*/
 
