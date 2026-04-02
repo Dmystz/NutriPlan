@@ -4,6 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" type="image/png" href="{{ asset('img/logo.png') }}">
     <title>NutriPlan</title>
     <!-- Bootstrap -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet"
@@ -432,7 +433,7 @@
                         </li>
                         <li class="nav-item">
                             <a class="mx-xl-2 btn text-center nav-link oren rounded-pill text-white fw-bold item"
-                                href="#">Callculator</a>
+                                href="#">Calculator</a>
                         </li>
                         <li class="nav-item">
                             <a class="mx-xl-2 btn text-center nav-link ijo rounded-pill text-white fw-bold item"
