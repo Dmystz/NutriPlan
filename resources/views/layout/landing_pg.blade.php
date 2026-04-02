@@ -432,7 +432,7 @@
                         </li>
                         <li class="nav-item">
                             <a class="mx-xl-2 btn text-center nav-link oren rounded-pill text-white fw-bold item"
-                                href="#">Calculator</a>
+                                href="#">Callculator</a>
                         </li>
                         <li class="nav-item">
                             <a class="mx-xl-2 btn text-center nav-link ijo rounded-pill text-white fw-bold item"
