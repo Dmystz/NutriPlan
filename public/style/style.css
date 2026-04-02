@@ -160,6 +160,36 @@ h2 {
 .p-card {
     font-size: 0.8rem;
 }
+.p-card2 {
+    font-size: 0.625rem;
+    font-weight: bold;
+}
+.p-card3 {
+    font-size: 0.5rem;
+    color: rgba(106, 114, 130, 1);
+}
+.tgl-day {
+    border-radius: 4px;
+    background: #f9fafb;
+    min-width: 13%;
+    padding-top: 2px;
+}
+.checklist {
+    width: 1rem;
+    height: 1rem;
+    border-radius: 6px;
+    border: 1px solid #000;
+}
+.tgl-day1 {
+    border-radius: 4px;
+    background: rgba(43, 127, 255, 1);
+    min-width: 13%;
+    padding-top: 2px;
+}
+.elm {
+    border-radius: 8px;
+    border: 1px solid rgba(0, 0, 0, 0.1);
+}
 .elip3 {
     position: absolute;
     z-index: 1;
@@ -167,7 +197,7 @@ h2 {
     right: 0;
     width: 90px;
 }
-.card {
+.card-5 {
     width: 13rem;
     height: 15rem;
     background: #f4e8b8;
@@ -177,7 +207,7 @@ h2 {
 .card-1 {
     width: 18rem;
     min-height: 12rem;
-    background: #f0ffdf;
+    background: #fff;
     box-shadow: 5px 5px 10px rgba(0, 0, 0, 0.25);
     border-radius: 10px;
 }
@@ -199,6 +229,24 @@ h2 {
     z-index: 2;
     right: 0;
     bottom: 0;
+}
+.card-4 {
+    width: 20rem;
+    height: 30rem;
+    background: rgba(139, 136, 136, 1);
+    border-radius: 10px;
+    z-index: 1;
+}
+.pnl-pg5 {
+    background: white;
+    border-radius: 8px;
+}
+.clock-history {
+    width: 1.5rem;
+}
+.txt-3 {
+    color: black;
+    font-size: 0.75rem;
 }
 .fw-500 {
     font-weight: 500;

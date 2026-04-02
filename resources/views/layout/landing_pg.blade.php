@@ -121,7 +121,7 @@
                     <h2 class="text-center">From body data to personalized meals - everything is designed to help you
                         smarter and live healtier</h2>
                     <div class="container col-12 d-flex flex-wrap justify-content-evenly">
-                        <div class="card mt-5 mx-3 px-2">
+                        <div class="card-5 mt-5 mx-3 px-2">
                             <div class="row">
                                 <div class="col">
                                     <h4 class="d-flex align-items-center">
@@ -135,7 +135,7 @@
                                 </div>
                             </div>
                         </div>
-                        <div class="card mt-5 mx-3 px-2">
+                        <div class="card-5 mt-5 mx-3 px-2">
                             <div class="row">
                                 <div class="col-12">
                                     <h4 class="d-flex align-items-center">
@@ -149,11 +149,11 @@
                                 </div>
                             </div>
                         </div>
-                        <div class="card mt-5 mx-3 px-2">
+                        <div class="card-5 mt-5 mx-3 px-2">
                             <div class="row">
                                 <div class="col">
                                     <h4 class="d-flex align-items-center">
-                                        <span class="Num-ijo align-self-center">03</span>
+                                        <span class="Num-ijo align-self-center me-1">03</span>
                                         <span class="txt-1 text-center">BMI Analysis</span>
                                     </h4>
                                 </div>
@@ -163,7 +163,7 @@
                                 </div>
                             </div>
                         </div>
-                        <div class="card mt-5 mx-3 px-2">
+                        <div class="card-5 mt-5 mx-3 px-2">
                             <div class="row">
                                 <div class="col">
                                     <h4 class="d-flex align-items-center">
@@ -177,7 +177,7 @@
                                 </div>
                             </div>
                         </div>
-                        <div class="card mt-5 mx-3 px-2">
+                        <div class="card-5 mt-5 mx-3 px-2">
                             <div class="row">
                                 <div class="col">
                                     <h4 class="d-flex align-items-center">
@@ -221,6 +221,7 @@
                                 width="33%">Explore Recipes</a>
                         </div>
                     </div>
+                    {{-- Element Page 3 --}}
                     <div class="container col-12 d-flex flex-wrap justify-content-evenly">
                         <div class="card-1 m-3 px-2">
                             <div class="py-3 px-2 d-flex flex-column">
@@ -273,7 +274,7 @@
             <!-- Page 4 -->
             <div class="row min-vh-100 prg-1">
                 <div class="col-lg-7 col-6">
-                    <div class="col-lg-10 border col-12">
+                    <div class="col-lg-10 col-12">
                         <h1 class="pg3-h1 text-start fw-bold">Calculate Your Health Need</h1>
                     </div>
                     <h2 class="pg3-h2 text-start">Use NutriPlan’s calculator to estimate your BMI, calori needs, and
@@ -281,6 +282,7 @@
                     <a href="#" class="btn ijo text-white rounded-pill fw-bold mt-4" width="33%">Try
                         Calculator</a>
                 </div>
+                {{-- Panel Page 4 --}}
                 <div class="col-6 col-lg-5 d-flex flex-wrap justify-content-end">
                     <div class="card-2 position-relative d-flex flex-column p-3">
                         <h5 class="fw-bold text-center mb-4">Your Body Data</h5>
@@ -326,8 +328,78 @@
                 </div>
             </div>
             <!-- Page 5 -->
-            <div class="row min-vh-100 plg">
-                <div class="col-6"></div>
+            <div class="row min-vh-100">
+                <div class="col-6 d-flex flex-wrap justify-content-center">
+                    {{-- Panel Page 5 --}}
+                    <div class="card-4 d-flex flex-column px-4 py-3">
+                        <div class="d-flex align-items-start mb-2">
+                            <img src="{{ asset('img/clock-history.png') }}" alt=""
+                                class="clock-history img-fluid me-3">
+                            <h6 class="text-white fw-bold pt-1 mb-0">Views Today's Schedule</h6>
+                        </div>
+                        {{-- Kalender --}}
+                        <div class="p-2 w-100 pnl-pg5">
+                            <div class="d-flex align-items-center mb-2 justify-content-between">
+                                <p class="fw-bold txt-3 m-0">March 2026</p>
+                                <div class="d-flex align-items-center">
+                                    <p class="p-card2 elm px-2 me-1 mb-0">Today</p>
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16"
+                                        viewBox="0 0 16 16" fill="none" class="elm me-1 my-0">
+                                        <path d="M10 12L6 8L10 4" stroke="#0A0A0A" stroke-width="1.33333"
+                                            stroke-linecap="round" stroke-linejoin="round" />
+                                    </svg>
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16"
+                                        viewBox="0 0 16 16" fill="none" class="elm me-1 my-0">
+                                        <path d="M6 12L10 8L6 4" stroke="#0A0A0A" stroke-width="1.33333"
+                                            stroke-linecap="round" stroke-linejoin="round" />
+                                    </svg>
+                                </div>
+                            </div>
+                            <div class="d-flex justify-content-between flex-wrap mb-1">
+                                <div class="tgl-day d-flex align-items-center flex-column">
+                                    <p class="p-card3 m-0">S</p>
+                                    <p class="p-card2 m-0">15</p>
+                                </div>
+                                <div class="tgl-day d-flex align-items-center flex-column">
+                                    <p class="p-card3 m-0">M</p>
+                                    <p class="p-card2 m-0">16</p>
+                                </div>
+                                <div class="tgl-day d-flex align-items-center flex-column">
+                                    <p class="p-card3 m-0">T</p>
+                                    <p class="p-card2 m-0">17</p>
+                                </div>
+                                <div class="tgl-day d-flex align-items-center flex-column">
+                                    <p class="p-card3 m-0">W</p>
+                                    <p class="p-card2 m-0">18</p>
+                                </div>
+                                <div class="tgl-day1 d-flex align-items-center flex-column">
+                                    <p class="p-card3 text-white m-0">T</p>
+                                    <p class="p-card2 text-white m-0">19</p>
+                                </div>
+                                <div class="tgl-day d-flex align-items-center flex-column">
+                                    <p class="p-card3 m-0">F</p>
+                                    <p class="p-card2 m-0">20</p>
+                                </div>
+                                <div class="tgl-day d-flex align-items-center flex-column">
+                                    <p class="p-card3 m-0">S</p>
+                                    <p class="p-card2 m-0">21</p>
+                                </div>
+                            </div>
+                            <div class="d-flex justify-content-center">
+                                <p class="p-card3 m-0">Mar 15 - Mar 21</p>
+                            </div>
+                        </div>
+                        <div class="mt-3 border p-0 d-flex">
+                            <div class="checklist m-0 me-3 align-items-start"></div>
+                            <div class="d-flex flex-column">
+                                <h6 class="m-0 fw-bold text-white">08.00-08.30</h6>
+                                <h6 class="m-0 fw-bold text-white">Water Intake</h6>
+                            </div>
+
+                        </div>
+                    </div>
+
+                </div>
                 <div class="col-6">
                     <h1 class="pg3-h1 text-end fw-bold">Stay On Track With Your Meals</h1>
                     <h2 class="pg3-h2 text-end">NutriPlan makes it easy to plan and personalized your meals for the day
