@@ -445,7 +445,7 @@
                     <ul class="navbar-nav align-items-center mb-xl-0">
                         <li class="nav-item item">
                             <a class="btn text-center nav-link oren rounded-pill text-white px-5 fw-bold"
-                                href="#">Log In/Sign Up</a>
+                                href="{{ route('login') }}">Log In/Sign Up</a>
                         </li>
                     </ul>
                 </div>
