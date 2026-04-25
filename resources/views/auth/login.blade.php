@@ -52,18 +52,27 @@
 
         <h5 class="text-center mb-3">Welcome Back</h5>
 
-        <form>
+        {{-- ERROR MESSAGE --}}
+        @if(session('error'))
+            <div class="alert alert-danger">
+                {{ session('error') }}
+            </div>
+        @endif
+
+        <form method="POST" action="{{ route('login.process') }}">
+            @csrf
+
             <div class="mb-3">
                 <label>Email</label>
-                <input type="email" class="form-control rounded-pill">
+                <input type="email" name="email" class="form-control rounded-pill" required>
             </div>
 
             <div class="mb-3">
                 <label>Password</label>
-                <input type="password" class="form-control rounded-pill">
+                <input type="password" name="password" class="form-control rounded-pill" required>
             </div>
 
-            <button class="btn btn-ijo w-100 mt-3">Login</button>
+            <button type="submit" class="btn btn-ijo w-100 mt-3">Login</button>
         </form>
 
         <p class="text-center mt-3">

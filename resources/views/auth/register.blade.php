@@ -52,23 +52,32 @@
 
         <h5 class="text-center mb-3">Create Account</h5>
 
-        <form>
+        {{-- ALERT SUCCESS --}}
+        @if(session('success'))
+            <div class="alert alert-success">
+                {{ session('success') }}
+            </div>
+        @endif
+
+        <form method="POST" action="{{ route('register.process') }}">
+            @csrf
+
             <div class="mb-3">
                 <label>Name</label>
-                <input type="text" class="form-control rounded-pill">
+                <input type="text" name="name" class="form-control rounded-pill" required>
             </div>
 
             <div class="mb-3">
                 <label>Email</label>
-                <input type="email" class="form-control rounded-pill">
+                <input type="email" name="email" class="form-control rounded-pill" required>
             </div>
 
             <div class="mb-3">
                 <label>Password</label>
-                <input type="password" class="form-control rounded-pill">
+                <input type="password" name="password" class="form-control rounded-pill" required>
             </div>
 
-            <button class="btn btn-oren w-100 mt-3">Sign Up</button>
+            <button type="submit" class="btn btn-oren w-100 mt-3">Sign Up</button>
         </form>
 
         <p class="text-center mt-3">
