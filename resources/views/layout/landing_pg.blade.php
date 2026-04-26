@@ -4,398 +4,542 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="icon" type="image/png" href="{{ asset('img/logo.png') }}">
     <title>NutriPlan</title>
     <!-- Bootstrap -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet"
         integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
-    <link rel="stylesheet" href="{{ asset('style/style.css') }}">
     <style>
-            /* Font style */
+        /* Font style */
 
-    @font-face {
-        font-family: "SF Pro Display";
-        src: url("fonts/SFProDisplay-Regular.ttf") format("truetype");
-        font-weight: normal;
-        font-style: normal;
-    }
-
-    /* Styling element */
-
-    :root {
-        font-size: 16px;
-    }
-    body {
-        font-family: "SF Pro Display", sans-serif;
-    }
-    .navbar {
-        height: 5rem;
-        align-items: center;
-        backdrop-filter: blur(24px);
-        z-index: 1000;
-        top: 0;
-    }
-    .prg {
-        padding: 0 3vw;
-    }
-    .navbar-brand {
-        margin-left: 6vw;
-    }
-    #navbarSupportedContent {
-        width: 100%;
-    }
-    .konten {
-        animation: fadeIn 0.5s ease;
-    }
-    .row {
-        padding-top: 5rem;
-    }
-    .navbar-nav {
-        gap: 1rem;
-    }
-    .nutri {
-        color: #95cd41;
-        font-weight: bold;
-        font-size: 1.5rem;
-    }
-    .plan {
-        color: #ea5c2b;
-        font-weight: bold;
-        font-size: 1.5rem;
-    }
-    .ijo {
-        background-color: #95cd41;
-        transition: all 0.3s ease;
-    }
-    .ijo:hover {
-        background-color: #6e9c29;
-    }
-    .oren {
-        background-color: #ea5c2b;
-        transition: all 0.3s ease;
-    }
-    .oren:hover {
-        background-color: #cd4c22;
-    }
-    .nav-link {
-        font-size: 1rem;
-    }
-    .pg1-h1 {
-        color: #ffcc00;
-    }
-    h1 {
-        font-size: 2.9rem;
-    }
-    h2 {
-        color: #ffcc00;
-    }
-    .pg2-h1 {
-        text-align: center;
-        background: linear-gradient(90deg, #fc0 30%, #ff7f3f 100%);
-        background-clip: text;
-        -webkit-background-clip: text;
-        -webkit-text-fill-color: transparent;
-    }
-
-    .pg3-h1 {
-        text-align: center;
-        background: linear-gradient(90deg, #ea5c2b 0%, #ffcc00 80%);
-        background-clip: text;
-        -webkit-background-clip: text;
-        -webkit-text-fill-color: transparent;
-    }
-    .pg3-h2 {
-        color: black;
-        text-align: center;
-    }
-    .parag-homepage {
-        color: #ea5c2b;
-    }
-    .lat-blkg {
-        background: linear-gradient(to top right, #ffd8df, #f0ffdf);
-    }
-    .brokoli {
-        z-index: 2;
-        position: absolute;
-        top: 0;
-        right: 0;
-        transform: rotate(-12.98deg);
-        width: 80px;
-    }
-    .elip1 {
-        z-index: 1;
-        top: 8%;
-        right: 4%;
-        position: absolute;
-        width: 65px;
-    }
-    .plate {
-        position: absolute;
-        width: 350px;
-    }
-    .wortel {
-        position: absolute;
-        z-index: 2;
-        bottom: 2%;
-        left: 13%;
-        width: 80px;
-    }
-    .elip2 {
-        position: absolute;
-        z-index: 1;
-        bottom: 0;
-        left: 0;
-        width: 60px;
-    }
-    .protein {
-        width: 250px;
-        position: absolute;
-        top: 0;
-        left: 0;
-    }
-    .serat {
-        width: 320px;
-        position: absolute;
-        left: 0;
-        top: 0;
-    }
-    .wadah {
-        min-height: 350px;
-        max-height: 350px;
-    }
-    .jagung {
-        position: absolute;
-        z-index: 2;
-        right: 0;
-        bottom: 8%;
-        width: 90px;
-    }
-    .p-card {
-        font-size: 0.8rem;
-    }
-    .elip3 {
-        position: absolute;
-        z-index: 1;
-        bottom: 0;
-        right: 0;
-        width: 90px;
-    }
-    .card {
-        width: 13rem;
-        height: 15rem;
-        background: #f4e8b8;
-        box-shadow: 5px 5px 10px rgba(0, 0, 0, 0.25);
-        border-radius: 10px;
-    }
-    .card-1 {
-        width: 18rem;
-        min-height: 12rem;
-        background: #f0ffdf;
-        box-shadow: 5px 5px 10px rgba(0, 0, 0, 0.25);
-        border-radius: 10px;
-    }
-    .card-2 {
-        width: 18rem;
-        height: 28.5rem;
-        background: #fff;
-        box-shadow: 5px 5px 10px rgba(0, 0, 0, 0.25);
-        border-radius: 10px;
-        z-index: 1;
-    }
-    .card-3 {
-        width: 27rem;
-        height: 12rem;
-        border-radius: 10px;
-        border: 1px solid #000;
-        background: #fff;
-        box-shadow: 10px 10px 10px 0 rgba(0, 0, 0, 0.25);
-        z-index: 2;
-        right: 0;
-        bottom: 0;
-    }
-    .fw-500 {
-        font-weight: 500;
-    }
-    .scale-1 {
-        width: 25%;
-        height: 10px;
-        background: #95cd41;
-        border-radius: 10px;
-    }
-    .scale-2 {
-        width: 25%;
-        height: 10px;
-        background: #3cb12c;
-        border-radius: 10px;
-    }
-    .scale-3 {
-        width: 25%;
-        height: 10px;
-        background: #fb923c;
-        border-radius: 10px;
-    }
-    .scale-4 {
-        width: 25%;
-        height: 10px;
-        background: #e4680f;
-        border-radius: 10px;
-    }
-    .n1950 {
-        color: #f00;
-        font-style: normal;
-        font-weight: 700;
-        line-height: 15px;
-        font-size: 1.3rem;
-    }
-    .kcal {
-        color: #000;
-        font-style: normal;
-        font-weight: 700;
-        line-height: 15px;
-    }
-    .txt-1 {
-        color: #446611;
-        font-weight: 700;
-    }
-    .txt-2 {
-        color: #ea5c2b;
-        font-weight: 700;
-    }
-    .Num-ijo {
-        font-weight: 700;
-        background: #95cd41;
-        padding: 0 0.5rem;
-        border-radius: 200px;
-    }
-    .btn {
-        height: auto;
-        line-height: 1.2;
-    }
-    .Num-oren {
-        font-weight: 700;
-        background: #ea5c2b;
-        padding: 0 0.5rem;
-        border-radius: 200px;
-    }
-    .ktg-ijo {
-        background: #95cd41;
-        font-size: 0.625rem;
-        padding: 0 0.5rem;
-        border-radius: 5px;
-    }
-    .ktg-oren {
-        background: #ea5c2b;
-        font-size: 0.625rem;
-        padding: 0 0.5rem;
-        border-radius: 5px;
-    }
-    .prg-1 {
-        padding: 0 3vw;
-    }
-    /* Media breakpoint*/
-
-    @media (max-width: 1199px) {
-        #navbarSupportedContent {
-            position: absolute;
-            top: 5rem;
-            width: 100vw;
-            background-color: rgba(255, 255, 255, 0.7);
-            z-index: 1000;
+        @font-face {
+            font-family: "SF Pro Display";
+            src: url("fonts/SFProDisplay-Regular.ttf") format("truetype");
+            font-weight: normal;
+            font-style: normal;
         }
-        .navbar-collapse.show {
+
+        /* Styling element */
+
+        :root {
+            font-size: 16px;
+        }
+
+        body {
+            font-family: "SF Pro Display", sans-serif;
+        }
+
+        .navbar {
+            height: 5rem;
+            align-items: center;
             backdrop-filter: blur(24px);
-            -webkit-backdrop-filter: blur(24px);
-        }
-        .prg {
-            padding-right: 3vw;
-            min-height: calc(100vh - 5rem);
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-        }
-        .item {
-            margin: 0 auto;
-            width: 18.75rem;
-        }
-    }
-    @media (max-width: 576px) {
-        .brokoli {
-            top: 47%;
-            right: 6%;
-        }
-        .elip1 {
-            top: 50%;
-        }
-        .jagung {
-            bottom: 50%;
-            width: 50px;
-        }
-        .elip3 {
-            bottom: 45%;
-            width: 50px;
-        }
-        .wortel {
-            width: 90%;
-            left: 28%;
-            bottom: 2%;
-        }
-        .elip2 {
-            width: 70%;
-            left: 0;
-        }
-    }
-    @media (min-width: 577px) and (max-width: 767px) {
-        .brokoli {
-            top: 20%;
-            right: 8%;
-        }
-        .elip1 {
-            top: 22%;
-        }
-        .jagung {
-            width: 50%;
-            bottom: 30%;
-        }
-        .elip3 {
-            width: 50%;
-            bottom: 25%;
-        }
-    }
-    @media (max-width: 768px) {
-        .plate {
-            bottom: 0;
-            left: 0;
-        }
-        .cust-btn {
-            width: 200px;
-        }
-    }
-    @media screen and (min-width: 769px) and (max-width: 991px) {
-        .brokoli {
-            top: 4%;
-            right: 5%;
-            width: 70px;
-        }
-    }
-    .navbar-collapse {
-        margin-right: 3vw;
-    }
-    @media screen and (min-width: 769px) and (max-width: 1199px) {
-        .plate {
+            z-index: 1000;
             top: 0;
-            left: 0;
         }
-    }
-    @media (min-width: 1200px) {
-        .item {
+
+        .prg {
+            padding: 0 3vw;
+        }
+
+        .navbar-brand {
+            margin-left: 6vw;
+        }
+
+        #navbarSupportedContent {
             width: 100%;
         }
+
+        .konten {
+            animation: fadeIn 0.5s ease;
+        }
+
+        .row {
+            padding-top: 5rem;
+        }
+
+        .navbar-nav {
+            gap: 1rem;
+        }
+
+        .nutri {
+            color: #95cd41;
+            font-weight: bold;
+            font-size: 1.5rem;
+        }
+
+        .plan {
+            color: #ea5c2b;
+            font-weight: bold;
+            font-size: 1.5rem;
+        }
+
+        .ijo {
+            background-color: #95cd41;
+            transition: all 0.3s ease;
+        }
+
+        .ijo:hover {
+            background-color: #6e9c29;
+        }
+
+        .oren {
+            background-color: #ea5c2b;
+            transition: all 0.3s ease;
+        }
+
+        .oren:hover {
+            background-color: #cd4c22;
+        }
+
+        .nav-link {
+            font-size: 1rem;
+        }
+
+        .pg1-h1 {
+            color: #ffcc00;
+        }
+
+        h1 {
+            font-size: 2.9rem;
+        }
+
+        h2 {
+            color: #ffcc00;
+        }
+
+        .pg2-h1 {
+            text-align: center;
+            background: linear-gradient(90deg, #fc0 30%, #ff7f3f 100%);
+            background-clip: text;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .pg3-h1 {
+            text-align: center;
+            background: linear-gradient(90deg, #ea5c2b 0%, #ffcc00 80%);
+            background-clip: text;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .pg3-h2 {
+            color: black;
+            text-align: center;
+        }
+
+        .parag-homepage {
+            color: #ea5c2b;
+        }
+
+        .lat-blkg {
+            background: linear-gradient(to top right, #ffd8df, #f0ffdf);
+        }
+
+        .brokoli {
+            z-index: 2;
+            position: absolute;
+            top: 0;
+            right: 0;
+            transform: rotate(-12.98deg);
+            width: 80px;
+        }
+
+        .elip1 {
+            z-index: 1;
+            top: 8%;
+            right: 4%;
+            position: absolute;
+            width: 65px;
+        }
+
         .plate {
+            position: absolute;
+            width: 350px;
+        }
+
+        .wortel {
+            position: absolute;
+            z-index: 2;
+            bottom: 2%;
+            left: 13%;
+            width: 80px;
+        }
+
+        .elip2 {
+            position: absolute;
+            z-index: 1;
+            bottom: 0;
+            left: 0;
+            width: 60px;
+        }
+
+        .protein {
+            width: 250px;
+            position: absolute;
             top: 0;
             left: 0;
         }
-    }
+
+        .serat {
+            width: 320px;
+            position: absolute;
+            left: 0;
+            top: 0;
+        }
+
+        .wadah {
+            min-height: 350px;
+            max-height: 350px;
+        }
+
+        .jagung {
+            position: absolute;
+            z-index: 2;
+            right: 0;
+            bottom: 8%;
+            width: 90px;
+        }
+
+        .p-card {
+            font-size: 0.8rem;
+        }
+
+        .p-card2 {
+            font-size: 0.625rem;
+            font-weight: bold;
+        }
+
+        .p-card3 {
+            font-size: 0.5rem;
+            color: rgba(106, 114, 130, 1);
+        }
+
+        .tgl-day {
+            border-radius: 4px;
+            background: #f9fafb;
+            min-width: 13%;
+            padding-top: 2px;
+        }
+
+        .checklist {
+            width: 1rem;
+            height: 1rem;
+            border-radius: 6px;
+            border: 1px solid #000;
+            position: relative;
+        }
+
+        .checklist::after {
+            content: "";
+            background: #000;
+            height: 20px;
+            width: 20px;
+            top: 0;
+            left: 0;
+        }
+
+        .tgl-day1 {
+            border-radius: 4px;
+            background: rgba(43, 127, 255, 1);
+            min-width: 13%;
+            padding-top: 2px;
+        }
+
+        .elm {
+            border-radius: 8px;
+            border: 1px solid rgba(0, 0, 0, 0.1);
+        }
+
+        .elip3 {
+            position: absolute;
+            z-index: 1;
+            bottom: 0;
+            right: 0;
+            width: 90px;
+        }
+
+        .card-5 {
+            width: 13rem;
+            height: 15rem;
+            background: #f4e8b8;
+            box-shadow: 5px 5px 10px rgba(0, 0, 0, 0.25);
+            border-radius: 10px;
+        }
+
+        .card-1 {
+            width: 18rem;
+            min-height: 12rem;
+            background: #fff;
+            box-shadow: 5px 5px 10px rgba(0, 0, 0, 0.25);
+            border-radius: 10px;
+        }
+
+        .card-2 {
+            width: 18rem;
+            height: 28.5rem;
+            background: #fff;
+            box-shadow: 5px 5px 10px rgba(0, 0, 0, 0.25);
+            border-radius: 10px;
+            z-index: 1;
+        }
+
+        .card-3 {
+            width: 27rem;
+            height: 12rem;
+            border-radius: 10px;
+            border: 1px solid #000;
+            background: #fff;
+            box-shadow: 10px 10px 10px 0 rgba(0, 0, 0, 0.25);
+            z-index: 2;
+            right: 0;
+            bottom: 0;
+        }
+
+        .card-4 {
+            width: 20rem;
+            min-height: 35rem;
+            background: rgba(139, 136, 136, 1);
+            border-radius: 10px;
+            z-index: 1;
+        }
+
+        #planner {
+            padding-bottom: 5rem;
+        }
+
+        .pnl-pg5 {
+            background: white;
+            border-radius: 8px;
+        }
+
+        .clock-history {
+            width: 1.5rem;
+        }
+
+        .txt-3 {
+            color: black;
+            font-size: 0.75rem;
+        }
+
+        .fw-500 {
+            font-weight: 500;
+        }
+
+        .scale-1 {
+            width: 25%;
+            height: 10px;
+            background: #95cd41;
+            border-radius: 10px;
+        }
+
+        .scale-2 {
+            width: 25%;
+            height: 10px;
+            background: #3cb12c;
+            border-radius: 10px;
+        }
+
+        .scale-3 {
+            width: 25%;
+            height: 10px;
+            background: #fb923c;
+            border-radius: 10px;
+        }
+
+        .scale-4 {
+            width: 25%;
+            height: 10px;
+            background: #e4680f;
+            border-radius: 10px;
+        }
+
+        .n1950 {
+            color: #f00;
+            font-style: normal;
+            font-weight: 700;
+            line-height: 15px;
+            font-size: 1.3rem;
+        }
+
+        .kcal {
+            color: #000;
+            font-style: normal;
+            font-weight: 700;
+            line-height: 15px;
+        }
+
+        .txt-1 {
+            color: #446611;
+            font-weight: 700;
+        }
+
+        .txt-2 {
+            color: #ea5c2b;
+            font-weight: 700;
+        }
+
+        .Num-ijo {
+            font-weight: 700;
+            background: #95cd41;
+            padding: 0 0.5rem;
+            border-radius: 200px;
+        }
+
+        .btn {
+            height: auto;
+            line-height: 1.2;
+        }
+
+        .Num-oren {
+            font-weight: 700;
+            background: #ea5c2b;
+            padding: 0 0.5rem;
+            border-radius: 200px;
+        }
+
+        .ktg-ijo {
+            background: #95cd41;
+            font-size: 0.625rem;
+            padding: 0 0.5rem;
+            border-radius: 5px;
+        }
+
+        .ktg-oren {
+            background: #ea5c2b;
+            font-size: 0.625rem;
+            padding: 0 0.5rem;
+            border-radius: 5px;
+        }
+
+        .prg-1 {
+            padding: 0 3vw;
+        }
+
+        /* Media breakpoint*/
+
+        @media (max-width: 1199px) {
+            #navbarSupportedContent {
+                position: absolute;
+                top: 5rem;
+                width: 100vw;
+                background-color: rgba(255, 255, 255, 0.7);
+                z-index: 1000;
+            }
+
+            .navbar-collapse.show {
+                backdrop-filter: blur(24px);
+                -webkit-backdrop-filter: blur(24px);
+            }
+
+            .prg {
+                padding-right: 3vw;
+                min-height: calc(100vh - 5rem);
+                display: flex;
+                flex-direction: column;
+                justify-content: center;
+            }
+
+            .item {
+                margin: 0 auto;
+                width: 18.75rem;
+            }
+        }
+
+        @media (max-width: 576px) {
+            .brokoli {
+                top: 47%;
+                right: 6%;
+            }
+
+            .elip1 {
+                top: 50%;
+            }
+
+            .jagung {
+                bottom: 50%;
+                width: 50px;
+            }
+
+            .elip3 {
+                bottom: 45%;
+                width: 50px;
+            }
+
+            .wortel {
+                width: 90%;
+                left: 28%;
+                bottom: 2%;
+            }
+
+            .elip2 {
+                width: 70%;
+                left: 0;
+            }
+        }
+
+        @media (min-width: 577px) and (max-width: 767px) {
+            .brokoli {
+                top: 20%;
+                right: 8%;
+            }
+
+            .elip1 {
+                top: 22%;
+            }
+
+            .jagung {
+                width: 50%;
+                bottom: 30%;
+            }
+
+            .elip3 {
+                width: 50%;
+                bottom: 25%;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .plate {
+                bottom: 0;
+                left: 0;
+            }
+
+            .cust-btn {
+                width: 200px;
+            }
+        }
+
+        @media screen and (min-width: 769px) and (max-width: 991px) {
+            .brokoli {
+                top: 4%;
+                right: 5%;
+                width: 70px;
+            }
+        }
+
+        .navbar-collapse {
+            margin-right: 3vw;
+        }
+
+        @media screen and (min-width: 769px) and (max-width: 1199px) {
+            .plate {
+                top: 0;
+                left: 0;
+            }
+        }
+
+        @media (min-width: 1200px) {
+            .item {
+                width: 100%;
+            }
+
+            .plate {
+                top: 0;
+                left: 0;
+            }
+        }
     </style>
+
 </head>
 
 <body>
@@ -421,23 +565,23 @@
                     <ul class="navbar-nav mb-xl-0 align-items-center mb-3">
                         <li class="nav-item">
                             <a class="me-xl-2 btn text-center nav-link ijo rounded-pill text-white fw-bold item"
-                                aria-current="page" data-nutri="Index" href="#">Home</a>
+                                aria-current="page" data-nutri="Index" href="#home">Home</a>
                         </li>
                         <li class="nav-item">
                             <a class="mx-xl-2 btn text-center nav-link oren rounded-pill text-white fw-bold item"
-                                href="#">How It Works</a>
+                                href="#how-it-works">How It Works</a>
                         </li>
                         <li class="nav-item">
                             <a class="mx-xl-2 btn text-center nav-link ijo rounded-pill text-white fw-bold item"
-                                href="#">Recipes</a>
+                                href="#recipes">Recipes</a>
                         </li>
                         <li class="nav-item">
                             <a class="mx-xl-2 btn text-center nav-link oren rounded-pill text-white fw-bold item"
-                                href="#">Calculator</a>
+                                href="#calculator">Calculator</a>
                         </li>
                         <li class="nav-item">
                             <a class="mx-xl-2 btn text-center nav-link ijo rounded-pill text-white fw-bold item"
-                                href="#">Planner</a>
+                                href="#planner">Planner</a>
                         </li>
                     </ul>
                 </div>
@@ -454,7 +598,7 @@
     </nav>
     <main>
         <!-- Isi konten -->
-        <div class="container-fluid min-vh-100 lat-blkg px-4 konten" width="100%">
+        <div class="container-fluid min-vh-100 lat-blkg px-4 konten" id="home" width="100%">
             <!-- Page 1 -->
             <div class="row min-vh-100 align-items-center mb-5">
                 <!-- Paragraf -->
@@ -502,13 +646,13 @@
                 </div>
             </div>
             <!-- Page 2 -->
-            <div class="row min-vh-100">
+            <div class="row min-vh-100" id="how-it-works">
                 <div class="container col-12">
                     <h1 class="pg2-h1 fw-bold">How NutriPlan Works</h1>
                     <h2 class="text-center">From body data to personalized meals - everything is designed to help you
                         smarter and live healtier</h2>
                     <div class="container col-12 d-flex flex-wrap justify-content-evenly">
-                        <div class="card mt-5 mx-3 px-2">
+                        <div class="card-5 mt-5 mx-3 px-2">
                             <div class="row">
                                 <div class="col">
                                     <h4 class="d-flex align-items-center">
@@ -522,7 +666,7 @@
                                 </div>
                             </div>
                         </div>
-                        <div class="card mt-5 mx-3 px-2">
+                        <div class="card-5 mt-5 mx-3 px-2">
                             <div class="row">
                                 <div class="col-12">
                                     <h4 class="d-flex align-items-center">
@@ -536,11 +680,11 @@
                                 </div>
                             </div>
                         </div>
-                        <div class="card mt-5 mx-3 px-2">
+                        <div class="card-5 mt-5 mx-3 px-2">
                             <div class="row">
                                 <div class="col">
                                     <h4 class="d-flex align-items-center">
-                                        <span class="Num-ijo align-self-center">03</span>
+                                        <span class="Num-ijo align-self-center me-1">03</span>
                                         <span class="txt-1 text-center">BMI Analysis</span>
                                     </h4>
                                 </div>
@@ -550,7 +694,7 @@
                                 </div>
                             </div>
                         </div>
-                        <div class="card mt-5 mx-3 px-2">
+                        <div class="card-5 mt-5 mx-3 px-2">
                             <div class="row">
                                 <div class="col">
                                     <h4 class="d-flex align-items-center">
@@ -564,7 +708,7 @@
                                 </div>
                             </div>
                         </div>
-                        <div class="card mt-5 mx-3 px-2">
+                        <div class="card-5 mt-5 mx-3 px-2">
                             <div class="row">
                                 <div class="col">
                                     <h4 class="d-flex align-items-center">
@@ -597,7 +741,7 @@
 
             </div>
             <!-- Page 3 -->
-            <div class="row min-vh-100 mb-5">
+            <div class="row min-vh-100 mb-5" id="recipes">
                 <div class="container col-12 px-5">
                     <h1 class="pg3-h1 fw-bold">Explore Healthy Recipes</h1>
                     <h2 class="pg3-h2">Discover nutritions and delicious recipes tailored to your lifestyle. From quick
@@ -608,6 +752,7 @@
                                 width="33%">Explore Recipes</a>
                         </div>
                     </div>
+                    {{-- Element Page 3 --}}
                     <div class="container col-12 d-flex flex-wrap justify-content-evenly">
                         <div class="card-1 m-3 px-2">
                             <div class="py-3 px-2 d-flex flex-column">
@@ -658,9 +803,9 @@
                 </div>
             </div>
             <!-- Page 4 -->
-            <div class="row min-vh-100 prg-1">
+            <div class="row min-vh-100" id="calculator">
                 <div class="col-lg-7 col-6">
-                    <div class="col-lg-10 border col-12">
+                    <div class="col-lg-10 col-12">
                         <h1 class="pg3-h1 text-start fw-bold">Calculate Your Health Need</h1>
                     </div>
                     <h2 class="pg3-h2 text-start">Use NutriPlan’s calculator to estimate your BMI, calori needs, and
@@ -668,6 +813,7 @@
                     <a href="#" class="btn ijo text-white rounded-pill fw-bold mt-4" width="33%">Try
                         Calculator</a>
                 </div>
+                {{-- Panel Page 4 --}}
                 <div class="col-6 col-lg-5 d-flex flex-wrap justify-content-end">
                     <div class="card-2 position-relative d-flex flex-column p-3">
                         <h5 class="fw-bold text-center mb-4">Your Body Data</h5>
@@ -713,8 +859,133 @@
                 </div>
             </div>
             <!-- Page 5 -->
-            <div class="row min-vh-100 plg">
-                <div class="col-6"></div>
+            <div class="row min-vh-100" id="planner">
+                <div class="col-6 d-flex justify-content-center">
+                    {{-- Panel Page 5 --}}
+                    <div class="card-4 d-flex flex-column px-4 py-3">
+                        <div class="d-flex align-items-start mb-2">
+                            <img src="{{ asset('img/clock-history.png') }}" alt=""
+                                class="clock-history img-fluid me-3">
+                            <h6 class="text-white fw-bold pt-1 mb-0">Views Today's Schedule</h6>
+                        </div>
+                        {{-- Kalender --}}
+                        <div class="p-2 w-100 pnl-pg5">
+                            <div class="d-flex align-items-center mb-2 justify-content-between">
+                                <p class="fw-bold txt-3 m-0">March 2026</p>
+                                <div class="d-flex align-items-center">
+                                    <p class="p-card2 elm px-2 me-1 mb-0">Today</p>
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16"
+                                        viewBox="0 0 16 16" fill="none" class="elm me-1 my-0">
+                                        <path d="M10 12L6 8L10 4" stroke="#0A0A0A" stroke-width="1.33333"
+                                            stroke-linecap="round" stroke-linejoin="round" />
+                                    </svg>
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16"
+                                        viewBox="0 0 16 16" fill="none" class="elm me-1 my-0">
+                                        <path d="M6 12L10 8L6 4" stroke="#0A0A0A" stroke-width="1.33333"
+                                            stroke-linecap="round" stroke-linejoin="round" />
+                                    </svg>
+                                </div>
+                            </div>
+                            <div class="d-flex justify-content-between flex-wrap mb-1">
+                                <div class="tgl-day d-flex align-items-center flex-column">
+                                    <p class="p-card3 m-0">S</p>
+                                    <p class="p-card2 m-0">15</p>
+                                </div>
+                                <div class="tgl-day d-flex align-items-center flex-column">
+                                    <p class="p-card3 m-0">M</p>
+                                    <p class="p-card2 m-0">16</p>
+                                </div>
+                                <div class="tgl-day d-flex align-items-center flex-column">
+                                    <p class="p-card3 m-0">T</p>
+                                    <p class="p-card2 m-0">17</p>
+                                </div>
+                                <div class="tgl-day d-flex align-items-center flex-column">
+                                    <p class="p-card3 m-0">W</p>
+                                    <p class="p-card2 m-0">18</p>
+                                </div>
+                                <div class="tgl-day1 d-flex align-items-center flex-column">
+                                    <p class="p-card3 text-white m-0">T</p>
+                                    <p class="p-card2 text-white m-0">19</p>
+                                </div>
+                                <div class="tgl-day d-flex align-items-center flex-column">
+                                    <p class="p-card3 m-0">F</p>
+                                    <p class="p-card2 m-0">20</p>
+                                </div>
+                                <div class="tgl-day d-flex align-items-center flex-column">
+                                    <p class="p-card3 m-0">S</p>
+                                    <p class="p-card2 m-0">21</p>
+                                </div>
+                            </div>
+                            <div class="d-flex justify-content-center">
+                                <p class="p-card3 m-0">Mar 15 - Mar 21</p>
+                            </div>
+                        </div>
+                        <div class="mt-3 p-0 d-flex">
+                            <div class="checklist me-3 align-items-start"></div>
+                            <div class="d-flex flex-column">
+                                <h6 class="m-0 fw-bold text-white">08.00-08.10 AM</h6>
+                                <h6 class="m-0 fw-bold text-white">Water Intake</h6>
+                            </div>
+                        </div>
+                        <div class="mt-3 p-0 d-flex">
+                            <div class="checklist me-3 align-items-start"></div>
+                            <div class="d-flex flex-column">
+                                <h6 class="m-0 fw-bold text-white">08.00-08.30 AM</h6>
+                                <h6 class="m-0 fw-bold text-white">Avocado Toast With Poached Egg</h6>
+                                <p class="d-flex justify-content-start pt-2 ps-0 mb-0">
+                                    <span class="text-white me-2 fw-bold ktg-oren">Breakfast</span>
+                                    <span class="text-white me-2 fw-bold ktg-ijo">320 kcal</span>
+                                    <span class="text-white fw-bold ktg-oren">15 mins</span>
+                                </p>
+                            </div>
+                        </div>
+                        <div class="mt-3 p-0 d-flex">
+                            <div class="checklist me-3 align-items-start"></div>
+                            <div class="d-flex flex-column">
+                                <h6 class="m-0 fw-bold text-white">12.30-01.00 PM</h6>
+                                <h6 class="m-0 fw-bold text-white">Quinoa and Kale Salad with Lemon V...</h6>
+                                <p class="d-flex justify-content-start pt-2 ps-0 mb-0">
+                                    <span class="text-white me-2 fw-bold ktg-oren">Lunch</span>
+                                    <span class="text-white me-2 fw-bold ktg-ijo">450 kcal</span>
+                                    <span class="text-white fw-bold ktg-oren">20 mins</span>
+                                </p>
+                            </div>
+                        </div>
+                        <div class="mt-3 p-0 d-flex">
+                            <div class="checklist me-3 align-items-start"></div>
+                            <div class="d-flex flex-column">
+                                <h6 class="m-0 fw-bold text-white">01.00-01.10 PM</h6>
+                                <h6 class="m-0 fw-bold text-white">Water Intake</h6>
+                            </div>
+                        </div>
+                        <div class="mt-3 p-0 d-flex">
+                            <div class="checklist me-3 align-items-start"></div>
+                            <div class="d-flex flex-column">
+                                <h6 class="m-0 fw-bold text-white">04.00-04.30 PM</h6>
+                                <h6 class="m-0 fw-bold text-white">Workout (Strength training)</h6>
+                            </div>
+                        </div>
+                        <div class="mt-3 p-0 d-flex">
+                            <div class="checklist me-3 align-items-start"></div>
+                            <div class="d-flex flex-column">
+                                <h6 class="m-0 fw-bold text-white">07.00-07.30 PM</h6>
+                                <h6 class="m-0 fw-bold text-white">Avocado Toast with Poached Egg</h6>
+                                <p class="d-flex justify-content-start pt-2 ps-0 mb-0">
+                                    <span class="text-white me-2 fw-bold ktg-oren">Dinner</span>
+                                    <span class="text-white me-2 fw-bold ktg-ijo">320 kcal</span>
+                                    <span class="text-white fw-bold ktg-oren">20 mins</span>
+                                </p>
+                            </div>
+                        </div>
+                        <div class="mt-3 p-0 d-flex">
+                            <div class="checklist me-3 align-items-start"></div>
+                            <div class="d-flex flex-column">
+                                <h6 class="m-0 fw-bold text-white">07.00-07.10 PM</h6>
+                                <h6 class="m-0 fw-bold text-white">Water Intake</h6>
+                            </div>
+                        </div>
+                    </div>
+                </div>
                 <div class="col-6">
                     <h1 class="pg3-h1 text-end fw-bold">Stay On Track With Your Meals</h1>
                     <h2 class="pg3-h2 text-end">NutriPlan makes it easy to plan and personalized your meals for the day
@@ -737,5 +1008,4 @@
     <!-- Javascript -->
     <script src="script/script.js" defer></script>
 </body>
-
 </html>
