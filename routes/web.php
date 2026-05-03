@@ -1,9 +1,26 @@
 <?php
+
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
 
 Route::get('/', function () {
-    return view('layout.landing_pg');
+    return view('layout.home');
+});
+
+Route::get('/meal_plan', function () {
+    return view('layout.meal_plan');
+});
+
+Route::get('/analytic', function () {
+    return view('layout.analytic');
+});
+
+Route::get('/nutrition', function () {
+    return view('layout.nutrition');
+});
+
+Route::get('/recipes', function () {
+    return view('layout.recipes');
 });
 
 Route::get('/login', function () {
@@ -13,7 +30,7 @@ Route::get('/login', function () {
 Route::post('/login', [AuthController::class, 'login'])->name('login.process');
 
 Route::get('/register', function () {
-    return view('auth.register'); 
+    return view('auth.register');
 })->name('register');
 
 Route::post('/register', [AuthController::class, 'register'])->name('register.process');
@@ -24,7 +41,7 @@ Route::get('/home', function () {
         return redirect('/login');
     }
 
-    return view('layout.home'); 
+    return view('layout.home');
 })->name('home');
 
 // LOGOUT
