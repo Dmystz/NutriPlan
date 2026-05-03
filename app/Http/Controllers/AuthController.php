@@ -1,5 +1,4 @@
 <?php
-
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
@@ -10,41 +9,44 @@ class AuthController extends Controller
 {
     public function register(Request $request)
     {
-        // validasi basic
         $request->validate([
-            'name' => 'required',
-            'email' => 'required|email|unique:users',
+            'name'     => 'required',
+            'email'    => 'required|email|unique:users',
             'password' => 'required|min:6'
         ]);
 
-        // insert ke database
         DB::table('users')->insert([
-            'name' => $request->name,
-            'email' => $request->email,
-            'password' => Hash::make($request->password),
+            'name'       => $request->name,
+            'email'      => $request->email,
+            'password'   => Hash::make($request->password),
             'created_at' => now(),
             'updated_at' => now()
         ]);
 
-        return redirect()->route('register')->with('success', 'Register berhasil!');
+        return redirect()->route('login')->with('success', 'Register berhasil! Silakan login.');
     }
+
     public function login(Request $request)
     {
-    $user = DB::table('users')
-        ->where('email', $request->email)
-        ->first();
-
-    if ($user && Hash::check($request->password, $user->password)) {
-
-        // simpan session
-        session([
-            'user_id' => $user->id,
-            'user_name' => $user->name
+        $request->validate([
+            'email'    => 'required|email',
+            'password' => 'required'
         ]);
 
-        return redirect()->route('home');
-    }
+        $user = DB::table('users')
+            ->where('email', $request->email)
+            ->first();
 
-    return back()->with('error', 'Email atau password salah!');
+        if ($user && Hash::check($request->password, $user->password)) {
+            $request->session()->regenerate();
+            session([
+                'user_id'    => $user->id,
+                'user_name'  => $user->name,
+                'user_email' => $user->email,
+            ]);
+            return redirect()->route('home');
+        }
+
+        return back()->with('error', 'Email atau password salah!');
     }
 }
