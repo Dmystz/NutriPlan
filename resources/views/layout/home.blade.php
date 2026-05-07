@@ -1,6 +1,8 @@
 @extends('layout.layout')
 
 {{-- Section homepage --}}
+{{-- Test buat push --}}
+{{-- Test lagi --}}
 
 @section('title', 'Homepage')
 @section('content')
