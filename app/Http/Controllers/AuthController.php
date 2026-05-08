@@ -1,4 +1,5 @@
 <?php
+
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
@@ -9,18 +10,31 @@ class AuthController extends Controller
 {
     public function register(Request $request)
     {
+        // Validasi input
         $request->validate([
-            'name'     => 'required',
-            'email'    => 'required|email|unique:users',
-            'password' => 'required|min:6'
+            'name'         => 'required',
+            'email'        => 'required|email|unique:users',
+            'password'     => 'required|min:6',
+            'umur'         => 'required|numeric',
+            'berat_badan'  => 'required|numeric',
+            'tinggi_badan' => 'required|numeric',
+        ], [], [
+            // Custom name agar error message rapi (misal: "The weight field is required")
+            'umur'         => 'age',
+            'berat_badan'  => 'weight',
+            'tinggi_badan' => 'height',
         ]);
 
+        // Proses Simpan ke Database
         DB::table('users')->insert([
-            'name'       => $request->name,
-            'email'      => $request->email,
-            'password'   => Hash::make($request->password),
-            'created_at' => now(),
-            'updated_at' => now()
+            'name'         => $request->name,
+            'email'        => $request->email,
+            'password'     => Hash::make($request->password),
+            'umur'         => $request->umur,
+            'berat_badan'  => $request->berat_badan,
+            'tinggi_badan' => $request->tinggi_badan,
+            'created_at'   => now(),
+            'updated_at'   => now()
         ]);
 
         return redirect()->route('login')->with('success', 'Register berhasil! Silakan login.');
@@ -39,11 +53,13 @@ class AuthController extends Controller
 
         if ($user && Hash::check($request->password, $user->password)) {
             $request->session()->regenerate();
+            
             session([
                 'user_id'    => $user->id,
                 'user_name'  => $user->name,
                 'user_email' => $user->email,
             ]);
+            
             return redirect()->route('home');
         }
 

@@ -1,4 +1,6 @@
+{{-- Opsi increment (+) atau decrement (-) bebas buat tiap template, misal water per increment/decrement 200 ml --}}
 <div class="daily-list gap-2 p-1">
+    {{-- ini untuk template carbs --}}
     <div class="container-content-daily p-2">
         <div class="row g-0 p-0 m-0">
             <div class="col-1 m-0 p-0 pt-1">
@@ -189,6 +191,49 @@
                 {{-- tiap elemen ini dinamis sesuai progress bar --}}
                 <p class="p-0 m-0 p-card-daily text-muted">14 g left</p>
                 <p class="p-0 m-0 p-card-daily text-muted">77%</p>
+            </div>
+        </div>
+    </div>
+    {{-- ini untuk template water --}}
+    <div class="container-content-daily p-2">
+        <div class="row g-0 p-0 m-0">
+            <div class="col-1 m-0 p-0 pt-1">
+                <div class="water-icon-daily"></div>
+            </div>
+            <div class="col-7 ps-1">
+                <p class="p-0 m-0 p-card-daily fw-bold">Water</p>
+                {{-- Ukuran maks dari karbo harian bisa disesuaikan dahulu --}}
+                <p class="p-0 m-0 p-card-daily text-muted">1500 / 2000 ml</p>
+            </div>
+            <div class="col-4">
+                <div class="align-items-center d-flex justify-content-end h-100 gap-2">
+                    <button class="btn-daily p-0 m-0">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 12 12"
+                            fill="none">
+                            <path d="M2.5 6H9.5" stroke="#4A5565" stroke-linecap="round" stroke-linejoin="round" />
+                        </svg>
+                    </button>
+                    <div class="button btn-daily p-0 m-0">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 12 12"
+                            fill="none">
+                            <path d="M2.5 6H9.5" stroke="#4A5565" stroke-linecap="round" stroke-linejoin="round" />
+                            <path d="M6 2.5V9.5" stroke="#4A5565" stroke-linecap="round" stroke-linejoin="round" />
+                        </svg>
+                    </div>
+                </div>
+            </div>
+            <div class="col-12">
+                {{-- Ini buat progress bar di card daily, modifnya ada di width buat progress barnya (progress-bar-daily), aria value itu buat nilai target user --}}
+                <div class="progress-daily">
+                    <div class="progress-bar-daily-water" role="progressbar" style="width: 75%" aria-valuenow="1500"
+                        aria-valuemin="0" aria-valuemax="2000">
+                    </div>
+                </div>
+            </div>
+            <div class="col-12 d-flex justify-content-between">
+                {{-- tiap elemen ini dinamis sesuai progress bar --}}
+                <p class="p-0 m-0 p-card-daily text-muted">500 ml left</p>
+                <p class="p-0 m-0 p-card-daily text-muted">75%</p>
             </div>
         </div>
     </div>
