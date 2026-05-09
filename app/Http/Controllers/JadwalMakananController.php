@@ -2,52 +2,45 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\JadwalMakanan;
 use Illuminate\Http\Request;
+use App\Models\Jadwalmakanan;
 
 class JadwalMakananController extends Controller
 {
     public function index()
     {
-        return response()->json(JadwalMakanan::with(['planner', 'katalogResep'])->get());
-    }
+        $mealplans = Jadwalmakanan::with('recipe')->get();
 
-    public function show($id)
-    {
-        $jadwal = JadwalMakanan::with(['planner.user', 'katalogResep'])->findOrFail($id);
-        return response()->json($jadwal);
+        return view(
+            'layout.meal_plan',
+            compact('mealplans')
+        );
     }
 
     public function store(Request $request)
     {
         $validated = $request->validate([
-            'planner_id'       => 'required|exists:planners,id',
-            'katalog_resep_id' => 'required|exists:katalog_resep,id',
-            'tanggal_kalender' => 'required|date',
-            'goals'            => 'nullable|string',
+            'katalog_resep_id' => 'required',
+            'tanggal' => 'required|date',
+            'meal_type' => 'required'
         ]);
 
-        $jadwal = JadwalMakanan::create($validated);
-        return response()->json($jadwal, 201);
-    }
-
-    public function update(Request $request, $id)
-    {
-        $jadwal = JadwalMakanan::findOrFail($id);
-
-        $validated = $request->validate([
-            'katalog_resep_id' => 'sometimes|exists:katalog_resep,id',
-            'tanggal_kalender' => 'sometimes|date',
-            'goals'            => 'nullable|string',
+        Jadwalmakanan::create([
+            'katalog_resep_id' => $request->katalog_resep_id,
+            'tanggal' => $request->tanggal,
+            'meal_type' => $request->meal_type,
+            'user_id' => session('user_id')
         ]);
 
-        $jadwal->update($validated);
-        return response()->json($jadwal);
+        return redirect('/meal_plan')
+            ->with('success', 'Meal plan added');
     }
 
     public function destroy($id)
     {
-        JadwalMakanan::findOrFail($id)->delete();
-        return response()->json(['message' => 'Jadwal berhasil dihapus']);
+        Jadwalmakanan::findOrFail($id)->delete();
+
+        return redirect('/meal_plan')
+            ->with('success', 'Meal plan deleted');
     }
 }

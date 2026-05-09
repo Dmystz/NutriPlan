@@ -26,7 +26,7 @@ class AuthController extends Controller
         ]);
 
         // Proses Simpan ke Database
-        DB::table('users')->insert([
+        $userId = DB::table('users')->insertGetId([
             'name'         => $request->name,
             'email'        => $request->email,
             'password'     => Hash::make($request->password),
@@ -35,6 +35,11 @@ class AuthController extends Controller
             'tinggi_badan' => $request->tinggi_badan,
             'created_at'   => now(),
             'updated_at'   => now()
+        ]);
+        DB::table('planners')->insert([
+        'user_id'    => $userId, // Menghubungkan ke user yang baru daftar
+        'created_at' => now(),
+        'updated_at' => now()
         ]);
 
         return redirect()->route('login')->with('success', 'Register berhasil! Silakan login.');
