@@ -24,7 +24,9 @@ class AuthController extends Controller
             'umur'         => 'required|numeric|min:1|max:120',
             'berat_badan'  => 'required|numeric|min:10|max:500',
             'tinggi_badan' => 'required|numeric|min:50|max:300',
-            'jenis_kelamin'=> 'nullable|in:male,female',
+            'jenis_kelamin' => $request->jenis_kelamin == 'Perempuan'
+                                ? 'Perempuan'
+                                : 'Laki-laki',
             'target'       => 'nullable|in:maintenance,loss,gain',
         ], [], [
             'name'         => 'Name',
@@ -42,7 +44,7 @@ class AuthController extends Controller
             'umur'          => $request->umur,
             'berat_badan'   => $request->berat_badan,
             'tinggi_badan'  => $request->tinggi_badan,
-            'jenis_kelamin' => $request->jenis_kelamin ?? 'male',
+            'jenis_kelamin' => $request->jenis_kelamin ?? 'Laki-laki',
             'target'        => $request->target        ?? 'maintenance',
             'activity_level'=> 1.55,
         ]);
