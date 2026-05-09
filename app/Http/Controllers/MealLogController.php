@@ -115,23 +115,37 @@ class MealLogController extends Controller
         $userId  = $this->userId();
         $logDate = $validated['log_date'] ?? now()->toDateString();
 
+        // ambil food kalau ada
+        $food = null;
+
+        if (!empty($validated['food_id'])) {
+            $food = \App\Models\Food::find($validated['food_id']);
+        }
+
         $log = MealLog::create([
-            'user_id'   => $userId,
-            'food_id'   => $validated['food_id']  ?? null,
-            'name'      => $validated['name'],
-            'category'  => $validated['category'],
-            'meal_slot' => $validated['meal_slot'],
-            'meal_time' => $validated['meal_time'] ?? null,
-            'servings'  => $validated['servings'],
-            'calories'  => $validated['calories'],
-            'protein'   => $validated['protein'],
-            'carbs'     => $validated['carbs'],
-            'fat'       => $validated['fat'],
-            'log_date'  => $logDate,
+            'user_id'    => $userId,
+
+            'food_id'    => $validated['food_id'] ?? null,
+
+            'name'       => $validated['name'],
+
+            // TAMBAHAN
+            'emoji'      => $food?->emoji,
+            'image_path' => $food?->image_path,
+
+            'category'   => $validated['category'],
+            'meal_slot'  => $validated['meal_slot'],
+            'meal_time'  => $validated['meal_time'] ?? null,
+            'servings'   => $validated['servings'],
+
+            'calories'   => $validated['calories'],
+            'protein'    => $validated['protein'],
+            'carbs'      => $validated['carbs'],
+            'fat'        => $validated['fat'],
+
+            'log_date'   => $logDate,
         ]);
 
-        // Kembalikan totals terbaru agar JS bisa langsung
-        // update panel Nutrition Summary tanpa reload
         return response()->json([
             'message' => 'Meal berhasil ditambahkan.',
             'log'     => $log,

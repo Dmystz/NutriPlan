@@ -14,6 +14,8 @@ class MealLog extends Model
         'user_id',
         'food_id',
         'name',
+        'emoji',
+        'image_path',
         'category',
         'meal_slot',
         'meal_time',
@@ -90,14 +92,19 @@ class MealLog extends Model
     public static function groupedBySlot(int $userId, string $date): array
     {
         $slots = ['Breakfast', 'Snack', 'Lunch', 'Dinner'];
-        $logs  = static::forUser($userId)
+
+        $logs = static::with('food')
+            ->forUser($userId)
             ->forDate($date)
             ->orderBy('meal_time')
             ->get();
 
         $grouped = [];
+
         foreach ($slots as $slot) {
-            $grouped[$slot] = $logs->where('meal_slot', $slot)->values();
+            $grouped[$slot] = $logs
+                ->where('meal_slot', $slot)
+                ->values();
         }
 
         return $grouped;

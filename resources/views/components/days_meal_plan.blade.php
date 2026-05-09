@@ -420,13 +420,18 @@
                         </div>
                         <div class="d-flex align-items-center gap-2">
                             <div style="flex-shrink:0;">
-                                ${log.food?.image_url
-                                    ? `<img src="${log.food.image_url}" alt="${log.name}"
+                                ${log.image_path
+                                    ? `<img src="${log.image_path}" alt="${log.name}"
                                             style="width:40px;height:40px;border-radius:10px;object-fit:cover;"
                                             onerror="this.style.display='none'">`
                                     : `<div style="width:40px;height:40px;border-radius:10px;
-                                            background:rgba(0,0,0,0.04);display:flex;align-items:center;
-                                            justify-content:center;font-size:1.2rem;">🍽️</div>`
+                                            background:rgba(0,0,0,0.04);
+                                            display:flex;
+                                            align-items:center;
+                                            justify-content:center;
+                                            font-size:1.2rem;">
+                                            ${log.emoji ?? '🍽️'}
+                                    </div>`
                                 }
                             </div>
                             <div class="flex-grow-1">
