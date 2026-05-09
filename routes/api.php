@@ -1,24 +1,29 @@
 <?php
-// ─────────────────────────────────────────────
-// Tambahkan ke: routes/api.php
-// ─────────────────────────────────────────────
 
-use App\Http\Controllers\FoodController;
+use Illuminate\Support\Facades\Route;
+
 use App\Http\Controllers\MealLogController;
+use App\Http\Controllers\FoodController;
+use App\Http\Controllers\MealPlanController;
 
-Route::get('/foods', [FoodController::class, 'index']);
-Route::post('/meal-logs', [MealLogController::class, 'store']);
-Route::get('/meal-logs', [MealLogController::class, 'index']);
-// Publik – dipakai modal (tanpa auth)
+/*
+|--------------------------------------------------------------------------
+| API Routes
+|--------------------------------------------------------------------------
+*/
 
-// Admin – butuh auth / middleware admin
-Route::middleware(['auth', 'role:admin'])->group(function () {
-    Route::post('/admin/foods',           [FoodController::class, 'store']);
-    Route::put('/admin/foods/{food}',     [FoodController::class, 'update']);
-    Route::delete('/admin/foods/{food}',  [FoodController::class, 'destroy']);
+Route::middleware(['web', 'auth.custom'])->group(function () {
+
+    Route::get('/foods', [FoodController::class, 'index']);
+
+    Route::get('/meal-logs/summary', [MealLogController::class, 'summary']);
+
+    Route::get('/meal-logs', [MealLogController::class, 'index']);
+    Route::post('/meal-logs', [MealLogController::class, 'store']);
+    Route::get('/meal-logs/{id}', [MealLogController::class, 'show']);
+    Route::put('/meal-logs/{id}', [MealLogController::class, 'update']);
+    Route::delete('/meal-logs/{id}', [MealLogController::class, 'destroy']);
+
+    Route::get('/meal-plan/day', [MealPlanController::class, 'dayData']);
+
 });
-
-// ─────────────────────────────────────────────
-// Jangan lupa jalankan perintah ini sekali:
-// php artisan storage:link
-// ─────────────────────────────────────────────

@@ -2,7 +2,7 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Jadwalmakanan;
+use App\Models\JadwalMakanan;
 use App\Models\Katalogresep;
 use App\Models\User;
 use Illuminate\Http\Request;

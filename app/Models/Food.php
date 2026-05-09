@@ -2,53 +2,65 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Support\Facades\Storage;
 
 class Food extends Model
 {
-    protected $table = 'foods';  // ← tambahkan baris ini
-    
+    use HasFactory;
+
+    protected $table = 'foods';
+
     protected $fillable = [
-        'name', 'emoji', 'image_path', 'category',
-        'calories', 'protein', 'carbs', 'fat',
-        'description', 'is_active',
+        'name',
+        'emoji',
+        'image_path',
+        'category',
+        'calories',
+        'protein',
+        'carbs',
+        'fat',
+        'description',
+        'is_active',
     ];
 
     protected $casts = [
-        'calories' => 'integer',
-        'protein'  => 'float',
-        'carbs'    => 'float',
-        'fat'      => 'float',
-        'is_active'=> 'boolean',
+        'calories'  => 'integer',
+        'protein'   => 'float',
+        'carbs'     => 'float',
+        'fat'       => 'float',
+        'is_active' => 'boolean',
     ];
 
-    // ── Accessor: URL gambar (pakai emoji jika tidak ada gambar) ──
-    protected function imageUrl(): Attribute
+    protected $appends = ['image_url'];
+
+    public function getImageUrlAttribute(): ?string
     {
-        return Attribute::make(
-            get: fn () => $this->image_path
-                ? Storage::url($this->image_path)   // /storage/foods/xxx.jpg
-                : null,
-        );
+        if ($this->image_path) {
+            return Storage::url($this->image_path);
+        }
+
+        return null;
     }
 
-    // ── Scope: filter by category ──
-    public function scopeCategory($query, string $category)
+    public function scopeActive($query)
+    {
+        return $query->where('is_active', true);
+    }
+
+    public function scopeByCategory($query, string $category)
     {
         return $query->where('category', $category);
     }
 
-    // ── Scope: search by name ──
-    public function scopeSearch($query, string $keyword)
+    public function scopeSearch($query, string $term)
     {
-        return $query->where('name', 'like', "%{$keyword}%");
+        return $query->where('name', 'like', '%' . $term . '%');
     }
 
-    // ── Scope: hanya yang aktif ──
-    public function scopeActive($query)
+    public function mealLogs()
     {
-        return $query->where('is_active', true);
+        return $this->hasMany(MealLog::class);
     }
 }
