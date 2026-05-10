@@ -274,7 +274,7 @@
             @endif
 
             {{-- Google Sign-Up --}}
-            <a href="#" class="btn-google">
+            <a href="{{ route('auth.google') }}" class="btn-google">
                 <svg width="20" height="20" viewBox="0 0 48 48" xmlns="http://www.w3.org/2000/svg">
                     <path fill="#FFC107"
                         d="M43.6 20.5H42V20H24v8h11.3C33.7 32.3 29.3 35 24 35c-6.1 0-11-4.9-11-11s4.9-11 11-11c2.8 0 5.3 1 7.2 2.7l5.7-5.7C33.4 7.5 28.9 5.5 24 5.5 13.2 5.5 4.5 14.2 4.5 25S13.2 44.5 24 44.5 43.5 35.8 43.5 25c0-1.5-.2-3-.5-4.5h.6z" />

@@ -6,6 +6,7 @@ use App\Http\Controllers\JadwalMakananController;
 use App\Http\Controllers\KatalogResepController;
 use App\Http\Controllers\MealPlanController;      
 use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\GoogleController;
 
 /* ══════════════════════════════════════════════════════════
    PUBLIC — tidak perlu login
@@ -32,6 +33,12 @@ Route::post('/logout', function () {
     session()->flush();
     return redirect()->route('landing');
 })->name('logout');
+
+Route::get('/auth/google',          [GoogleController::class, 'redirect'])->name('auth.google');
+Route::get('/auth/google/callback', [GoogleController::class, 'callback'])->name('auth.google.callback');
+
+Route::get('/complete-profile',  [ProfileController::class, 'showComplete'])->name('profile.complete');
+Route::post('/complete-profile', [ProfileController::class, 'complete'])    ->name('profile.complete.store');
 
 /* ══════════════════════════════════════════════════════════
    PROTECTED — wajib login (session-based, bukan Sanctum)
