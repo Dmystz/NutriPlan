@@ -101,7 +101,7 @@
                                     <path d="M11.5 2.75748L10.354 2.98892C7.72731 3.51942 5.75003 5.84291 5.75003 8.625C5.75003 9.5275 5.55688 11.7835 5.09041 14.0044C4.85884 15.1068 4.54903 16.2547 4.13726 17.25H18.8627C18.451 16.2547 18.1412 15.1068 17.9096 14.0043C17.4432 11.7835 17.25 9.52749 17.25 8.625C17.25 5.84289 15.2727 3.51939 12.646 2.98891L11.5 2.75748ZM20.4403 17.25C20.7612 17.8931 21.1334 18.4014 21.5625 18.6875H1.4375C1.86663 18.4014 2.23883 17.8931 2.55976 17.25C3.85138 14.6616 4.31253 9.88879 4.31253 8.625C4.31253 5.1453 6.78529 2.24314 10.0695 1.57987C10.0649 1.53304 10.0625 1.48554 10.0625 1.4375C10.0625 0.643591 10.7061 0 11.5 0C12.2939 0 12.9375 0.643591 12.9375 1.4375C12.9375 1.48554 12.9351 1.53303 12.9305 1.57986C16.2147 2.24311 18.6875 5.14528 18.6875 8.625C18.6875 9.88879 19.1486 14.6616 20.4403 17.25Z" fill="white" /></svg></span>
                             </a>
 
-                            {{-- ── Avatar navbar: tampilkan foto jika ada, selain itu inisial ── --}}
+                            {{-- Avatar navbar: klik → buka profileModal --}}
                             <a class="btn text-center nav-link oren-bunder me-2 flex-grow-0 p-0 overflow-hidden" href="#"
                                 data-bs-toggle="modal" data-bs-target="#profileModal"
                                 style="width:38px; height:38px; display:flex; align-items:center; justify-content:center;
@@ -140,7 +140,7 @@
     {{-- Bootstrap --}}
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
 
-    {{-- Profile Modal --}}
+    {{-- Styles --}}
     <style>
         .profile-modal-content {
             border-radius: 18px;
@@ -166,6 +166,12 @@
             color: #fff;
             border: 3px solid rgba(255, 255, 255, 0.6);
             overflow: hidden;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+        .profile-avatar:hover {
+            transform: scale(1.08);
+            box-shadow: 0 0 0 4px rgba(255,255,255,0.5);
         }
         .profile-info-box {
             border-radius: 12px;
@@ -239,17 +245,21 @@
         }
     </style>
 
+    {{-- Profile Modal --}}
     <div class="modal fade" id="profileModal" tabindex="-1" aria-labelledby="profileModalLabel" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered" style="max-width:340px;">
             <div class="modal-content profile-modal-content">
 
-                {{-- Header --}}
                 <div class="profile-modal-header">
                     <button type="button" class="btn-close btn-close-white float-end"
                         data-bs-dismiss="modal" aria-label="Close"></button>
                     <div class="text-center mt-2">
-                        {{-- Avatar: foto jika ada, selain itu inisial --}}
-                        <div class="profile-avatar">
+
+                        {{-- Klik foto → buka preview besar --}}
+                        <div class="profile-avatar"
+                             data-bs-toggle="modal"
+                             data-bs-target="#photoPreviewModal"
+                             title="Lihat foto">
                             @if(session('user_photo'))
                                 <img src="{{ asset('storage/' . session('user_photo')) }}"
                                      style="width:64px;height:64px;object-fit:cover;"
@@ -258,6 +268,7 @@
                                 {{ strtoupper(substr(session('user_name') ?? (session('name') ?? '?'), 0, 1)) }}
                             @endif
                         </div>
+
                         <h6 class="fw-bold text-white mb-0">{{ session('user_name', '-') }}</h6>
                         <p class="mb-0" style="color:rgba(255,255,255,0.85); font-size:0.8rem;">
                             {{ session('user_email', '-') }}
@@ -265,7 +276,6 @@
                     </div>
                 </div>
 
-                {{-- Body --}}
                 <div class="modal-body p-0">
                     <div class="profile-body">
                         <div class="profile-info-box">
@@ -296,6 +306,44 @@
                             <button type="submit" class="btn-logout-profile">Logout</button>
                         </form>
                     </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    {{-- Photo Preview Modal --}}
+    <div class="modal fade" id="photoPreviewModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered" style="max-width:320px;">
+            <div class="modal-content" style="border:none; background:transparent; box-shadow:none;">
+                <div class="position-relative text-center">
+                    <button type="button" class="btn-close btn-close-white position-absolute"
+                        data-bs-dismiss="modal" aria-label="Close"
+                        style="top:-10px; right:-10px; background-color:rgba(0,0,0,0.5);
+                               border-radius:50%; padding:0.5rem; z-index:10;">
+                    </button>
+                    @if(session('user_photo'))
+                        <img src="{{ asset('storage/' . session('user_photo')) }}"
+                             style="width:280px; height:280px; object-fit:cover; border-radius:50%;
+                                    border:4px solid white; box-shadow:0 8px 32px rgba(0,0,0,0.4);"
+                             alt="foto profil">
+                    @else
+                        <div style="width:280px; height:280px; border-radius:50%;
+                                    background:linear-gradient(135deg,#95cd41,#ea5c2b);
+                                    display:flex; align-items:center; justify-content:center;
+                                    font-size:5rem; font-weight:800; color:white;
+                                    border:4px solid white; box-shadow:0 8px 32px rgba(0,0,0,0.4);
+                                    margin:auto;">
+                            {{ strtoupper(substr(session('user_name') ?? '?', 0, 1)) }}
+                        </div>
+                    @endif
+                    <p class="fw-bold text-white mt-3 mb-0"
+                       style="font-size:1.1rem; text-shadow:0 2px 8px rgba(0,0,0,0.5);">
+                        {{ session('user_name', '-') }}
+                    </p>
+                    <p style="color:rgba(255,255,255,0.85); font-size:0.85rem;
+                              text-shadow:0 2px 8px rgba(0,0,0,0.5);">
+                        {{ session('user_email', '-') }}
+                    </p>
                 </div>
             </div>
         </div>
