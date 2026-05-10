@@ -5,6 +5,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\MealLogController;
 use App\Http\Controllers\FoodController;
 use App\Http\Controllers\MealPlanController;
+use App\Http\Controllers\KatalogResepController;
 
 /*
 |--------------------------------------------------------------------------
@@ -25,5 +26,20 @@ Route::middleware(['web', 'auth.custom'])->group(function () {
     Route::delete('/meal-logs/{id}', [MealLogController::class, 'destroy']);
 
     Route::get('/meal-plan/day', [MealPlanController::class, 'dayData']);
-
+    Route::prefix('recipes')->group(function () {
+ 
+    // Section cards (Recommended & Popular) — dipanggil JS saat blade load
+    Route::get('/recommended', [KatalogResepController::class, 'recommended']);
+    Route::get('/popular',     [KatalogResepController::class, 'popular']);
+ 
+    // "Your Recipes" modal / halaman
+    Route::get('/mine',        [KatalogResepController::class, 'mine']);
+ 
+    // CRUD lengkap
+    Route::get('/',            [KatalogResepController::class, 'apiIndex']);   // GET  /api/recipes?search=&meal_type=
+    Route::post('/',           [KatalogResepController::class, 'store']);      // POST /api/recipes
+    Route::get('/{id}',        [KatalogResepController::class, 'show']);       // GET  /api/recipes/{id}
+    Route::put('/{id}',        [KatalogResepController::class, 'update']);     // PUT  /api/recipes/{id}
+    Route::delete('/{id}',     [KatalogResepController::class, 'destroy']);    // DEL  /api/recipes/{id}
+});
 });

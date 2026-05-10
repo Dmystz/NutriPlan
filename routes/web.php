@@ -4,7 +4,8 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\JadwalMakananController;
 use App\Http\Controllers\KatalogResepController;
-use App\Http\Controllers\MealPlanController;      // ← tambah ini
+use App\Http\Controllers\MealPlanController;      
+use App\Http\Controllers\ProfileController;
 
 /* ══════════════════════════════════════════════════════════
    PUBLIC — tidak perlu login
@@ -50,7 +51,7 @@ Route::middleware(['auth.custom', 'nocache'])->group(function () {
     Route::post  ('/meal_plan/jadwal',      [MealPlanController::class, 'storeJadwal'])  ->name('meal_plan.jadwal.store');
     Route::put   ('/meal_plan/jadwal/{id}', [MealPlanController::class, 'updateJadwal']) ->name('meal_plan.jadwal.update');
     Route::delete('/meal_plan/jadwal/{id}', [MealPlanController::class, 'destroyJadwal'])->name('meal_plan.jadwal.destroy');
-
+    Route::put('/profile/update', [ProfileController::class, 'update'])->name('profile.update');
     // ── (Legacy) JadwalMakananController — sisakan jika masih dipakai di tempat lain
     // Route::post  ('/meal_plan/store',        [JadwalMakananController::class, 'store'])  ->name('mealplan.store');
     // Route::delete('/meal_plan/delete/{id}',  [JadwalMakananController::class, 'destroy'])->name('mealplan.destroy');

@@ -2,14 +2,11 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Support\Facades\Storage;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class KatalogResep extends Model
 {
-    use HasFactory;
-
     protected $table = 'katalog_resep';
 
     protected $fillable = [
@@ -34,58 +31,84 @@ class KatalogResep extends Model
     ];
 
     protected $casts = [
-        'ingredients'  => 'array',
-        'cara_masak'   => 'array',
-        'tags'         => 'array',
-        'is_public'    => 'boolean',
-        'calories'     => 'integer',
-        'protein'      => 'float',
-        'carbs'        => 'float',
-        'fat'          => 'float',
-        'fiber'        => 'float',
-        'total_nutrisi'=> 'float',
+        'tags'          => 'array',
+        'is_public'     => 'boolean',
+        'calories'      => 'integer',
+        'protein'       => 'float',
+        'carbs'         => 'float',
+        'fat'           => 'float',
+        'fiber'         => 'float',
+        'total_nutrisi' => 'float',
     ];
-
-    protected $appends = ['image_url'];
-
-    /* ── Computed ──────────────────────────────────── */
-
-    public function getImageUrlAttribute(): ?string
-    {
-        return $this->image_path ? Storage::url($this->image_path) : null;
-    }
 
     /* ── Relationships ─────────────────────────────── */
 
-    public function user()
+    public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);
     }
 
-    public function jadwalMakanan()
-    {
-        return $this->hasMany(JadwalMakanan::class);
-    }
-
-    public function planners()
-    {
-        return $this->belongsToMany(Planner::class, 'planner_katalog_resep');
-    }
-
     /* ── Scopes ────────────────────────────────────── */
 
-    public function scopePublic($query)
+    public function scopeVisible($query, ?int $userId = null)
     {
-        return $query->where('is_public', true);
+        return $query->where(function ($q) use ($userId) {
+            $q->where('is_public', true);
+
+            if ($userId) {
+                $q->orWhere('user_id', $userId);
+            }
+        });
     }
 
-    public function scopeByMealType($query, string $type)
+    public function scopeByMealType($query, string $mealType)
     {
-        return $query->where('meal_type', $type);
+        return $query->where('meal_type', strtolower($mealType));
     }
 
-    public function scopeSearch($query, string $term)
+    public function scopeSearch($query, string $keyword)
     {
-        return $query->where('nama_makanan', 'like', '%' . $term . '%');
+        return $query->where(function ($q) use ($keyword) {
+            $q->where('nama_makanan', 'like', "%{$keyword}%")
+              ->orWhere('description', 'like', "%{$keyword}%");
+        });
+    }
+
+    /* ── Accessors ─────────────────────────────────── */
+
+    public function getImageUrlAttribute(): string
+    {
+        return $this->image_path
+            ? asset($this->image_path)
+            : asset('img/meal1_home.png');
+    }
+
+    public function getMealTypeColorAttribute(): string
+    {
+        return match (strtolower((string) $this->meal_type)) {
+            'breakfast' => '#95CD41',
+            'lunch'     => '#EA5C2B',
+            'dinner'    => '#2B7FFF',
+            'snacks'    => '#FBBF24',
+            'desserts'  => '#A78BFA',
+            'drinks'    => '#34D399',
+            default     => '#6B7280',
+        };
+    }
+
+    /* ── Helpers untuk ubah TEXT jadi array ────────── */
+
+    public function getIngredientsListAttribute(): array
+    {
+        return array_filter(
+            array_map('trim', preg_split('/\r\n|\r|\n/', $this->ingredients ?? ''))
+        );
+    }
+
+    public function getCaraMasakListAttribute(): array
+    {
+        return array_filter(
+            array_map('trim', preg_split('/\r\n|\r|\n/', $this->cara_masak ?? ''))
+        );
     }
 }

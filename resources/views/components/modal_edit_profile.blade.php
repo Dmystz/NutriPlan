@@ -45,6 +45,14 @@
         color: #fff;
         border: 3px solid rgba(255, 255, 255, 0.6);
         position: relative;
+        overflow: hidden;
+    }
+
+    .profile-avatar img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        border-radius: 50%;
     }
 
     .avatar-edit-btn {
@@ -60,6 +68,7 @@
         justify-content: center;
         cursor: pointer;
         border: 1.5px solid #ddd;
+        overflow: visible;
     }
 
     .profile-body {
@@ -154,9 +163,7 @@
         transition: opacity 0.2s;
     }
 
-    .btn-save:hover {
-        opacity: 0.88;
-    }
+    .btn-save:hover { opacity: 0.88; }
 
     .btn-cancel {
         width: 100%;
@@ -173,14 +180,9 @@
         font-family: var(--font-sans);
     }
 
-    .btn-cancel:hover {
-        background: var(--color-background-secondary);
-    }
+    .btn-cancel:hover { background: var(--color-background-secondary); }
 
-    .gender-row {
-        display: flex;
-        gap: 8px;
-    }
+    .gender-row { display: flex; gap: 8px; }
 
     .gender-btn {
         flex: 1;
@@ -204,34 +206,44 @@
     }
 
     @media (max-width: 400px) {
-        .form-row {
-            grid-template-columns: 1fr;
-        }
-
-        .profile-body {
-            padding: 1rem;
-        }
+        .form-row { grid-template-columns: 1fr; }
+        .profile-body { padding: 1rem; }
     }
 
-    .modal-dialog {
-        margin: auto;
-    }
+    .modal-dialog { margin: auto; }
 </style>
 
+@php
+    /*
+     * Ambil data user dari database berdasarkan session user_id.
+     * Kolom tabel users: id, name, email, jenis_kelamin, target,
+     *   activity_level, umur, berat_badan, tinggi_badan, photo
+     */
+    $authUser = \Illuminate\Support\Facades\DB::table('users')
+                    ->where('id', session('user_id'))
+                    ->first();
+@endphp
 
 <div class="modal fade" id="editProfileModal" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content profile-modal-content">
 
-            {{-- Header --}}
+            {{-- ── Header ─────────────────────────────────────────── --}}
             <div class="profile-modal-header">
                 <button class="btn-close-custom" data-bs-dismiss="modal" aria-label="Tutup">
                     <i class="ti ti-x"></i>
                 </button>
-                <div style="text-align:center; margin-top: 0.5rem;">
+                <div style="text-align:center; margin-top:0.5rem;">
                     <div class="profile-avatar">
-                        A
-                        <div class="avatar-edit-btn" title="Ganti foto">
+                        @if (!empty($authUser->photo))
+                            <img src="{{ asset('storage/' . $authUser->photo) }}"
+                                 alt="Foto {{ $authUser->name ?? '' }}">
+                        @else
+                            {{ strtoupper(substr($authUser->name ?? 'U', 0, 1)) }}
+                        @endif
+                        {{-- Tombol ganti foto: klik → trigger input file tersembunyi --}}
+                        <div class="avatar-edit-btn" title="Ganti foto"
+                             onclick="document.getElementById('photoInput').click()">
                             <i class="ti ti-camera" style="font-size:11px; color:#555;"></i>
                         </div>
                     </div>
@@ -241,87 +253,123 @@
                 </div>
             </div>
 
-            {{-- Body --}}
+            {{-- ── Body ────────────────────────────────────────────── --}}
             <div class="profile-body">
-                <div class="section-divider">Informasi akun</div>
+                <form action="{{ route('profile.update') }}" method="POST" enctype="multipart/form-data">
+                    @csrf
+                    @method('PUT')
 
-                <div class="mb-2">
-                    <label class="form-label-custom">Nama lengkap</label>
-                    <div class="input-icon-wrap">
-                        <i class="ti ti-user"></i>
-                        <input type="text" class="form-control-custom" placeholder="Nama lengkap"
-                            value="Adelia Putri">
-                    </div>
-                </div>
+                    {{-- Input file foto — tersembunyi --}}
+                    <input type="file" id="photoInput" name="photo"
+                           accept="image/jpg,image/jpeg,image/png,image/webp"
+                           style="display:none">
 
-                <div class="mb-2">
-                    <label class="form-label-custom">Email</label>
-                    <div class="input-icon-wrap">
-                        <i class="ti ti-mail"></i>
-                        <input type="email" class="form-control-custom" placeholder="email@contoh.com"
-                            value="adelia@gmail.com">
-                    </div>
-                </div>
+                    <div class="section-divider">Informasi akun</div>
 
-                <div class="mb-2">
-                    <label class="form-label-custom">Nomor telepon</label>
-                    <div class="input-icon-wrap">
-                        <i class="ti ti-phone"></i>
-                        <input type="tel" class="form-control-custom" placeholder="+62..."
-                            value="+62 812 3456 7890">
-                    </div>
-                </div>
-
-                <div class="section-divider">Data kesehatan</div>
-
-                <div class="form-row mb-2">
-                    <div>
-                        <label class="form-label-custom">Berat (kg)</label>
-                        <input type="number" class="form-control-custom" placeholder="kg" value="55">
-                    </div>
-                    <div>
-                        <label class="form-label-custom">Tinggi (cm)</label>
-                        <input type="number" class="form-control-custom" placeholder="cm" value="162">
-                    </div>
-                </div>
-
-                <div class="form-row mb-2">
-                    <div>
-                        <label class="form-label-custom">Tanggal lahir</label>
+                    <div class="mb-2">
+                        <label class="form-label-custom">Nama lengkap</label>
                         <div class="input-icon-wrap">
-                            <i class="ti ti-calendar"></i>
-                            <input type="date" class="form-control-custom" value="2000-04-15">
+                            <i class="ti ti-user"></i>
+                            <input type="text" name="name" class="form-control-custom"
+                                   placeholder="Nama lengkap"
+                                   value="{{ old('name', $authUser->name ?? '') }}" required>
                         </div>
                     </div>
-                    <div>
-                        <label class="form-label-custom">Jenis kelamin</label>
-                        <div class="gender-row">
-                            <button class="gender-btn active" type="button"
-                                onclick="this.classList.add('active'); this.nextElementSibling.classList.remove('active')">Wanita</button>
-                            <button class="gender-btn" type="button"
-                                onclick="this.classList.add('active'); this.previousElementSibling.classList.remove('active')">Pria</button>
+
+                    <div class="mb-2">
+                        <label class="form-label-custom">Email</label>
+                        <div class="input-icon-wrap">
+                            <i class="ti ti-mail"></i>
+                            <input type="email" name="email" class="form-control-custom"
+                                   placeholder="email@contoh.com"
+                                   value="{{ old('email', $authUser->email ?? '') }}" required>
                         </div>
                     </div>
-                </div>
 
-                <div class="mb-2">
-                    <label class="form-label-custom">Tujuan nutrisi</label>
-                    <select class="form-control-custom">
-                        <option>Menjaga berat badan</option>
-                        <option>Menurunkan berat badan</option>
-                        <option>Menaikkan berat badan</option>
-                        <option>Meningkatkan massa otot</option>
-                    </select>
-                </div>
+                    <div class="section-divider">Data kesehatan</div>
 
-                <button class="btn-save">Simpan perubahan</button>
-                <button class="btn-cancel" data-bs-dismiss="modal">Batal</button>
+                    <div class="form-row mb-2">
+                        <div>
+                            <label class="form-label-custom">Berat (kg)</label>
+                            <input type="number" name="berat_badan" class="form-control-custom"
+                                   placeholder="kg" min="1" max="500" step="0.1"
+                                   value="{{ old('berat_badan', $authUser->berat_badan ?? '') }}">
+                        </div>
+                        <div>
+                            <label class="form-label-custom">Tinggi (cm)</label>
+                            <input type="number" name="tinggi_badan" class="form-control-custom"
+                                   placeholder="cm" min="1" max="300" step="0.1"
+                                   value="{{ old('tinggi_badan', $authUser->tinggi_badan ?? '') }}">
+                        </div>
+                    </div>
+
+                    <div class="form-row mb-2">
+                        <div>
+                            <label class="form-label-custom">Umur (tahun)</label>
+                            <div class="input-icon-wrap">
+                                <i class="ti ti-user-circle"></i>
+                                <input type="number" name="umur" class="form-control-custom"
+                                       placeholder="Umur" min="1" max="120"
+                                       value="{{ old('umur', $authUser->umur ?? '') }}">
+                            </div>
+                        </div>
+                        <div>
+                            <label class="form-label-custom">Jenis kelamin</label>
+                            @php
+                                $currentGender = old('jenis_kelamin', $authUser->jenis_kelamin ?? 'Laki-laki');
+                            @endphp
+                            <input type="hidden" name="jenis_kelamin" id="genderInput"
+                                   value="{{ $currentGender }}">
+                            <div class="gender-row">
+                                <button class="gender-btn {{ $currentGender === 'Perempuan' ? 'active' : '' }}"
+                                        type="button"
+                                        onclick="setGender('Perempuan', this)">Wanita</button>
+                                <button class="gender-btn {{ $currentGender === 'Laki-laki' ? 'active' : '' }}"
+                                        type="button"
+                                        onclick="setGender('Laki-laki', this)">Pria</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="mb-2">
+                        <label class="form-label-custom">Tujuan nutrisi</label>
+                        @php
+                            $currentTarget = old('target', $authUser->target ?? 'maintenance');
+                            $targets = [
+                                'maintenance' => 'Menjaga berat badan',
+                                'lose'        => 'Menurunkan berat badan',
+                                'gain'        => 'Menaikkan berat badan',
+                                'muscle'      => 'Meningkatkan massa otot',
+                            ];
+                        @endphp
+                        <select name="target" class="form-control-custom">
+                            @foreach ($targets as $value => $label)
+                                <option value="{{ $value }}"
+                                    {{ $currentTarget === $value ? 'selected' : '' }}>
+                                    {{ $label }}
+                                </option>
+                            @endforeach
+                        </select>
+                    </div>
+
+                    <button type="submit" class="btn-save">Simpan perubahan</button>
+                    <button type="button" class="btn-cancel" data-bs-dismiss="modal">Batal</button>
+
+                </form>
             </div>
+
         </div>
     </div>
 </div>
 
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/tabler-icons.min.css">
 
-
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/tabler-icons.min.css">
+<script>
+    function setGender(value, btn) {
+        document.getElementById('genderInput').value = value;
+        btn.closest('.gender-row').querySelectorAll('.gender-btn').forEach(function (el) {
+            el.classList.remove('active');
+        });
+        btn.classList.add('active');
+    }
+</script>
