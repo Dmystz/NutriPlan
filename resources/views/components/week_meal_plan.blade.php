@@ -561,6 +561,149 @@
             sidebar.innerHTML = '<div class="week-empty-sidebar"><p>Gagal memuat data.</p></div>';
         }
     }
+    async function loadWeekGrid() {
+    try {
+        const res  = await fetch('/api/week-meal-plan', {
+            headers: { Accept: 'application/json' }
+        });
+
+        const days = await res.json();
+
+        const grid = document.getElementById('week-grid');
+
+        grid.innerHTML = '';
+
+        days.forEach((day, i) => {
+
+            if (day.is_planned && day.meal) {
+
+                const meal = day.meal;
+
+                grid.innerHTML += `
+                    <div class="col-12 col-sm-6 col-xl-4">
+
+                        <div class="week-card-planned">
+
+                            <div class="d-flex justify-content-between align-items-start mb-2">
+                                <p class="week-card-date m-0">
+                                    ${day.month_day}<br>
+                                    ${day.day_name}
+                                </p>
+
+                                <span class="badge-planned">
+                                    Planned
+                                </span>
+                            </div>
+
+                            <div class="d-flex align-items-start mb-2 timeline-meal-row">
+
+                                <div class="meal-time-col">
+                                    <span class="meal-time-text">
+                                        ${meal.meal_time ?? '13:00'}
+                                    </span>
+                                </div>
+
+                                <div class="meal-timeline-col">
+                                    <div class="meal-dot-timeline"></div>
+                                </div>
+
+                                <div class="wrapper-content-meal-days d-flex px-2 py-1 flex-grow-1">
+
+                                    <div class="d-flex align-items-center flex-shrink-0">
+
+                                        ${meal.image_path
+                                            ? `
+                                                <img src="${meal.image_path}"
+                                                    class="gambar-meal gambar-meal-week"
+                                                    onerror="this.style.display='none'">
+                                            `
+                                            : `
+                                                <div class="gambar-meal gambar-meal-week d-flex align-items-center justify-content-center"
+                                                    style="background:rgba(0,0,0,.04);border-radius:10px;font-size:1.4rem;">
+                                                    ${meal.emoji ?? '🍽️'}
+                                                </div>
+                                            `
+                                        }
+
+                                    </div>
+
+                                    <div class="d-flex flex-column ms-2 justify-content-center flex-grow-1">
+
+                                        <p class="type-meal m-0 p-0">
+                                            ${(meal.meal_slot ?? 'Meal').toUpperCase()}
+                                        </p>
+
+                                        <h6 class="name-meal mb-1 p-0 fw-bold"
+                                            style="font-size:.78rem;line-height:1.3;">
+                                            ${meal.name}
+                                        </h6>
+
+                                        <div class="d-flex align-items-center gap-3 nutrition-meal flex-wrap">
+
+                                            <div class="d-flex align-items-center gap-1">
+                                                <p class="font-size-s m-0">
+                                                    ${Math.round(meal.calories ?? 0)} kcal
+                                                </p>
+                                            </div>
+
+                                            <div class="d-flex align-items-center gap-1">
+                                                <p class="font-size-s m-0">
+                                                    ${meal.protein ?? 0}g protein
+                                                </p>
+                                            </div>
+
+                                        </div>
+                                    </div>
+
+                                </div>
+                            </div>
+
+                        </div>
+
+                    </div>
+                `;
+
+            } else {
+
+                grid.innerHTML += `
+                    <div class="col-12 col-sm-6 col-xl-4">
+
+                        <div class="week-card">
+
+                            <p class="week-card-date m-0">
+                                ${day.month_day}<br>
+                                ${day.day_name}
+                            </p>
+
+                            <div class="d-flex flex-column gap-2 mt-2">
+
+                                <p class="week-no-plan-txt m-0">
+                                    No meals planned yet.
+                                </p>
+
+                                <button class="btn-plan-oren"
+                                    data-bs-toggle="modal"
+                                    data-bs-target="#modalPlanManually"
+                                    data-date="${day.date}"
+                                    data-label="${day.day_name}, ${day.month_day}">
+
+                                    + Plan Manually
+
+                                </button>
+
+                            </div>
+
+                        </div>
+
+                    </div>
+                `;
+            }
+        });
+
+        } catch (e) {
+            console.error('loadWeekGrid:', e);
+        }
+    }
 
     /* ══════════════════════════════════════════
        MODAL PLAN MANUALLY — state
@@ -1145,4 +1288,5 @@
     window.addEventListener('meal-added', loadWeekSidebar);
 
 })();
+
 </script>

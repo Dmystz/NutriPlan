@@ -360,7 +360,8 @@
                         </div>
 
                         {{-- Edit Profile --}}
-                        <a href="#" class="btn-edit-profile">
+                          <a href="#" class="btn-edit-profile" data-bs-toggle="modal"
+                            data-bs-target="#editProfileModal">
                             Edit Profile
                         </a>
 

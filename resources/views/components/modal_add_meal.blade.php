@@ -277,9 +277,9 @@
         /* Image or emoji fallback */
         const imgWrap = document.createElement('div');
         imgWrap.className = 'mrr-img';
-        if (food.image_url) {
+        if (food.image_path) {
             const img = document.createElement('img');
-            img.src   = food.image_url;
+            img.src   = food.image_path;
             img.alt   = food.name;
             img.style.cssText =
                 'width:38px;height:38px;border-radius:10px;object-fit:cover;';
