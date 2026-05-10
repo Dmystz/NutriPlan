@@ -174,6 +174,7 @@
             @yield('content')
         </div>
     </main>
+    @include('components.modal_edit_profile')
     {{-- Bootstrap --}}
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
     {{-- Profile Modal --}}

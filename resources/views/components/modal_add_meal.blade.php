@@ -14,7 +14,8 @@
                 <div>
                     <h5 class="modal-title fw-bold m-0" id="modalAddMealLabel"
                         style="font-size:1rem;color:#111827;">Add Meal / Drinks / Snacks</h5>
-                    <p class="m-0" style="font-size:.72rem;color:#6B7280;">{{ date('l, d F Y') }}</p>
+                    {{-- PERUBAHAN: subtitle menampilkan tanggal aktif, bukan hardcoded hari ini --}}
+                    <p class="m-0" style="font-size:.72rem;color:#6B7280;" id="am-date-subtitle">{{ date('l, d F Y') }}</p>
                 </div>
                 <button type="button" class="btn-close" data-bs-dismiss="modal"
                     aria-label="Close"></button>
@@ -451,6 +452,13 @@
         payload.category      = amCategory;
         payload.servings      = amServing;
 
+        /* ── PERUBAHAN UTAMA: kirim log_date sesuai tanggal aktif di days view ──
+           window.daysCurrentDate di-set oleh days_meal_plan.blade.php dan
+           diupdate setiap kali user klik prev/next. Fallback ke hari ini
+           jika modal dipakai di luar konteks days view. */
+        payload.log_date = window.daysCurrentDate
+            ?? new Date().toISOString().split('T')[0];
+
         saveBtn.disabled      = true;
         saveBtn.textContent   = 'Menyimpan...';
 
@@ -477,6 +485,15 @@
                 window.dispatchEvent(
                     new CustomEvent('meal-added', { detail: data })
                 );
+
+                /* Refresh timeline untuk tanggal aktif (handle data.grouped/totals
+                   atau fallback ke reload via daysLoad jika response tidak include keduanya) */
+                if (data.grouped && data.totals) {
+                    /* Response sudah include data lengkap — event di atas sudah cukup */
+                } else {
+                    /* Fallback: minta days panel reload data dari API untuk tanggal aktif */
+                    window.dispatchEvent(new CustomEvent('days-reload'));
+                }
 
                 amShowToast('✅ ' + payload.name + ' berhasil ditambahkan!');
             } else {
@@ -506,6 +523,22 @@
             amCategory = 'meal';
             amServing  = 1;
             amSelected = null;
+
+            /* ── PERUBAHAN: Update subtitle header modal dengan tanggal aktif ── */
+            const subtitle = document.getElementById('am-date-subtitle');
+            if (subtitle) {
+                const activeDate = window.daysCurrentDate;
+                if (activeDate) {
+                    const d = new Date(activeDate + 'T00:00:00');
+                    subtitle.textContent = d.toLocaleDateString('en-GB', {
+                        weekday: 'long',
+                        day    : 'numeric',
+                        month  : 'long',
+                        year   : 'numeric',
+                    });
+                }
+            }
+
             /* Reset UI */
             document.getElementById('am-serv-val').textContent       = '1';
             document.getElementById('am-search').value               = '';

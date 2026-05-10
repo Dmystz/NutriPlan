@@ -4,6 +4,15 @@
 
 @section('title', 'Homepage')
 @section('content')
+
+{{-- ── Pass today's date ke JS ── --}}
+<script>
+    window.__HOME_INIT__ = {
+        today     : "{{ today()->toDateString() }}",
+        csrfToken : "{{ csrf_token() }}"
+    };
+</script>
+
     <div class="col-12 col-xl-10">
         <div class="row py-0">
             {{-- Top bar: greeting + search --}}
@@ -27,59 +36,37 @@
                 </div>
             </div>
 
-            {{-- Meals & Drinks column --}}
+            {{-- ══════════════════════════════════════════════
+                 Meals & Drinks column  ← DINAMIS DARI DB
+                 ══════════════════════════════════════════════ --}}
             <div class="col-12 col-md-5 col-xl-5 pb-3">
                 <div class="wrapper-meal-home">
                     <div class="header-meals d-flex justify-content-between align-items-center mb-1">
                         <h5 class="m-0">Meals & Drinks</h5>
-                        <p class="text-muted tgl m-0">1 Meals - 1.2L Water</p>
+                        <p class="text-muted tgl m-0" id="home-meal-count">—</p>
                     </div>
-                    <div class="meals-list gap-3">
-                        {{-- Timeline meals using meal_template --}}
-                        @include('components.meal_template', [
-                            'time' => '8:00',
-                            'meal_type' => 'Breakfast',
-                            'meal_name' => 'Avocado Toast & Poached Eggs',
-                            'meal_image' => 'meal1_home.png',
-                            'ktg1_label' => 'Quick Meal',
-                            'ktg1_class' => 'ktg-oren-home',
-                            'ktg2_label' => 'Balanced',
-                            'ktg2_class' => 'ktg-ijo-home',
-                            'kcal' => '420',
-                            'protein' => '22',
-                            'is_last' => false,
-                        ])
-                        @include('components.meal_template', [
-                            'time' => '12:30',
-                            'meal_type' => 'Lunch',
-                            'meal_name' => 'Grilled Chicken & Brown Rice',
-                            'meal_image' => 'meal1_home.png',
-                            'ktg1_label' => 'High Protein',
-                            'ktg1_class' => 'ktg-ijo-home',
-                            'ktg2_label' => 'Low Carb',
-                            'ktg2_class' => 'ktg-oren-home',
-                            'kcal' => '560',
-                            'protein' => '38',
-                            'is_last' => false,
-                        ])
-                        @include('components.meal_template', [
-                            'time' => '19:00',
-                            'meal_type' => 'Dinner',
-                            'meal_name' => 'Salmon & Asparagus',
-                            'meal_image' => 'meal1_home.png',
-                            'ktg1_label' => 'Keto',
-                            'ktg1_class' => 'ktg-ijo-home',
-                            'ktg2_label' => 'Quick Meal',
-                            'ktg2_class' => 'ktg-oren-home',
-                            'kcal' => '470',
-                            'protein' => '35',
-                            'is_last' => true,
-                        ])
+
+                    {{-- Loading indicator --}}
+                    <div id="home-meals-loading" class="text-center py-3" style="display:none;">
+                        <div class="spinner-border spinner-border-sm text-secondary" role="status"></div>
+                        <span class="ms-2" style="font-size:0.78rem;color:#6B7280;">Memuat...</span>
+                    </div>
+
+                    {{-- Timeline diisi oleh JS --}}
+                    <div class="meals-list gap-3" id="home-meals-timeline"></div>
+
+                    {{-- Empty state --}}
+                    <div id="home-meals-empty" style="display:none;text-align:center;padding:24px 0;">
+                        <p style="font-size:1.8rem;margin-bottom:6px;">🍽️</p>
+                        <p style="font-size:0.78rem;color:#9CA3AF;font-weight:500;">
+                            Belum ada makanan hari ini.<br>
+                            Tambah dari halaman Meal Plan.
+                        </p>
                     </div>
                 </div>
             </div>
 
-            {{-- Reports + widgets column --}}
+            {{-- Reports + widgets column — tidak diubah --}}
             <div class="col-12 col-md-7 col-xl-7 d-flex justify-content-evenly flex-wrap">
                 {{-- Reports card --}}
                 <div class="wrapper-report-home">
@@ -402,48 +389,181 @@
         </div>
     </div>
 
+    {{-- ═══════════════════════════════════════════════════════
+         HOME PAGE JAVASCRIPT
+         ═══════════════════════════════════════════════════════ --}}
     <script>
+        /* ── Meals & Drinks — fetch dari API sama seperti days_meal_plan ── */
+        (function () {
+            const SLOTS     = ['Breakfast', 'Snack', 'Lunch', 'Dinner'];
+            const SLOT_ICON = { Breakfast: '☀️', Snack: '🍎', Lunch: '🥗', Dinner: '🌙' };
+            const SLOT_TIME = { Breakfast: '08:00', Snack: '10:30', Lunch: '13:00', Dinner: '19:30' };
+            const INIT      = window.__HOME_INIT__;
+
+            function renderHomeMeals(grouped) {
+                const container = document.getElementById('home-meals-timeline');
+                const empty     = document.getElementById('home-meals-empty');
+                const countEl   = document.getElementById('home-meal-count');
+                container.innerHTML = '';
+
+                let totalItems = 0;
+                SLOTS.forEach(s => { totalItems += (grouped[s] || []).length; });
+
+                if (totalItems === 0) {
+                    empty.style.display = 'block';
+                    countEl.textContent = '0 Meals';
+                    return;
+                }
+
+                empty.style.display = 'none';
+                countEl.textContent  = totalItems + ' Meal' + (totalItems > 1 ? 's' : '');
+
+                const lastSlot = [...SLOTS].reverse().find(s => (grouped[s] || []).length > 0);
+
+                SLOTS.forEach((slot, si) => {
+                    const items = grouped[slot] || [];
+                    if (items.length === 0) return;
+
+                    const isLastSlot = slot === lastSlot;
+
+                    items.forEach((log, li) => {
+                        const isLast      = isLastSlot && li === items.length - 1;
+                        const timeDisplay = log.meal_time
+                            ? log.meal_time.substring(0, 5)
+                            : SLOT_TIME[slot];
+
+                        /* ── Struktur HTML persis dari meal_template.blade.php DAYS VIEW ── */
+                        const row = document.createElement('div');
+                        row.className = 'd-flex align-items-start mb-3 timeline-meal-row';
+                        row.innerHTML = `
+                            {{-- Time label --}}
+                            <div class="meal-time-col">
+                                <span class="meal-time-text">${timeDisplay}</span>
+                            </div>
+
+                            {{-- Dot + connecting line --}}
+                            <div class="meal-timeline-col">
+                                <div class="meal-dot-timeline"></div>
+                                ${!isLast ? `<div class="meal-line-timeline"></div>` : ''}
+                            </div>
+
+                            {{-- Meal card --}}
+                            <div class="wrapper-content-meal-days d-flex px-2 py-2 flex-grow-1">
+
+                                {{-- Food image --}}
+                                <div class="d-flex align-items-center flex-shrink-0">
+                                    ${log.image_path
+                                        ? `<img src="${log.image_path}"
+                                                alt="${log.name}"
+                                                class="gambar-meal"
+                                                onerror="this.style.display='none'">`
+                                        : `<div class="gambar-meal d-flex align-items-center justify-content-center"
+                                                style="background:rgba(0,0,0,0.04);border-radius:10px;font-size:1.5rem;">
+                                                ${log.emoji ?? '🍽️'}
+                                           </div>`
+                                    }
+                                </div>
+
+                                {{-- Meal info --}}
+                                <div class="d-flex flex-column ms-2 justify-content-center">
+
+                                    {{-- Meal type --}}
+                                    <p class="type-meal m-0 p-0">
+                                        ${SLOT_ICON[slot]} ${slot.toUpperCase()}
+                                    </p>
+
+                                    {{-- Meal name --}}
+                                    <h6 class="name-meal mb-1 p-0 fw-bold">${log.name}</h6>
+
+                                    {{-- Nutrition --}}
+                                    <div class="d-flex align-items-center gap-3 nutrition-meal flex-wrap">
+
+                                        <div class="d-flex align-items-center gap-1">
+                                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16" fill="none">
+                                                <path d="M5.66671 9.66667C6.10873 9.66667 6.53266 9.49107 6.84522 9.17851C7.15778 8.86595 7.33337 8.44203 7.33337 8C7.33337 7.08 7.00004 6.66667 6.66671 6C5.95204 4.57133 6.51737 3.29733 8.00004 2C8.33337 3.66667 9.33337 5.26667 10.6667 6.33333C12 7.4 12.6667 8.66667 12.6667 10C12.6667 10.6128 12.546 11.2197 12.3115 11.7859C12.077 12.352 11.7332 12.8665 11.2999 13.2998C10.8665 13.7332 10.3521 14.0769 9.7859 14.3114C9.21971 14.546 8.61288 14.6667 8.00004 14.6667C7.38721 14.6667 6.78037 14.546 6.21418 14.3114C5.648 14.0769 5.13355 13.7332 4.70021 13.2998C4.26687 12.8665 3.92312 12.352 3.6886 11.7859C3.45408 11.2197 3.33337 10.6128 3.33337 10C3.33337 9.23133 3.62204 8.47067 4.00004 8C4.00004 8.44203 4.17564 8.86595 4.4882 9.17851C4.80076 9.49107 5.22468 9.66667 5.66671 9.66667Z"
+                                                    stroke="#FF6900" stroke-width="1.33333" stroke-linecap="round" stroke-linejoin="round"/>
+                                            </svg>
+                                            <p class="font-size-s m-0">${Math.round(log.calories)} kcal</p>
+                                        </div>
+
+                                        <div class="d-flex align-items-center gap-1">
+                                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16" fill="none">
+                                                <g clip-path="url(#clip0_634_497b)">
+                                                    <path d="M10.9334 9.13335C11.4802 8.72243 11.9219 8.18791 12.2225 7.57351C12.5231 6.95911 12.674 6.28228 12.6628 5.59839C12.6516 4.9145 12.4787 4.24297 12.1582 3.63872C11.8377 3.03447 11.3787 2.51468 10.8188 2.12184C10.2589 1.72901 9.61389 1.4743 8.93665 1.37855C8.2594 1.2828 7.5691 1.34872 6.92222 1.57093C6.27534 1.79314 5.69025 2.16532 5.2148 2.65704C4.73935 3.14875 4.38705 3.74603 4.18672 4.40001C3.45339 6.48668 3.66672 7.00002 2.06672 8.45335C1.74789 8.71473 1.51763 9.06825 1.40746 9.46553C1.29728 9.86281 1.31257 10.2844 1.45123 10.6727C1.5899 11.0609 1.84516 11.3969 2.18208 11.6345C2.519 11.8721 2.92111 11.9997 3.33339 12C6.00005 12 8.93338 10.8 10.9334 9.13335Z"
+                                                        stroke="#00A63E" stroke-width="1.33333" stroke-linecap="round" stroke-linejoin="round"/>
+                                                    <path d="M12.3333 4L13.7933 7C14.0728 7.85924 14.0758 8.78448 13.8019 9.64552C13.5281 10.5066 12.9911 11.2601 12.2666 11.8C10.2666 13.4667 7.33331 14.6667 4.66664 14.6667C4.29548 14.6662 3.93177 14.5624 3.61623 14.3669C3.30069 14.1715 3.04576 13.8921 2.87998 13.56L1.59998 11"
+                                                        stroke="#00A63E" stroke-width="1.33333" stroke-linecap="round" stroke-linejoin="round"/>
+                                                    <path d="M8.33329 7.33333C9.25377 7.33333 9.99996 6.58714 9.99996 5.66667C9.99996 4.74619 9.25377 4 8.33329 4C7.41282 4 6.66663 4.74619 6.66663 5.66667C6.66663 6.58714 7.41282 7.33333 8.33329 7.33333Z"
+                                                        stroke="#00A63E" stroke-width="1.33333" stroke-linecap="round" stroke-linejoin="round"/>
+                                                </g>
+                                                <defs>
+                                                    <clipPath id="clip0_634_497b">
+                                                        <rect width="16" height="16" fill="white"/>
+                                                    </clipPath>
+                                                </defs>
+                                            </svg>
+                                            <p class="font-size-s m-0">${log.protein}g protein</p>
+                                        </div>
+
+                                    </div>
+                                </div>
+                            </div>
+                        `;
+                        container.appendChild(row);
+                    });
+                });
+            }
+
+            async function loadHomeMeals() {
+                document.getElementById('home-meals-loading').style.display = 'block';
+                try {
+                    const res  = await fetch(`/api/meal-logs?date=${INIT.today}`, {
+                        headers: { 'Accept': 'application/json' }
+                    });
+                    const data = await res.json();
+                    renderHomeMeals(data.grouped || {});
+                } catch (e) {
+                    console.error('loadHomeMeals:', e);
+                } finally {
+                    document.getElementById('home-meals-loading').style.display = 'none';
+                }
+            }
+
+            /* Kalau user tambah meal dari modal manapun, home ikut update */
+            window.addEventListener('meal-added', function (e) {
+                if (e.detail && e.detail.grouped) renderHomeMeals(e.detail.grouped);
+            });
+
+            document.addEventListener('DOMContentLoaded', loadHomeMeals);
+        })();
+
+        /* ── Widget scripts — tidak diubah ── */
         document.addEventListener("DOMContentLoaded", () => {
-            const plusBtn = document.getElementById("plus");
-            const minusBtn = document.getElementById("minus");
+            const plusBtn   = document.getElementById("plus");
+            const minusBtn  = document.getElementById("minus");
             const waterValue = document.getElementById("water-value-report");
-            const waterBar = document.querySelector(".water-bar");
+            const waterBar  = document.querySelector(".water-bar");
             let current = 0;
-            const goal = 2000;
-            const step = 200;
+            const goal = 2000, step = 200;
 
             function updateWater() {
                 waterValue.textContent = current;
-                let percent = (current / goal) * 100;
-                if (percent > 100) percent = 100;
-                waterBar.style.height = percent + "%";
+                let percent = Math.min((current / goal) * 100, 100);
+                waterBar.style.height     = percent + "%";
                 waterBar.style.background = percent >= 100 ? "#22c55e" : "#3b82f6";
             }
-            plusBtn.addEventListener("click", () => {
-                if (current < goal) {
-                    current += step;
-                    updateWater();
-                }
-            });
-            minusBtn.addEventListener("click", () => {
-                if (current > 0) {
-                    current -= step;
-                    updateWater();
-                }
-            });
+            plusBtn.addEventListener("click",  () => { if (current < goal) { current += step; updateWater(); } });
+            minusBtn.addEventListener("click", () => { if (current > 0)    { current -= step; updateWater(); } });
             updateWater();
         });
 
         document.addEventListener("DOMContentLoaded", () => {
-            const upBtn = document.getElementById("up-btn");
-            const downBtn = document.getElementById("down-btn");
+            const upBtn      = document.getElementById("up-btn");
+            const downBtn    = document.getElementById("down-btn");
             const currentText = document.getElementById("current-weight");
-            const diffText = document.getElementById("value-weight-kg");
+            const diffText   = document.getElementById("value-weight-kg");
             let current = 68.0;
-            const target = 65.0;
-            const min = 50,
-                max = 80,
-                step = 0.5;
+            const target = 65.0, min = 50, max = 80, step = 0.5;
 
             function updateGauge() {
                 currentText.textContent = current.toFixed(1);
@@ -454,92 +574,55 @@
                 angle = Math.max(-60, Math.min(60, angle));
                 needle.setAttribute("transform", `rotate(${angle},64.5,69.875)`);
             }
-            upBtn.addEventListener("click", () => {
-                if (current < max) {
-                    current += step;
-                    updateGauge();
-                }
-            });
-            downBtn.addEventListener("click", () => {
-                if (current > min) {
-                    current -= step;
-                    updateGauge();
-                }
-            });
+            upBtn.addEventListener("click",   () => { if (current < max) { current += step; updateGauge(); } });
+            downBtn.addEventListener("click", () => { if (current > min) { current -= step; updateGauge(); } });
             updateGauge();
         });
 
         document.addEventListener("DOMContentLoaded", () => {
-            const height = 170;
-            let weight = 68;
-            const bmiText = document.getElementById("current-bmi");
+            const height    = 170;
+            let weight      = 68;
+            const bmiText   = document.getElementById("current-bmi");
             const ketElement = document.getElementById("ket-bmi");
             const weightText = document.getElementById("ket-berat");
-            const plusBtn = document.getElementById("plus-weight");
-            const minusBtn = document.getElementById("minus-weight");
+            const plusBtn   = document.getElementById("plus-weight");
+            const minusBtn  = document.getElementById("minus-weight");
             const greenPaths = document.querySelectorAll(".svg-weight path[stroke='#34D399']");
-            const needle = greenPaths[greenPaths.length - 1];
+            const needle    = greenPaths[greenPaths.length - 1];
 
-            function mapRange(value, inMin, inMax, outMin, outMax) {
-                return (value - inMin) * (outMax - outMin) / (inMax - inMin) + outMin;
-            }
-
-            function calculateBMI(w, h) {
-                const hm = h / 100;
-                return w / (hm * hm);
-            }
+            function mapRange(v, i0, i1, o0, o1) { return (v - i0) * (o1 - o0) / (i1 - i0) + o0; }
+            function calcBMI(w, h) { const hm = h / 100; return w / (hm * hm); }
 
             function updateBMI() {
-                const bmi = calculateBMI(weight, height);
-                bmiText.textContent = bmi.toFixed(1);
+                const bmi = calcBMI(weight, height);
+                bmiText.textContent   = bmi.toFixed(1);
                 weightText.textContent = `${weight} kg`;
                 let status, color, angle;
-                if (bmi < 18.5) {
-                    status = "Underweight";
-                    color = "#60A5FA";
-                    angle = mapRange(bmi, 10, 18.5, -90, -25);
-                } else if (bmi < 25) {
-                    status = "Normal";
-                    color = "#34D399";
-                    angle = mapRange(bmi, 18.5, 25, -25, 10);
-                } else if (bmi < 30) {
-                    status = "Overweight";
-                    color = "#FBBF24";
-                    angle = mapRange(bmi, 25, 30, 10, 45);
-                } else {
-                    status = "Obese";
-                    color = "#F87171";
-                    angle = mapRange(bmi, 30, 40, 45, 90);
-                }
-                ketElement.textContent = status;
-                ketElement.style.color = color;
+                if      (bmi < 18.5) { status = "Underweight"; color = "#60A5FA"; angle = mapRange(bmi, 10, 18.5, -90, -25); }
+                else if (bmi < 25)   { status = "Normal";      color = "#34D399"; angle = mapRange(bmi, 18.5, 25, -25, 10); }
+                else if (bmi < 30)   { status = "Overweight";  color = "#FBBF24"; angle = mapRange(bmi, 25, 30, 10, 45); }
+                else                 { status = "Obese";        color = "#F87171"; angle = mapRange(bmi, 30, 40, 45, 90); }
+                ketElement.textContent  = status;
+                ketElement.style.color  = color;
                 needle.setAttribute("transform", `rotate(${angle},64.5,71.875)`);
             }
-            plusBtn.onclick = () => {
-                weight++;
-                updateBMI();
-            };
-            minusBtn.onclick = () => {
-                if (weight > 1) weight--;
-                updateBMI();
-            };
+            plusBtn.onclick  = () => { weight++;           updateBMI(); };
+            minusBtn.onclick = () => { if (weight > 1) weight--; updateBMI(); };
             updateBMI();
         });
 
         function updateProgressFromDOM() {
             const current = parseInt(document.getElementById("current-kkal").textContent);
-            const target = parseInt(document.getElementById("maks-kkal").textContent);
+            const target  = parseInt(document.getElementById("maks-kkal").textContent);
             const percent = Math.min((current / target) * 100, 100);
             document.getElementById("ket-presentase").textContent = `${percent.toFixed(0)}%`;
-            const segments = [seg1, seg2, seg3, seg4];
-            segments.forEach((seg, i) => {
+            [seg1, seg2, seg3, seg4].forEach((seg, i) => {
                 let threshold = (i + 1) * 25;
                 if (percent >= threshold) {
                     seg.setAttribute("stroke-dasharray", "66 198");
                     seg.style.stroke = "#F97316";
                 } else if (percent > i * 25) {
-                    let fillPercent = (percent - i * 25) / 25;
-                    seg.setAttribute("stroke-dasharray", `${66 * fillPercent} 198`);
+                    seg.setAttribute("stroke-dasharray", `${66 * ((percent - i * 25) / 25)} 198`);
                     seg.style.stroke = "#F97316";
                 } else {
                     seg.setAttribute("stroke-dasharray", "0 198");
