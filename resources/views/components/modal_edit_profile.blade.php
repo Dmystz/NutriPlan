@@ -32,43 +32,105 @@
     }
 
     .profile-avatar {
-        width: 60px;
-        height: 60px;
+        width: 72px;
+        height: 72px;
         border-radius: 50%;
         background: rgba(255, 255, 255, 0.3);
         display: flex;
         align-items: center;
         justify-content: center;
-        margin: 0 auto 0.6rem;
-        font-size: 1.5rem;
+        margin: 0 auto 0.5rem;
+        font-size: 1.7rem;
         font-weight: 700;
         color: #fff;
         border: 3px solid rgba(255, 255, 255, 0.6);
         position: relative;
         overflow: hidden;
+        cursor: pointer;
+        transition: filter 0.2s;
     }
+
+    .profile-avatar:hover { filter: brightness(0.88); }
 
     .profile-avatar img {
         width: 100%;
         height: 100%;
         object-fit: cover;
-        border-radius: 50%;
     }
 
-    .avatar-edit-btn {
+    /* Overlay "Ganti" saat hover avatar */
+    .profile-avatar .avatar-overlay {
         position: absolute;
-        bottom: -2px;
-        right: -2px;
-        width: 22px;
-        height: 22px;
+        inset: 0;
+        background: rgba(0,0,0,0.38);
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        opacity: 0;
+        transition: opacity 0.2s;
+        border-radius: 50%;
+        gap: 2px;
+    }
+    .profile-avatar:hover .avatar-overlay { opacity: 1; }
+    .avatar-overlay span {
+        font-size: 0.6rem;
+        color: #fff;
+        font-weight: 600;
+        letter-spacing: 0.04em;
+    }
+
+    /* Badge preview baru */
+    .avatar-preview-badge {
+        position: absolute;
+        bottom: 2px;
+        right: 2px;
         background: #fff;
         border-radius: 50%;
+        width: 22px;
+        height: 22px;
         display: flex;
         align-items: center;
         justify-content: center;
+        border: 1.5px solid #95cd41;
+        box-shadow: 0 1px 4px rgba(0,0,0,0.18);
+        z-index: 2;
+    }
+
+    .photo-preview-strip {
+        display: none;
+        align-items: center;
+        gap: 10px;
+        background: rgba(255,255,255,0.18);
+        border-radius: 10px;
+        padding: 0.4rem 0.75rem;
+        margin-top: 0.5rem;
+        font-size: 0.72rem;
+        color: #fff;
+    }
+    .photo-preview-strip.show { display: flex; }
+    .photo-preview-strip img {
+        width: 32px;
+        height: 32px;
+        border-radius: 50%;
+        object-fit: cover;
+        border: 2px solid rgba(255,255,255,0.7);
+    }
+    .photo-preview-strip .strip-name {
+        flex: 1;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+    .photo-preview-strip .strip-cancel {
         cursor: pointer;
-        border: 1.5px solid #ddd;
-        overflow: visible;
+        font-size: 0.7rem;
+        opacity: 0.8;
+        background: rgba(255,255,255,0.22);
+        border: none;
+        border-radius: 50px;
+        color: #fff;
+        padding: 1px 7px;
     }
 
     .profile-body {
@@ -113,10 +175,7 @@
         gap: 10px;
     }
 
-    .input-icon-wrap {
-        position: relative;
-    }
-
+    .input-icon-wrap { position: relative; }
     .input-icon-wrap i {
         position: absolute;
         left: 10px;
@@ -125,10 +184,7 @@
         font-size: 15px;
         color: var(--color-text-secondary);
     }
-
-    .input-icon-wrap .form-control-custom {
-        padding-left: 2rem;
-    }
+    .input-icon-wrap .form-control-custom { padding-left: 2rem; }
 
     .section-divider {
         font-size: 0.7rem;
@@ -141,7 +197,6 @@
         align-items: center;
         gap: 8px;
     }
-
     .section-divider::after {
         content: '';
         flex: 1;
@@ -162,7 +217,6 @@
         margin-top: 1rem;
         transition: opacity 0.2s;
     }
-
     .btn-save:hover { opacity: 0.88; }
 
     .btn-cancel {
@@ -179,11 +233,9 @@
         transition: background 0.2s;
         font-family: var(--font-sans);
     }
-
     .btn-cancel:hover { background: var(--color-background-secondary); }
 
     .gender-row { display: flex; gap: 8px; }
-
     .gender-btn {
         flex: 1;
         border: 0.5px solid var(--color-border-secondary);
@@ -197,7 +249,6 @@
         transition: all 0.15s;
         font-family: var(--font-sans);
     }
-
     .gender-btn.active {
         background: #eaf3de;
         color: #3B6D11;
@@ -209,16 +260,10 @@
         .form-row { grid-template-columns: 1fr; }
         .profile-body { padding: 1rem; }
     }
-
     .modal-dialog { margin: auto; }
 </style>
 
 @php
-    /*
-     * Ambil data user dari database berdasarkan session user_id.
-     * Kolom tabel users: id, name, email, jenis_kelamin, target,
-     *   activity_level, umur, berat_badan, tinggi_badan, photo
-     */
     $authUser = \Illuminate\Support\Facades\DB::table('users')
                     ->where('id', session('user_id'))
                     ->first();
@@ -228,38 +273,65 @@
     <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content profile-modal-content">
 
-            {{-- ── Header ─────────────────────────────────────────── --}}
+            {{-- ── Header ── --}}
             <div class="profile-modal-header">
                 <button class="btn-close-custom" data-bs-dismiss="modal" aria-label="Tutup">
                     <i class="ti ti-x"></i>
                 </button>
                 <div style="text-align:center; margin-top:0.5rem;">
-                    <div class="profile-avatar">
+
+                    {{-- Avatar — klik untuk pilih foto --}}
+                    <div class="profile-avatar" id="avatarCircle"
+                         onclick="document.getElementById('photoInput').click()"
+                         title="Klik untuk ganti foto">
+
+                        {{-- Foto saat ini (dari DB atau inisial) --}}
                         @if (!empty($authUser->photo))
-                            <img src="{{ asset('storage/' . $authUser->photo) }}"
-                                 alt="Foto {{ $authUser->name ?? '' }}">
+                            <img id="avatarCurrentImg"
+                                 src="{{ asset('storage/' . $authUser->photo) }}"
+                                 alt="foto">
                         @else
-                            {{ strtoupper(substr($authUser->name ?? 'U', 0, 1)) }}
+                            <span id="avatarInitial">
+                                {{ strtoupper(substr($authUser->name ?? 'U', 0, 1)) }}
+                            </span>
                         @endif
-                        {{-- Tombol ganti foto: klik → trigger input file tersembunyi --}}
-                        <div class="avatar-edit-btn" title="Ganti foto"
-                             onclick="document.getElementById('photoInput').click()">
-                            <i class="ti ti-camera" style="font-size:11px; color:#555;"></i>
+
+                        {{-- Preview foto baru (tersembunyi sampai ada file dipilih) --}}
+                        <img id="avatarPreviewImg" src="" alt="preview"
+                             style="display:none; position:absolute; inset:0; width:100%; height:100%; object-fit:cover;">
+
+                        {{-- Overlay hover --}}
+                        <div class="avatar-overlay">
+                            <i class="ti ti-camera" style="font-size:18px; color:#fff;"></i>
+                            <span>Ganti foto</span>
+                        </div>
+
+                        {{-- Badge kamera (pojok kanan bawah) --}}
+                        <div class="avatar-preview-badge">
+                            <i class="ti ti-camera" style="font-size:10px; color:#95cd41;"></i>
                         </div>
                     </div>
-                    <p style="color:rgba(255,255,255,0.85); font-size:0.72rem; margin:0;">
-                        Ketuk ikon kamera untuk ganti foto
-                    </p>
+
+                    {{-- Strip preview: muncul setelah foto dipilih --}}
+                    <div class="photo-preview-strip" id="previewStrip">
+                        <img id="stripThumb" src="" alt="">
+                        <span class="strip-name" id="stripFileName"></span>
+                        <button type="button" class="strip-cancel" onclick="resetPhoto()">✕ Batal</button>
+                    </div>
+
+                    <p style="color:rgba(255,255,255,0.85); font-size:0.7rem; margin:0.3rem 0 0;"
+                       id="photoHint">Ketuk avatar untuk ganti foto</p>
                 </div>
             </div>
 
-            {{-- ── Body ────────────────────────────────────────────── --}}
+            {{-- ── Body ── --}}
             <div class="profile-body">
-                <form action="{{ route('profile.update') }}" method="POST" enctype="multipart/form-data">
+                <form action="{{ route('profile.update') }}" method="POST"
+                      enctype="multipart/form-data" id="editProfileForm">
                     @csrf
                     @method('PUT')
 
-                    {{-- Input file foto — tersembunyi --}}
+                    {{-- Input file tersembunyi --}}
                     <input type="file" id="photoInput" name="photo"
                            accept="image/jpg,image/jpeg,image/png,image/webp"
                            style="display:none">
@@ -365,11 +437,70 @@
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/tabler-icons.min.css">
 
 <script>
+    /* ── Gender toggle ── */
     function setGender(value, btn) {
         document.getElementById('genderInput').value = value;
-        btn.closest('.gender-row').querySelectorAll('.gender-btn').forEach(function (el) {
-            el.classList.remove('active');
-        });
+        btn.closest('.gender-row').querySelectorAll('.gender-btn').forEach(el => el.classList.remove('active'));
         btn.classList.add('active');
     }
+
+    /* ── Photo preview ── */
+    const photoInput    = document.getElementById('photoInput');
+    const previewImg    = document.getElementById('avatarPreviewImg');
+    const currentImg    = document.getElementById('avatarCurrentImg');
+    const initialSpan   = document.getElementById('avatarInitial');
+    const previewStrip  = document.getElementById('previewStrip');
+    const stripThumb    = document.getElementById('stripThumb');
+    const stripFileName = document.getElementById('stripFileName');
+    const photoHint     = document.getElementById('photoHint');
+
+    photoInput.addEventListener('change', function () {
+        const file = this.files[0];
+        if (!file) return;
+
+        // Validasi ukuran maks 2 MB
+        if (file.size > 2 * 1024 * 1024) {
+            alert('Ukuran foto maksimal 2 MB.');
+            this.value = '';
+            return;
+        }
+
+        const reader = new FileReader();
+        reader.onload = function (e) {
+            const src = e.target.result;
+
+            // Tampilkan preview di avatar circle
+            previewImg.src = src;
+            previewImg.style.display = 'block';
+
+            // Sembunyikan foto lama / inisial
+            if (currentImg) currentImg.style.display = 'none';
+            if (initialSpan) initialSpan.style.display = 'none';
+
+            // Tampilkan strip info di bawah avatar
+            stripThumb.src = src;
+            stripFileName.textContent = file.name.length > 24
+                ? file.name.substring(0, 21) + '...'
+                : file.name;
+            previewStrip.classList.add('show');
+            photoHint.style.display = 'none';
+        };
+        reader.readAsDataURL(file);
+    });
+
+    /* Reset: batal pilih foto baru */
+    function resetPhoto() {
+        photoInput.value = '';
+        previewImg.src = '';
+        previewImg.style.display = 'none';
+
+        if (currentImg) currentImg.style.display = 'block';
+        if (initialSpan) initialSpan.style.display = 'block';
+
+        previewStrip.classList.remove('show');
+        photoHint.style.display = 'block';
+    }
+
+    /* Reset preview setiap kali modal ditutup / dibuka ulang */
+    document.getElementById('editProfileModal').addEventListener('hidden.bs.modal', resetPhoto);
 </script>

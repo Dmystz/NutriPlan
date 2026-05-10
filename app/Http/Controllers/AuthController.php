@@ -38,7 +38,7 @@ class AuthController extends Controller
         // Simpan user
         $user = User::create([
             'nama'          => $request->name,
-            'name'          => $request->name,   // kolom lama
+            'name'          => $request->name,
             'email'         => $request->email,
             'password'      => Hash::make($request->password),
             'umur'          => $request->umur,
@@ -88,6 +88,7 @@ class AuthController extends Controller
                 'user_id'         => $user->id,
                 'user_name'       => $user->nama ?? $user->name,
                 'user_email'      => $user->email,
+                'user_photo'      => $user->photo ?? null,   // ← tambahan foto
                 'bmi'             => $bmi,
                 'bmi_kategori'    => $user->kategoriBmi(),
                 'target_kalori'   => $target['kalori'],
