@@ -2,7 +2,6 @@
 namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
-
 class ProfileController extends Controller
 {
     public function update(Request $request)
@@ -30,35 +29,37 @@ class ProfileController extends Controller
             'jenis_kelamin' => $request->jenis_kelamin,
             'target'        => $request->target,
         ];
+
         // Upload foto jika ada
         if ($request->hasFile('photo')) {
             $path = $request->file('photo')->store('profile_photos', 'public');
             $data['photo'] = $path;
-            session(['user_photo' => $path]);
         }
+
         DB::table('users')->where('id', $userId)->update($data);
-        // Update semua session yang dipakai navbar & modal
+
+        // ✅ Refresh SEMUA session — ambil dari DB supaya akurat
+        $updatedUser = DB::table('users')->where('id', $userId)->first();
         session([
-            'user_name'  => $request->name,
-            'user_email' => $request->email,
+            'user_name'          => $updatedUser->name,
+            'user_email'         => $updatedUser->email,
+            'user_photo'         => $updatedUser->photo ?? null,
+            // Jaga google_avatar tetap ada (jangan dihapus saat edit profil)
+            'user_google_avatar' => $updatedUser->google_avatar ?? session('user_google_avatar'),
         ]);
+
         return redirect()->route('home')->with('success', 'Profil berhasil diperbarui.');
     }
-
-    // ── Tambahan untuk Google login ──
 
     public function showComplete()
     {
         if (!session('user_id')) {
             return redirect()->route('login');
         }
-
         $user = DB::table('users')->where('id', session('user_id'))->first();
-
         if ($user && $user->umur && $user->berat_badan && $user->tinggi_badan) {
             return redirect()->route('home');
         }
-
         return view('auth.complete_profile');
     }
 
@@ -67,16 +68,14 @@ class ProfileController extends Controller
         if (!session('user_id')) {
             return redirect()->route('login');
         }
-
         $request->validate([
             'umur'           => 'required|integer|min:1|max:120',
             'berat_badan'    => 'required|numeric|min:1|max:500',
             'tinggi_badan'   => 'required|numeric|min:1|max:300',
             'jenis_kelamin'  => 'required|in:Laki-laki,Perempuan',
-            'target' => 'required|in:maintenance,loss,gain',
+            'target'         => 'required|in:maintenance,loss,gain',
             'activity_level' => 'required|numeric',
         ]);
-
         DB::table('users')
             ->where('id', session('user_id'))
             ->update([
@@ -87,7 +86,6 @@ class ProfileController extends Controller
                 'target'         => $request->target,
                 'activity_level' => $request->activity_level,
             ]);
-
         return redirect()->route('home')->with('success', 'Profil berhasil dilengkapi!');
     }
 }
