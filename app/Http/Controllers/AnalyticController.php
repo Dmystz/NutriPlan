@@ -3,32 +3,23 @@
 namespace App\Http\Controllers;
 
 use App\Models\BmiRecord;
+use App\Models\MealPlanPreference;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
 class AnalyticController extends Controller
 {
-    /**
-     * Ambil user dari session ATAU Auth facade (support Google OAuth).
-     */
     private function getUser(): ?User
     {
-        // 1. Session-based (login manual)
         $userId = session('user_id');
-
-        // 2. Fallback: Auth facade — dipakai saat login via Google / Socialite
         if (! $userId && Auth::check()) {
             $userId = Auth::id();
         }
-
         if (! $userId) return null;
         return User::find($userId);
     }
 
-    /**
-     * Helper: hitung status dari nilai BMI.
-     */
     private function bmiStatus(float $bmi): string
     {
         return match (true) {
@@ -41,9 +32,6 @@ class AnalyticController extends Controller
         };
     }
 
-    /**
-     * Helper: query history per bulan untuk satu tahun.
-     */
     private function getMonthlyHistory(int $userId, int $year): array
     {
         $raw = BmiRecord::where('user_id', $userId)
@@ -61,15 +49,11 @@ class AnalyticController extends Controller
         return $history;
     }
 
-    /**
-     * Tampilkan halaman analytic BMI.
-     */
     public function index()
     {
         $user = $this->getUser();
         if (! $user) return redirect()->route('login');
 
-        // ── Data dasar user ──────────────────────────────────────────────
         $height        = (float) ($user->tinggi_badan   ?? 165);
         $weight        = (float) ($user->berat_badan    ?? 58);
         $age           = (int)   ($user->umur           ?? 24);
@@ -77,11 +61,24 @@ class AnalyticController extends Controller
         $activityLevel = (float) ($user->activity_level ?? 1.55);
         $target        = $user->target ?? 'maintain';
 
-        // ── Kalkulasi dari model ─────────────────────────────────────────
         $bmi         = $user->hitungBmi();
         $bmiStatus   = $user->kategoriBmi();
         $idealRange  = $user->beratIdeal();
-        $targetMacro = $user->targetMakro();
+
+        // ── Ambil targetMacro dari meal_plan_preferences jika ada ────────
+        $pref = MealPlanPreference::where('user_id', $user->id)->first();
+
+        if ($pref) {
+            $kalori      = $pref->target_kalori;
+            $targetMacro = [
+                'kalori'  => $kalori,
+                'protein' => (int) round(($kalori * $pref->protein_pct / 100) / 4),
+                'carbs'   => (int) round(($kalori * $pref->carbs_pct   / 100) / 4),
+                'fat'     => (int) round(($kalori * $pref->fat_pct     / 100) / 9),
+            ];
+        } else {
+            $targetMacro = $user->targetMakro();
+        }
 
         // ── Pakai data dari record terbaru jika ada ──────────────────────
         $latestRecord = BmiRecord::where('user_id', $user->id)
@@ -94,7 +91,6 @@ class AnalyticController extends Controller
             $bmi    = (float) $latestRecord->bmi_value;
         }
 
-        // ── Tahun yang tersedia di bmi_records ───────────────────────────
         $availableYears = BmiRecord::where('user_id', $user->id)
             ->selectRaw('YEAR(recorded_at) as year')
             ->distinct()
@@ -108,31 +104,15 @@ class AnalyticController extends Controller
         }
 
         $currentYear = (int) request('year', $availableYears[0]);
-
-        // ── BMI history per bulan ────────────────────────────────────────
-        $bmiHistory = $this->getMonthlyHistory($user->id, $currentYear);
+        $bmiHistory  = $this->getMonthlyHistory($user->id, $currentYear);
 
         return view('layout.analytic', compact(
-            'user',
-            'height',
-            'weight',
-            'age',
-            'gender',
-            'activityLevel',
-            'target',
-            'bmi',
-            'bmiStatus',
-            'idealRange',
-            'targetMacro',
-            'bmiHistory',
-            'availableYears',
-            'currentYear'
+            'user', 'height', 'weight', 'age', 'gender', 'activityLevel',
+            'target', 'bmi', 'bmiStatus', 'idealRange', 'targetMacro',
+            'bmiHistory', 'availableYears', 'currentYear', 'pref'
         ));
     }
 
-    /**
-     * Simpan BMI record baru (AJAX POST dari tombol Calculate & Save).
-     */
     public function store(Request $request)
     {
         $user = $this->getUser();
@@ -165,9 +145,6 @@ class AnalyticController extends Controller
         return response()->json(['success' => true, 'message' => 'BMI record saved!']);
     }
 
-    /**
-     * Ambil BMI history JSON per tahun (AJAX GET saat ganti dropdown tahun).
-     */
     public function history(Request $request)
     {
         $user = $this->getUser();

@@ -235,30 +235,56 @@
                                 {{ $idealRange['min'] ?? '–' }} – {{ $idealRange['max'] ?? '–' }} kg
                             </span>
                         </div>
+                        {{-- GANTI JADI --}}
                         <div class="summary-row">
                             <span class="summary-icon">🔥</span>
                             <span class="summary-label">Daily Calorie Target</span>
-                            <span class="summary-value">{{ number_format($targetMacro['kalori'] ?? 0) }} kcal</span>
+                            <span class="summary-value">
+                                {{ number_format($targetMacro['kalori'] ?? 0) }} kcal
+                                @if($pref)
+                                    <span style="font-size:0.65rem; color:#95cd41; font-weight:700; margin-left:4px;">✦ custom</span>
+                                @endif
+                            </span>
                         </div>
                         <div class="summary-row">
                             <span class="summary-icon">🥩</span>
                             <span class="summary-label">Protein</span>
-                            <span class="summary-value">{{ $targetMacro['protein'] ?? 0 }} g</span>
+                            <span class="summary-value">
+                                {{ $targetMacro['protein'] ?? 0 }} g
+                                @if($pref)
+                                    <span style="font-size:0.65rem; color:#6B7280;">({{ $pref->protein_pct }}%)</span>
+                                @endif
+                            </span>
                         </div>
                         <div class="summary-row">
                             <span class="summary-icon">🍚</span>
                             <span class="summary-label">Carbs</span>
-                            <span class="summary-value">{{ $targetMacro['carbs'] ?? 0 }} g</span>
+                            <span class="summary-value">
+                                {{ $targetMacro['carbs'] ?? 0 }} g
+                                @if($pref)
+                                    <span style="font-size:0.65rem; color:#6B7280;">({{ $pref->carbs_pct }}%)</span>
+                                @endif
+                            </span>
                         </div>
                         <div class="summary-row">
                             <span class="summary-icon">🫒</span>
                             <span class="summary-label">Fat</span>
-                            <span class="summary-value">{{ $targetMacro['fat'] ?? 0 }} g</span>
+                            <span class="summary-value">
+                                {{ $targetMacro['fat'] ?? 0 }} g
+                                @if($pref)
+                                    <span style="font-size:0.65rem; color:#6B7280;">({{ $pref->fat_pct }}%)</span>
+                                @endif
+                            </span>
                         </div>
                     </div>
                     <p class="mt-2 mb-0" style="font-size:0.65rem; color:#9CA3AF;">
                         * Ideal weight range = BMI 18.5–24.9 &nbsp;|&nbsp;
-                        Macros based on your <strong>{{ $user->target ?? 'maintenance' }}</strong> goal
+                        @if($pref)
+                            Macros from your <strong>meal plan preferences</strong>
+                            <a href="/meal_plan" style="color:#95cd41; text-decoration:none;">· edit</a>
+                        @else
+                            Macros based on your <strong>{{ $user->target ?? 'maintenance' }}</strong> goal
+                        @endif
                     </p>
                 </div>
             </div>
