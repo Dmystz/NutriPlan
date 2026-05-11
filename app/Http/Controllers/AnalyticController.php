@@ -5,141 +5,179 @@ namespace App\Http\Controllers;
 use App\Models\BmiRecord;
 use App\Models\User;
 use Illuminate\Http\Request;
-use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\Auth;
 
 class AnalyticController extends Controller
 {
-    // ══════════════════════════════
-    //  HALAMAN ANALYTIC
-    // ══════════════════════════════
+    /**
+     * Ambil user dari session ATAU Auth facade (support Google OAuth).
+     */
+    private function getUser(): ?User
+    {
+        // 1. Session-based (login manual)
+        $userId = session('user_id');
 
+        // 2. Fallback: Auth facade — dipakai saat login via Google / Socialite
+        if (! $userId && Auth::check()) {
+            $userId = Auth::id();
+        }
+
+        if (! $userId) return null;
+        return User::find($userId);
+    }
+
+    /**
+     * Helper: hitung status dari nilai BMI.
+     */
+    private function bmiStatus(float $bmi): string
+    {
+        return match (true) {
+            $bmi < 18.5 => 'underweight',
+            $bmi < 25   => 'normal',
+            $bmi < 30   => 'overweight',
+            $bmi < 35   => 'obese_1',
+            $bmi < 40   => 'obese_2',
+            default     => 'obese_3',
+        };
+    }
+
+    /**
+     * Helper: query history per bulan untuk satu tahun.
+     */
+    private function getMonthlyHistory(int $userId, int $year): array
+    {
+        $raw = BmiRecord::where('user_id', $userId)
+            ->whereYear('recorded_at', $year)
+            ->selectRaw('MONTH(recorded_at) as month, AVG(bmi_value) as avg_bmi')
+            ->groupByRaw('MONTH(recorded_at)')
+            ->orderByRaw('MONTH(recorded_at)')
+            ->pluck('avg_bmi', 'month')
+            ->toArray();
+
+        $history = [];
+        for ($m = 1; $m <= 12; $m++) {
+            $history[] = isset($raw[$m]) ? round((float) $raw[$m], 1) : null;
+        }
+        return $history;
+    }
+
+    /**
+     * Tampilkan halaman analytic BMI.
+     */
     public function index()
     {
-        $user = User::find(session('user_id'));
+        $user = $this->getUser();
+        if (! $user) return redirect()->route('login');
 
-        $bmi          = $user ? $user->hitungBmi()     : 0;
-        $bmiKategori  = $user ? $user->kategoriBmi()   : 'Normal';
-        $bmr          = $user ? round($user->hitungBmr())  : 0;
-        $tdee         = $user ? round($user->hitungTdee()) : 0;
-        $targetKalori = $user ? $user->targetKalori()  : 2000;
-        $targetMakro  = $user ? $user->targetMakro()   : [];
-        $beratIdeal   = $user ? $user->beratIdeal()    : ['min' => 0, 'max' => 0];
+        // ── Data dasar user ──────────────────────────────────────────────
+        $height        = (float) ($user->tinggi_badan   ?? 165);
+        $weight        = (float) ($user->berat_badan    ?? 58);
+        $age           = (int)   ($user->umur           ?? 24);
+        $gender        = $user->jenis_kelamin  ?? 'female';
+        $activityLevel = (float) ($user->activity_level ?? 1.55);
+        $target        = $user->target ?? 'maintain';
 
-        // Riwayat BMI 12 bulan terakhir (untuk chart)
-        $bmiHistory = $this->getBmiHistory($user);
+        // ── Kalkulasi dari model ─────────────────────────────────────────
+        $bmi         = $user->hitungBmi();
+        $bmiStatus   = $user->kategoriBmi();
+        $idealRange  = $user->beratIdeal();
+        $targetMacro = $user->targetMakro();
+
+        // ── Pakai data dari record terbaru jika ada ──────────────────────
+        $latestRecord = BmiRecord::where('user_id', $user->id)
+            ->latest('recorded_at')
+            ->first();
+
+        if ($latestRecord) {
+            $weight = (float) $latestRecord->berat_badan;
+            $height = (float) $latestRecord->tinggi_badan;
+            $bmi    = (float) $latestRecord->bmi_value;
+        }
+
+        // ── Tahun yang tersedia di bmi_records ───────────────────────────
+        $availableYears = BmiRecord::where('user_id', $user->id)
+            ->selectRaw('YEAR(recorded_at) as year')
+            ->distinct()
+            ->orderByDesc('year')
+            ->pluck('year')
+            ->map(fn($y) => (int) $y)
+            ->toArray();
+
+        if (empty($availableYears)) {
+            $availableYears = [(int) now()->year];
+        }
+
+        $currentYear = (int) request('year', $availableYears[0]);
+
+        // ── BMI history per bulan ────────────────────────────────────────
+        $bmiHistory = $this->getMonthlyHistory($user->id, $currentYear);
 
         return view('layout.analytic', compact(
             'user',
+            'height',
+            'weight',
+            'age',
+            'gender',
+            'activityLevel',
+            'target',
             'bmi',
-            'bmiKategori',
-            'bmr',
-            'tdee',
-            'targetKalori',
-            'targetMakro',
-            'beratIdeal',
+            'bmiStatus',
+            'idealRange',
+            'targetMacro',
             'bmiHistory',
+            'availableYears',
+            'currentYear'
         ));
     }
 
-    // ══════════════════════════════
-    //  SIMPAN HASIL KALKULASI BMI
-    // (AJAX dari form halaman analytic)
-    // ══════════════════════════════
-
-    public function saveBmi(Request $request)
+    /**
+     * Simpan BMI record baru (AJAX POST dari tombol Calculate & Save).
+     */
+    public function store(Request $request)
     {
-        $request->validate([
-            'berat_badan'   => 'required|numeric|min:10|max:500',
-            'tinggi_badan'  => 'required|numeric|min:50|max:300',
-            'umur'          => 'nullable|integer|min:1|max:120',
-            'jenis_kelamin' => 'nullable|in:male,female',
-            'activity_level'=> 'nullable|numeric',
-            'target'        => 'nullable|in:maintenance,loss,gain',
-        ]);
-
-        $userId = session('user_id');
-
-        // Update profil user
-        $user = User::findOrFail($userId);
-        $user->update($request->only(
-            'berat_badan', 'tinggi_badan', 'umur', 'jenis_kelamin', 'activity_level', 'target'
-        ));
-
-        // Simpan ke histori BMI
-        BmiRecord::create([
-            'user_id'      => $userId,
-            'berat_badan'  => $request->berat_badan,
-            'tinggi_badan' => $request->tinggi_badan,
-            'recorded_at'  => today()->toDateString(),
-        ]);
-
-        $bmi     = $user->hitungBmi();
-        $target  = $user->targetMakro();
-        $ideal   = $user->beratIdeal();
-
-        // Update session
-        session([
-            'bmi'           => $bmi,
-            'bmi_kategori'  => $user->kategoriBmi(),
-            'target_kalori' => $target['kalori'],
-            'berat_badan'   => $user->berat_badan,
-            'tinggi_badan'  => $user->tinggi_badan,
-        ]);
-
-        return response()->json([
-            'bmi'          => $bmi,
-            'kategori'     => $user->kategoriBmi(),
-            'bmr'          => round($user->hitungBmr()),
-            'tdee'         => round($user->hitungTdee()),
-            'target_kalori'=> $target['kalori'],
-            'target_protein'=> $target['protein'],
-            'target_carbs' => $target['carbs'],
-            'target_fat'   => $target['fat'],
-            'berat_ideal'  => $ideal,
-        ]);
-    }
-
-    // ══════════════════════════════
-    //  API: Riwayat BMI per tahun
-    // GET /api/analytic/bmi-history?year=2025
-    // ══════════════════════════════
-
-    public function bmiHistoryApi(Request $request)
-    {
-        $year = (int) $request->get('year', now()->year);
-        $user = User::find(session('user_id'));
-
-        return response()->json($this->getBmiHistory($user, $year));
-    }
-
-    // ══════════════════════════════
-    //  PRIVATE HELPER
-    // ══════════════════════════════
-
-    private function getBmiHistory(?User $user, int $year = null): array
-    {
+        $user = $this->getUser();
         if (! $user) {
-            return [];
+            return response()->json(['success' => false, 'message' => 'Unauthenticated'], 401);
         }
 
-        $year = $year ?? now()->year;
+        $request->validate([
+            'berat_badan'  => 'required|numeric|min:1|max:300',
+            'tinggi_badan' => 'required|numeric|min:50|max:250',
+        ]);
 
-        $records = BmiRecord::where('user_id', $user->id)
-            ->whereYear('recorded_at', $year)
-            ->orderBy('recorded_at')
-            ->get(['recorded_at', 'bmi_value']);
+        $h      = (float) $request->tinggi_badan / 100;
+        $bmi    = round((float) $request->berat_badan / ($h ** 2), 2);
+        $status = $this->bmiStatus($bmi);
 
-        // Buat array 12 bulan (null jika tidak ada data)
-        $bulan = collect(range(1, 12))->map(function (int $m) use ($records, $year) {
-            $match = $records->first(
-                fn ($r) => Carbon::parse($r->recorded_at)->month === $m
-            );
-            return [
-                'bulan' => Carbon::create($year, $m, 1)->format('M'),
-                'bmi'   => $match ? $match->bmi_value : null,
-            ];
-        });
+        BmiRecord::updateOrCreate(
+            [
+                'user_id'     => $user->id,
+                'recorded_at' => now()->toDateString(),
+            ],
+            [
+                'berat_badan'  => (float) $request->berat_badan,
+                'tinggi_badan' => (float) $request->tinggi_badan,
+                'bmi_value'    => $bmi,
+                'status'       => $status,
+            ]
+        );
 
-        return $bulan->toArray();
+        return response()->json(['success' => true, 'message' => 'BMI record saved!']);
+    }
+
+    /**
+     * Ambil BMI history JSON per tahun (AJAX GET saat ganti dropdown tahun).
+     */
+    public function history(Request $request)
+    {
+        $user = $this->getUser();
+        if (! $user) {
+            return response()->json(['success' => false, 'message' => 'Unauthenticated'], 401);
+        }
+
+        $year    = (int) $request->input('year', now()->year);
+        $history = $this->getMonthlyHistory($user->id, $year);
+
+        return response()->json(['data' => $history]);
     }
 }

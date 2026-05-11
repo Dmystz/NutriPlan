@@ -6,6 +6,7 @@ use App\Models\JadwalMakanan;
 use App\Models\MealLog;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
+use App\Models\MealPlanPreference;
 
 class MealPlanController extends Controller
 {
@@ -163,5 +164,47 @@ class MealPlanController extends Controller
             'grouped' => MealLog::groupedBySlot($userId, $date),
             'totals'  => MealLog::dailyTotals($userId, $date),
         ]);
+    }
+    public function getPreferences()
+    {
+        $pref = MealPlanPreference::firstOrCreate(
+            ['user_id' => $this->userId()],
+            [
+                'target_kalori' => 2200,
+                'protein_pct'   => 25,
+                'carbs_pct'     => 45,
+                'fat_pct'       => 30,
+                'diet_pref'     => 'balanced',
+                'meals_per_day' => 5,
+                'avoid_items'   => [],
+            ]
+        );
+
+        return response()->json(['success' => true, 'data' => $pref]);
+    }
+
+    /* ══════════════════════════════════════════════════════
+    POST /meal_plan/preferences
+    Simpan preferensi dari modal Adjust Meal Plan
+    ══════════════════════════════════════════════════════ */
+    public function savePreferences(Request $request)
+    {
+        $validated = $request->validate([
+            'target_kalori' => ['required', 'integer', 'min:1200', 'max:3500'],
+            'protein_pct'   => ['required', 'integer', 'min:10', 'max:50'],
+            'carbs_pct'     => ['required', 'integer', 'min:10', 'max:70'],
+            'fat_pct'       => ['required', 'integer', 'min:10', 'max:60'],
+            'diet_pref'     => ['required', 'string', 'in:balanced,high_protein,keto,vegan,low_carb,mediterranean'],
+            'meals_per_day' => ['required', 'integer', 'min:2', 'max:6'],
+            'avoid_items'   => ['nullable', 'array'],
+            'avoid_items.*' => ['string', 'max:50'],
+        ]);
+
+        MealPlanPreference::updateOrCreate(
+            ['user_id' => $this->userId()],
+            $validated
+        );
+
+        return response()->json(['success' => true, 'message' => 'Preferensi berhasil disimpan!']);
     }
 }
