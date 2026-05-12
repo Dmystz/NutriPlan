@@ -8,6 +8,7 @@ use App\Http\Controllers\MealPlanController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\GoogleController;
 use App\Http\Controllers\AnalyticController;
+use App\Http\Controllers\NutritionController;   // ← NEW
 
 /* ══════════════════════════════════════════════════════════
    PUBLIC — tidak perlu login
@@ -49,9 +50,12 @@ Route::post('/complete-profile', [ProfileController::class, 'complete'])    ->na
 Route::middleware(['auth.custom', 'nocache'])->group(function () {
 
     // ── Halaman statik ──────────────────────────────────────────────────
-    Route::get('/home',      fn() => view('layout.home'))     ->name('home');
-    Route::get('/nutrition', fn() => view('layout.nutrition'))->name('nutrition');
-    Route::get('/recipes',   fn() => view('layout.recipes'))  ->name('recipes');
+    Route::get('/home',    fn() => view('layout.home'))->name('home');
+    Route::get('/recipes', fn() => view('layout.recipes'))->name('recipes');
+
+    // ── Nutrition (dynamic from DB) ─────────────────────────────────────
+    Route::get('/nutrition',        [NutritionController::class, 'index'])->name('nutrition');
+    Route::get('/nutrition/{meal}', [NutritionController::class, 'show']) ->name('nutrition.show');
 
     // ── Analytic (BMI) ──────────────────────────────────────────────────
     Route::get ('/analytic',         [AnalyticController::class, 'index'])  ->name('analytic');
@@ -66,11 +70,7 @@ Route::middleware(['auth.custom', 'nocache'])->group(function () {
 
     // ── Profile ─────────────────────────────────────────────────────────
     Route::put('/profile/update', [ProfileController::class, 'update'])->name('profile.update');
-    Route::get ('/meal_plan/preferences',      [MealPlanController::class, 'getPreferences']) ->name('meal_plan.pref.get');
-    Route::post('/meal_plan/preferences',      [MealPlanController::class, 'savePreferences'])->name('meal_plan.pref.save');
-
-    // ── (Legacy) JadwalMakananController ───────────────────────────────
-    // Route::post  ('/meal_plan/store',       [JadwalMakananController::class, 'store'])  ->name('mealplan.store');
-    // Route::delete('/meal_plan/delete/{id}', [JadwalMakananController::class, 'destroy'])->name('mealplan.destroy');
+    Route::get ('/meal_plan/preferences',  [MealPlanController::class, 'getPreferences']) ->name('meal_plan.pref.get');
+    Route::post('/meal_plan/preferences',  [MealPlanController::class, 'savePreferences'])->name('meal_plan.pref.save');
 
 });

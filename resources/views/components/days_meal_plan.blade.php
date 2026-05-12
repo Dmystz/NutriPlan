@@ -6,6 +6,8 @@
     • Nutrition panel → reads totals from same API
     • Add Meal modal  → POSTs to /api/meal-logs, then refreshes both panels live
     • Date nav arrows → AJAX, no page reload
+    • Daily Goals    → target kalori & makro diambil dari MealPlanPreference (DB)
+                       dan live-update saat modal Adjust Meal Plan disimpan
     • renderTimeline() menggunakan struktur HTML yang sama dengan meal_template.blade.php (DAYS VIEW)
 --}}
 
@@ -15,20 +17,15 @@
 @php
     $defaultTotals = [
         'calories' => 0,
-        'protein' => 0,
-        'carbs' => 0,
-        'fat' => 0
+        'protein'  => 0,
+        'carbs'    => 0,
+        'fat'      => 0,
     ];
 
-    $defaultMakro = [
-        'protein' => 150,
-        'carbs' => 260,
-        'fat' => 70
-    ];
-
-    $targetMakroData = auth()->check()
-        ? auth()->user()->targetMakro()
-        : $defaultMakro;
+    // Baca dari MealPlanPreference via User model methods
+    // targetKalori() dan targetMakro() sudah baca DB, fallback ke default
+    $targetKaloriData = $targetKalori ?? 2000;
+    $targetMakroData  = $targetMakro  ?? ['protein' => 125, 'carbs' => 225, 'fat' => 67];
 @endphp
 
 <script>
@@ -39,7 +36,7 @@
 
         dailyTotals: @json($dailyTotals ?? $defaultTotals),
 
-        targetKalori: {{ auth()->user()?->targetKalori() ?? 2000 }},
+        targetKalori: {{ $targetKaloriData }},
 
         targetMakro: @json($targetMakroData),
 
@@ -185,20 +182,20 @@
                 </div>
             </div>
 
-            {{-- Daily Goals --}}
-            <div class="nutrition-panel p-3 mb-3">
+            {{-- ── Daily Goals ──────────────────────────────────── --}}
+            {{--
+                ID pada label target diberi suffix -target agar JS bisa update
+                tanpa reload halaman setelah modal Adjust Meal Plan disimpan.
+            --}}
+            <div class="nutrition-panel p-3 mb-3" id="daily-goals-panel">
                 <h5 class="fw-bold mb-3">Daily Goals</h5>
-
-                @php
-                    $targetKalori = auth()->user()?->targetKalori() ?? 2000;
-                    $targetMakro  = auth()->user()?->targetMakro()  ?? ['protein'=>150,'carbs'=>260,'fat'=>70];
-                @endphp
 
                 <div class="mb-2">
                     <div class="d-flex justify-content-between align-items-center">
                         <p class="tgl mb-1">Calories</p>
                         <p class="tgl mb-1 text-muted">
-                            <span id="goal-kcal-cur">0</span> / {{ $targetKalori }} kcal
+                            <span id="goal-kcal-cur">0</span>
+                            / <span id="goal-kcal-target">{{ $targetKaloriData }}</span> kcal
                         </p>
                     </div>
                     <div class="progress-daily">
@@ -210,7 +207,8 @@
                     <div class="d-flex justify-content-between align-items-center">
                         <p class="tgl mb-1">Protein</p>
                         <p class="tgl mb-1 text-muted">
-                            <span id="goal-protein-cur">0</span> / {{ $targetMakro['protein'] }}g
+                            <span id="goal-protein-cur">0</span>
+                            / <span id="goal-protein-target">{{ $targetMakroData['protein'] }}</span>g
                         </p>
                     </div>
                     <div class="progress-daily">
@@ -222,7 +220,8 @@
                     <div class="d-flex justify-content-between align-items-center">
                         <p class="tgl mb-1">Carbs</p>
                         <p class="tgl mb-1 text-muted">
-                            <span id="goal-carbs-cur">0</span> / {{ $targetMakro['carbs'] }}g
+                            <span id="goal-carbs-cur">0</span>
+                            / <span id="goal-carbs-target">{{ $targetMakroData['carbs'] }}</span>g
                         </p>
                     </div>
                     <div class="progress-daily">
@@ -234,7 +233,8 @@
                     <div class="d-flex justify-content-between align-items-center">
                         <p class="tgl mb-1">Fat</p>
                         <p class="tgl mb-1 text-muted">
-                            <span id="goal-fat-cur">0</span> / {{ $targetMakro['fat'] }}g
+                            <span id="goal-fat-cur">0</span>
+                            / <span id="goal-fat-target">{{ $targetMakroData['fat'] }}</span>g
                         </p>
                     </div>
                     <div class="progress-daily">
@@ -277,14 +277,27 @@
 <script>
 (function () {
     /* ── Constants ──────────────────────────────────── */
-    const CIRC       = 282.74;   // 2π×45
-    const SLOTS      = ['Breakfast', 'Snack', 'Lunch', 'Dinner'];
-    const SLOT_ICON  = { Breakfast:'☀️', Snack:'🍎', Lunch:'🥗', Dinner:'🌙' };
-    const SLOT_TIME  = { Breakfast:'08:00', Snack:'10:30', Lunch:'13:00', Dinner:'19:30' };
-    const INIT       = window.__DAYS_INIT__;
+    const CIRC      = 282.74;   // 2π×45
+    const SLOTS     = ['Breakfast', 'Snack', 'Lunch', 'Dinner'];
+    const SLOT_ICON = { Breakfast:'☀️', Snack:'🍎', Lunch:'🥗', Dinner:'🌙' };
+    const SLOT_TIME = { Breakfast:'08:00', Snack:'10:30', Lunch:'13:00', Dinner:'19:30' };
+    const INIT      = window.__DAYS_INIT__;
 
-    /* ── PERUBAHAN 1: expose ke window agar modal_add_meal bisa baca tanggal aktif ── */
+    /* ── expose ke window agar modal_add_meal bisa baca tanggal aktif ── */
     window.daysCurrentDate = INIT.today;   // YYYY-MM-DD
+
+    /* ── Live targets — bisa di-override oleh adjSave() ──────────────── */
+    //
+    // Kita simpan target di object terpisah supaya saat modal Adjust Meal Plan
+    // berhasil simpan, kita tinggal panggil daysUpdateTargets(newPref) dan
+    // semua label + progress bar langsung terupdate tanpa reload.
+    //
+    let liveTargets = {
+        kalori  : INIT.targetKalori,
+        protein : INIT.targetMakro.protein,
+        carbs   : INIT.targetMakro.carbs,
+        fat     : INIT.targetMakro.fat,
+    };
 
     /* ── Helpers ────────────────────────────────────── */
     function fmtDate(dateStr) {
@@ -295,12 +308,58 @@
         const d = new Date(dateStr + 'T00:00:00');
         return d.toLocaleDateString('en-GB', { month:'short', day:'numeric' });
     }
-    function pct(val, target) { return target > 0 ? Math.min(Math.round(val / target * 100), 100) : 0; }
+    function pct(val, target) {
+        return target > 0 ? Math.min(Math.round(val / target * 100), 100) : 0;
+    }
+
+    /* ── Update target labels di DOM ────────────────── */
+    function daysUpdateTargetLabels() {
+        document.getElementById('goal-kcal-target').textContent    = liveTargets.kalori;
+        document.getElementById('goal-protein-target').textContent = liveTargets.protein;
+        document.getElementById('goal-carbs-target').textContent   = liveTargets.carbs;
+        document.getElementById('goal-fat-target').textContent     = liveTargets.fat;
+    }
+
+    /**
+     * Dipanggil dari adjSave() setelah berhasil simpan ke DB.
+     * newPref = { target_kalori, protein_pct, carbs_pct, fat_pct, ... }
+     *
+     * Hitung ulang gram target dari kcal + pct, update liveTargets,
+     * update label DOM, lalu re-render progress bars dengan totals terakhir.
+     */
+    window.daysUpdateTargets = function (newPref) {
+        const kcal = parseInt(newPref.target_kalori);
+
+        liveTargets = {
+            kalori  : kcal,
+            protein : Math.round(kcal * parseInt(newPref.protein_pct) / 100 / 4),
+            carbs   : Math.round(kcal * parseInt(newPref.carbs_pct)   / 100 / 4),
+            fat     : Math.round(kcal * parseInt(newPref.fat_pct)     / 100 / 9),
+        };
+
+        // Sinkronkan juga ke INIT supaya tip panel pakai nilai terbaru
+        INIT.targetKalori      = liveTargets.kalori;
+        INIT.targetMakro       = {
+            protein : liveTargets.protein,
+            carbs   : liveTargets.carbs,
+            fat     : liveTargets.fat,
+        };
+
+        daysUpdateTargetLabels();
+
+        // Re-render progress bars dengan totals yang sedang aktif
+        if (window.__lastTotals) {
+            updateNutritionPanel(window.__lastTotals);
+        }
+    };
 
     /* ── Update Nutrition Panel ─────────────────────── */
     function updateNutritionPanel(totals) {
-        const t  = INIT.targetKalori;
-        const tm = INIT.targetMakro;
+        // Cache totals supaya bisa di-re-render setelah target berubah
+        window.__lastTotals = totals;
+
+        const t  = liveTargets.kalori;
+        const tm = liveTargets;
 
         const proteinArc = (totals.protein * 4 / (t || 2000)) * CIRC;
         const carbsArc   = (totals.carbs   * 4 / (t || 2000)) * CIRC;
@@ -313,32 +372,40 @@
         document.getElementById('donut-protein').setAttribute('transform', `rotate(-90 60 60)`);
 
         document.getElementById('donut-carbs').setAttribute('stroke-dasharray', `${carbsArc} ${CIRC}`);
-        document.getElementById('donut-carbs').setAttribute('transform', `rotate(${-90 + (carbsOffset / CIRC) * 360} 60 60)`);
+        document.getElementById('donut-carbs').setAttribute('transform',
+            `rotate(${-90 + (carbsOffset / CIRC) * 360} 60 60)`);
 
         document.getElementById('donut-fat').setAttribute('stroke-dasharray', `${fatArc} ${CIRC}`);
-        document.getElementById('donut-fat').setAttribute('transform', `rotate(${-90 + (fatOffset / CIRC) * 360} 60 60)`);
+        document.getElementById('donut-fat').setAttribute('transform',
+            `rotate(${-90 + (fatOffset / CIRC) * 360} 60 60)`);
 
         document.getElementById('donut-kcal-val').textContent = Math.round(totals.calories).toLocaleString();
         document.getElementById('legend-protein').textContent = Math.round(totals.protein) + 'g';
         document.getElementById('legend-carbs').textContent   = Math.round(totals.carbs)   + 'g';
         document.getElementById('legend-fat').textContent     = Math.round(totals.fat)      + 'g';
 
+        // Current values
         document.getElementById('goal-kcal-cur').textContent    = Math.round(totals.calories);
         document.getElementById('goal-protein-cur').textContent = Math.round(totals.protein);
         document.getElementById('goal-carbs-cur').textContent   = Math.round(totals.carbs);
         document.getElementById('goal-fat-cur').textContent     = Math.round(totals.fat);
 
-        document.getElementById('goal-bar-kcal').style.width    = pct(totals.calories, t)         + '%';
-        document.getElementById('goal-bar-protein').style.width = pct(totals.protein,  tm.protein) + '%';
-        document.getElementById('goal-bar-carbs').style.width   = pct(totals.carbs,    tm.carbs)   + '%';
-        document.getElementById('goal-bar-fat').style.width     = pct(totals.fat,      tm.fat)     + '%';
+        // Progress bars — pakai liveTargets (bisa berubah tanpa reload)
+        document.getElementById('goal-bar-kcal').style.width    = pct(totals.calories, tm.kalori)   + '%';
+        document.getElementById('goal-bar-protein').style.width = pct(totals.protein,  tm.protein)  + '%';
+        document.getElementById('goal-bar-carbs').style.width   = pct(totals.carbs,    tm.carbs)    + '%';
+        document.getElementById('goal-bar-fat').style.width     = pct(totals.fat,      tm.fat)      + '%';
 
         updateTip(totals);
     }
 
     function updateTip(totals) {
-        const tm  = INIT.targetMakro;
-        const gap = { protein: tm.protein - totals.protein, carbs: tm.carbs - totals.carbs, fat: tm.fat - totals.fat };
+        const tm  = liveTargets;
+        const gap = {
+            protein : tm.protein - totals.protein,
+            carbs   : tm.carbs   - totals.carbs,
+            fat     : tm.fat     - totals.fat,
+        };
         let title = 'Great job!';
         let body  = 'You\'re right on track for today.';
         let icon  = '🏆';
@@ -362,16 +429,7 @@
         document.getElementById('tip-body').textContent     = body;
     }
 
-    /* ── Render Timeline ─────────────────────────────────────────────────────
-       Struktur HTML mengikuti meal_template.blade.php DAYS VIEW:
-         .d-flex.align-items-start.mb-3.timeline-meal-row
-           .meal-time-col > .meal-time-text
-           .meal-timeline-col > .meal-dot-timeline + .meal-line-timeline
-           .wrapper-content-meal-days.d-flex.px-2.py-2.flex-grow-1
-             img.gambar-meal  (atau placeholder emoji)
-             .d-flex.flex-column.ms-2.justify-content-center
-               .type-meal  |  .name-meal  |  .nutrition-meal
-    ──────────────────────────────────────────────────────────────────────── */
+    /* ── Render Timeline ─────────────────────────────── */
     function renderTimeline(grouped) {
         const container = document.getElementById('days-timeline');
         const empty     = document.getElementById('days-empty');
@@ -386,11 +444,12 @@
             return;
         }
         empty.style.display = 'none';
-        document.getElementById('days-meal-count').textContent = totalItems + ' Meal' + (totalItems > 1 ? 's' : '');
+        document.getElementById('days-meal-count').textContent =
+            totalItems + ' Meal' + (totalItems > 1 ? 's' : '');
 
         const lastSlot = [...SLOTS].reverse().find(s => (grouped[s] || []).length > 0);
 
-        SLOTS.forEach((slot, si) => {
+        SLOTS.forEach((slot) => {
             const items = grouped[slot] || [];
             if (items.length === 0) return;
 
@@ -534,7 +593,6 @@
     document.getElementById('days-prev-btn').addEventListener('click', () => {
         const d = new Date(window.daysCurrentDate + 'T00:00:00');
         d.setDate(d.getDate() - 1);
-        /* ── PERUBAHAN 2: update window.daysCurrentDate saat ganti hari ── */
         window.daysCurrentDate = formatLocalDate(d);
         daysLoad(window.daysCurrentDate);
     });
@@ -542,7 +600,6 @@
     document.getElementById('days-next-btn').addEventListener('click', () => {
         const d = new Date(window.daysCurrentDate + 'T00:00:00');
         d.setDate(d.getDate() + 1);
-        /* ── PERUBAHAN 2: update window.daysCurrentDate saat ganti hari ── */
         window.daysCurrentDate = formatLocalDate(d);
         daysLoad(window.daysCurrentDate);
     });
@@ -552,19 +609,19 @@
         const data = e.detail;
         if (data.grouped) renderTimeline(data.grouped);
         if (data.totals)  updateNutritionPanel(data.totals);
-        /* Jika response tidak include grouped/totals, reload dari API */
         if (!data.grouped || !data.totals) {
             daysLoad(window.daysCurrentDate);
         }
     });
 
-    /* ── Fallback reload event (dari modal_add_meal jika response minimalis) ── */
+    /* ── Fallback reload event ── */
     window.addEventListener('days-reload', function () {
         daysLoad(window.daysCurrentDate);
     });
 
     /* ── Boot ── */
     (function boot() {
+        daysUpdateTargetLabels();          // set label dari DB values
         renderTimeline(INIT.groupedLogs);
         updateNutritionPanel(INIT.dailyTotals);
         setTimeout(() => daysLoad(window.daysCurrentDate), 800);

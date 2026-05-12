@@ -30,26 +30,42 @@ class MealPlanController extends Controller
     {
         $userId = $this->userId();
         $today  = now()->toDateString();
-
+    
         /* ── Days view ──────────────────────────────────── */
         $groupedLogs = MealLog::groupedBySlot($userId, $today);
         $dailyTotals = MealLog::dailyTotals($userId, $today);
-
+    
+        /* ── Preference (untuk Daily Goals di days_meal_plan.blade.php) ── */
+        $pref = MealPlanPreference::where('user_id', $userId)->first();
+    
+        // Hitung target kalori & makro dari preference, atau fallback ke default
+        if ($pref) {
+            $targetKalori = (int) $pref->target_kalori;
+            $targetMakro  = [
+                'protein' => (int) round($pref->target_kalori * $pref->protein_pct / 100 / 4),
+                'carbs'   => (int) round($pref->target_kalori * $pref->carbs_pct   / 100 / 4),
+                'fat'     => (int) round($pref->target_kalori * $pref->fat_pct     / 100 / 9),
+            ];
+        } else {
+            $targetKalori = 2000;
+            $targetMakro  = ['protein' => 125, 'carbs' => 225, 'fat' => 67];
+        }
+    
         /* ── Week view: 6 hari ke depan ─────────────────── */
         $upcomingDays = collect(range(1, 6))->map(function (int $i) use ($userId) {
             $date    = now()->addDays($i);
             $dateStr = $date->toDateString();
-
+    
             $jadwals = JadwalMakanan::forUser($userId)
                 ->forDate($dateStr)
                 ->with('resep')
                 ->orderBy('meal_time')
                 ->get();
-
+    
             $isPlanned = $jadwals->isNotEmpty();
             $first     = $jadwals->first();
             $meal      = null;
-
+    
             if ($isPlanned && $first?->resep) {
                 $meal = [
                     'name'       => $first->resep->nama_makanan,
@@ -62,7 +78,7 @@ class MealPlanController extends Controller
                     'protein'    => $first->resep->protein  ?? 0,
                 ];
             }
-
+    
             return [
                 'date'       => $date,
                 'is_planned' => $isPlanned,
@@ -70,11 +86,13 @@ class MealPlanController extends Controller
                 'jadwals'    => $jadwals,
             ];
         });
-
+    
         return view('layout.meal_plan', compact(
             'groupedLogs',
             'dailyTotals',
             'upcomingDays',
+            'targetKalori',   // ← baru
+            'targetMakro',    // ← baru
         ));
     }
 
