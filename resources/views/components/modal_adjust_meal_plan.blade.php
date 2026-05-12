@@ -391,15 +391,30 @@ async function adjSave() {
 
         feedback.style.display = 'block';
         if (res.ok && data.success) {
+
+            // update target di Daily Goals tanpa reload
+            if (typeof window.daysUpdateTargets === 'function') {
+                window.daysUpdateTargets(payload);
+            }
+
+            // refresh timeline + nutrition panel
+            window.dispatchEvent(new Event('days-reload'));
+
+            feedback.style.display = 'block';
             feedback.style.color   = '#16A34A';
             feedback.textContent   = '✓ ' + data.message;
+
             // tutup modal setelah 1.2 detik
             setTimeout(function() {
+
                 bootstrap.Modal.getInstance(
                     document.getElementById('modalAdjustPlan')
                 ).hide();
+
                 feedback.style.display = 'none';
+
             }, 1200);
+
         } else {
             feedback.style.color = '#DC2626';
             feedback.textContent = '✗ ' + (data.message || 'Gagal menyimpan.');

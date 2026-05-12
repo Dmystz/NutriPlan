@@ -183,7 +183,7 @@
                     {{-- Bahan-bahan --}}
                     <div class="mb-4">
                         <div class="d-flex align-items-center justify-content-between mb-3">
-                            <h6 class="detail-section-title mb-0">🧂 Bahan-bahan</h6>
+                            <h6 class="detail-section-title mb-0">🧂 Ingredients</h6>
                             <span id="detailServings" class="detail-servings-badge"></span>
                         </div>
                         <ul id="detailIngredients" class="detail-ingredients-list"></ul>
@@ -193,7 +193,7 @@
 
                     {{-- Cara Masak --}}
                     <div class="pb-2">
-                        <h6 class="detail-section-title mb-3">👨‍🍳 Cara Memasak</h6>
+                        <h6 class="detail-section-title mb-3">👨‍🍳 How To Prepare</h6>
                         <ol id="detailSteps" class="detail-steps-list"></ol>
                     </div>
 
