@@ -11,14 +11,39 @@ use Illuminate\Support\Facades\Validator;
 class KatalogResepController extends Controller
 {
     /* ══════════════════════════════════════════════════
-       WEB — view blade (GET /recipes sudah ada di web.php,
-       tinggal ganti closure ke controller ini jika perlu)
+       HELPER — decode array field yang mungkin datang
+       sebagai JSON string (dari FormData) atau sudah array
+       (dari JSON body / application/json).
        ══════════════════════════════════════════════════ */
+    private function decodeArrayField(mixed $value): array
+    {
+        if (is_array($value)) {
+            return $value;
+        }
+        if (is_string($value)) {
+            $decoded = json_decode($value, true);
+            return is_array($decoded) ? $decoded : [];
+        }
+        return [];
+    }
 
-    /**
-     * Halaman utama Recipes (opsional — bisa tetap pakai closure di web.php).
-     * Jika ingin data langsung dikirim ke blade, aktifkan route ini.
-     */
+    private function normalizeTextArray(mixed $value): string
+    {
+        if (is_array($value)) {
+            return implode("\n", $value);
+        }
+        if (is_string($value)) {
+            $decoded = json_decode($value, true);
+            if (is_array($decoded)) {
+                return implode("\n", $decoded);
+            }
+        }
+        return (string) ($value ?? '');
+    }
+
+    /* ══════════════════════════════════════════════════
+       WEB — view blade
+       ══════════════════════════════════════════════════ */
     public function index(Request $request)
     {
         $userId = session('user_id');
@@ -29,7 +54,7 @@ class KatalogResepController extends Controller
             ->get();
 
         $popular = KatalogResep::visible($userId)
-            ->orderByDesc('calories')   // ganti dengan kolom "views/likes" jika ada
+            ->orderByDesc('calories')
             ->take(8)
             ->get();
 
@@ -46,20 +71,17 @@ class KatalogResepController extends Controller
      */
     public function apiIndex(Request $request): JsonResponse
     {
-        $userId  = session('user_id');
-        $query   = KatalogResep::visible($userId)->with('user:id,name');
+        $userId = session('user_id');
+        $query  = KatalogResep::visible($userId)->with('user:id,name');
 
-        // Filter pencarian teks
         if ($search = $request->query('search')) {
             $query->search($search);
         }
 
-        // Filter meal type
         if ($mealType = $request->query('meal_type')) {
             $query->byMealType($mealType);
         }
 
-        // Filter tag (contoh: ?tags=Vegan,Keto)
         if ($tags = $request->query('tags')) {
             $tagList = array_map('trim', explode(',', $tags));
             foreach ($tagList as $tag) {
@@ -70,7 +92,6 @@ class KatalogResepController extends Controller
         $perPage = min((int) $request->query('per_page', 12), 50);
         $recipes = $query->latest()->paginate($perPage);
 
-        // Tambahkan accessor ke setiap item
         $recipes->getCollection()->transform(function (KatalogResep $r) {
             $r->append(['image_url', 'meal_type_color']);
             return $r;
@@ -81,7 +102,6 @@ class KatalogResepController extends Controller
 
     /**
      * GET /api/recipes/recommended
-     * 4–8 resep terbaru untuk section "Recommended".
      */
     public function recommended(Request $request): JsonResponse
     {
@@ -92,13 +112,16 @@ class KatalogResepController extends Controller
             ->get()
             ->each->append(['image_url', 'meal_type_color']);
 
-        return response()->json(['data' => $recipes]);
+        $data = $recipes->map(function($r) {
+            $arr = $r->toArray();
+            $arr['ingredients'] = $r->ingredients_list;
+            $arr['cara_masak']  = $r->cara_masak_list;
+            return $arr;
+        });
+
+        return response()->json(['data' => $data]);
     }
 
-    /**
-     * GET /api/recipes/popular
-     * 4–8 resep untuk section "Popular".
-     */
     public function popular(Request $request): JsonResponse
     {
         $userId  = session('user_id');
@@ -108,12 +131,18 @@ class KatalogResepController extends Controller
             ->get()
             ->each->append(['image_url', 'meal_type_color']);
 
-        return response()->json(['data' => $recipes]);
+        $data = $recipes->map(function($r) {
+            $arr = $r->toArray();
+            $arr['ingredients'] = $r->ingredients_list;
+            $arr['cara_masak']  = $r->cara_masak_list;
+            return $arr;
+        });
+
+        return response()->json(['data' => $data]);
     }
 
     /**
      * GET /api/recipes/{id}
-     * Detail satu resep.
      */
     public function show(int $id): JsonResponse
     {
@@ -121,12 +150,22 @@ class KatalogResepController extends Controller
         $recipe = KatalogResep::visible($userId)->findOrFail($id);
         $recipe->append(['image_url', 'meal_type_color']);
 
-        return response()->json(['data' => $recipe]);
+        // Konversi ingredients & cara_masak ke array sebelum return
+        $data = $recipe->toArray();
+        $data['ingredients'] = $recipe->ingredients_list;
+        $data['cara_masak']  = $recipe->cara_masak_list;
+
+        return response()->json(['data' => $data]);
     }
 
     /**
      * POST /api/recipes
-     * Simpan resep baru (milik user yang sedang login).
+     *
+     * Menerima dua format request:
+     *  1. multipart/form-data  → ada file image; ingredients/cara_masak/tags dikirim sebagai JSON string
+     *  2. application/json     → tidak ada file; ingredients/cara_masak/tags sudah array
+     *
+     * Keduanya ditangani oleh decodeArrayField().
      */
     public function store(Request $request): JsonResponse
     {
@@ -136,6 +175,16 @@ class KatalogResepController extends Controller
             return response()->json(['message' => 'Unauthenticated.'], 401);
         }
 
+        /*
+         * Normalisasi: jika ingredients / cara_masak / tags datang sebagai
+         * JSON string (FormData), decode dulu agar validasi 'array' lolos.
+         */
+        $request->merge([
+            'ingredients' => $this->normalizeTextArray($request->input('ingredients')),
+            'cara_masak'  => $this->normalizeTextArray($request->input('cara_masak')),
+            'tags'        => $this->decodeArrayField($request->input('tags')),
+        ]);
+
         $validator = Validator::make($request->all(), [
             'nama_makanan' => 'required|string|max:255',
             'description'  => 'nullable|string',
@@ -143,18 +192,23 @@ class KatalogResepController extends Controller
             'difficulty'   => 'nullable|in:easy,medium,hard',
             'cook_time'    => 'nullable|integer|min:1',
             'servings'     => 'nullable|integer|min:1',
-            'ingredients'  => 'nullable|array',
-            'cara_masak'   => 'nullable|array',
+
+            'ingredients'  => 'nullable|string',
+            'cara_masak'   => 'nullable|string',
+
             'tags'         => 'nullable|array',
-            'is_public'    => 'boolean',
-            'calories'     => 'nullable|integer|min:0',
+            'tags.*'       => 'string',
+
+            'is_public'    => 'nullable|boolean',
+
+            'calories'     => 'nullable|numeric|min:0',
             'protein'      => 'nullable|numeric|min:0',
             'carbs'        => 'nullable|numeric|min:0',
             'fat'          => 'nullable|numeric|min:0',
             'fiber'        => 'nullable|numeric|min:0',
-            'image'        => 'nullable|image|max:2048',  // file upload opsional
-        ]);
 
+            'image'        => 'nullable|image|max:5120',
+        ]);
         if ($validator->fails()) {
             return response()->json(['errors' => $validator->errors()], 422);
         }
@@ -162,10 +216,13 @@ class KatalogResepController extends Controller
         $data            = $validator->validated();
         $data['user_id'] = $userId;
 
-        // Hitung total_nutrisi sederhana
-        $data['total_nutrisi'] = ($data['protein'] ?? 0) * 4
-            + ($data['carbs'] ?? 0) * 4
-            + ($data['fat'] ?? 0) * 9;
+        // Pastikan is_public ter-cast ke boolean
+        $data['is_public'] = filter_var($request->input('is_public', true), FILTER_VALIDATE_BOOLEAN);
+
+        // Hitung total_nutrisi
+        $data['total_nutrisi'] = (float)($data['protein'] ?? 0) * 4
+            + (float)($data['carbs'] ?? 0) * 4
+            + (float)($data['fat'] ?? 0) * 9;
 
         // Handle upload gambar
         if ($request->hasFile('image')) {
@@ -173,7 +230,7 @@ class KatalogResepController extends Controller
                 ->store('recipes', 'public');
         }
 
-        unset($data['image']); // hapus key file sebelum insert
+        unset($data['image']);
 
         $recipe = KatalogResep::create($data);
         $recipe->append(['image_url', 'meal_type_color']);
@@ -183,7 +240,6 @@ class KatalogResepController extends Controller
 
     /**
      * PUT /api/recipes/{id}
-     * Update resep milik user sendiri.
      */
     public function update(Request $request, int $id): JsonResponse
     {
@@ -195,23 +251,49 @@ class KatalogResepController extends Controller
 
         $recipe = KatalogResep::where('user_id', $userId)->findOrFail($id);
 
+        // Normalisasi array fields
+        $request->merge([
+
+        'ingredients' => (function() use ($request) {
+            $val = $request->input('ingredients');
+            if (is_array($val)) return implode("\n", $val);
+            $decoded = json_decode($val, true);
+            if (is_array($decoded)) return implode("\n", $decoded);
+            return $val; // sudah string biasa
+        })(),
+
+        'cara_masak' => (function() use ($request) {
+            $val = $request->input('cara_masak');
+            if (is_array($val)) return implode("\n", $val);
+            $decoded = json_decode($val, true);
+            if (is_array($decoded)) return implode("\n", $decoded);
+            return $val;
+        })(),
+        ]);
+
         $validator = Validator::make($request->all(), [
-            'nama_makanan' => 'sometimes|required|string|max:255',
+            'nama_makanan' => 'required|string|max:255',
             'description'  => 'nullable|string',
             'meal_type'    => 'nullable|in:breakfast,lunch,dinner,snacks,desserts,drinks',
             'difficulty'   => 'nullable|in:easy,medium,hard',
             'cook_time'    => 'nullable|integer|min:1',
             'servings'     => 'nullable|integer|min:1',
-            'ingredients'  => 'nullable|array',
-            'cara_masak'   => 'nullable|array',
+
+            'ingredients'  => 'nullable|string',
+            'cara_masak'   => 'nullable|string',
+
             'tags'         => 'nullable|array',
-            'is_public'    => 'boolean',
-            'calories'     => 'nullable|integer|min:0',
+            'tags.*'       => 'string',
+
+            'is_public'    => 'nullable|boolean',
+
+            'calories'     => 'nullable|numeric|min:0',
             'protein'      => 'nullable|numeric|min:0',
             'carbs'        => 'nullable|numeric|min:0',
             'fat'          => 'nullable|numeric|min:0',
             'fiber'        => 'nullable|numeric|min:0',
-            'image'        => 'nullable|image|max:2048',
+
+            'image'        => 'nullable|image|max:5120',
         ]);
 
         if ($validator->fails()) {
@@ -220,16 +302,13 @@ class KatalogResepController extends Controller
 
         $data = $validator->validated();
 
-        // Recalculate total_nutrisi jika ada perubahan makro
         if (isset($data['protein'], $data['carbs'], $data['fat'])) {
-            $data['total_nutrisi'] = $data['protein'] * 4
-                + $data['carbs'] * 4
-                + $data['fat'] * 9;
+            $data['total_nutrisi'] = (float)$data['protein'] * 4
+                + (float)$data['carbs'] * 4
+                + (float)$data['fat'] * 9;
         }
 
-        // Handle upload gambar baru
         if ($request->hasFile('image')) {
-            // Hapus gambar lama
             if ($recipe->image_path) {
                 Storage::disk('public')->delete($recipe->image_path);
             }
@@ -247,7 +326,6 @@ class KatalogResepController extends Controller
 
     /**
      * DELETE /api/recipes/{id}
-     * Hapus resep milik user sendiri.
      */
     public function destroy(int $id): JsonResponse
     {
@@ -270,7 +348,6 @@ class KatalogResepController extends Controller
 
     /**
      * GET /api/recipes/mine
-     * Semua resep milik user yang sedang login ("Your Recipes").
      */
     public function mine(Request $request): JsonResponse
     {

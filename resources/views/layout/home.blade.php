@@ -315,12 +315,12 @@
                                             stroke-width="8" fill="none" stroke-dasharray="66 198"
                                             stroke-dashoffset="-198" stroke-linecap="round" />
                                     </svg>
-                                    <h6 id="current-kkal" class="fw-bold m-0">1450</h6>
+                                    <h6 id="current-kkal" class="fw-bold m-0">0</h6>
                                     <p id="target-p-kkal" class="p-crd-home p-0 m-0 text-muted position-absolute"> kcal of
                                         <span id="maks-kkal">2000</span>
                                     </p>
                                 </div>
-                                <p class="p-crd-home fw-bold p-0 m-0" id="ket-presentase">100%</p>
+                                <p class="p-crd-home fw-bold p-0 m-0" id="ket-presentase">0%</p>
                             </div>
                         </div>
                     </div>
@@ -393,13 +393,93 @@
          HOME PAGE JAVASCRIPT
          ═══════════════════════════════════════════════════════ --}}
     <script>
-        /* ── Meals & Drinks — fetch dari API sama seperti days_meal_plan ── */
+        /* ── Meals & Drinks + Daily Intake — fetch dari /api/meal-logs ── */
         (function () {
             const SLOTS     = ['Breakfast', 'Snack', 'Lunch', 'Dinner'];
             const SLOT_ICON = { Breakfast: '☀️', Snack: '🍎', Lunch: '🥗', Dinner: '🌙' };
             const SLOT_TIME = { Breakfast: '08:00', Snack: '10:30', Lunch: '13:00', Dinner: '19:30' };
             const INIT      = window.__HOME_INIT__;
 
+            /* ── Baca target dari sumber terbaik yang tersedia:
+               1. window.__DAYS_INIT__  → data dari DB via controller (paling akurat)
+               2. DOM goal-*-target     → tersedia jika days_meal_plan ada di halaman yang sama
+               3. Hardcode fallback     → hanya jika keduanya tidak ada               ── */
+            function getLiveTargets() {
+                const d = window.__DAYS_INIT__;
+                if (d) {
+                    return {
+                        kalori  : d.targetKalori           || 2000,
+                        protein : d.targetMakro?.protein   || 125,
+                        carbs   : d.targetMakro?.carbs     || 225,
+                        fat     : d.targetMakro?.fat       || 67,
+                    };
+                }
+                return {
+                    kalori  : parseInt(document.getElementById('goal-kcal-target')?.textContent)    || 2000,
+                    protein : parseInt(document.getElementById('goal-protein-target')?.textContent) || 125,
+                    carbs   : parseInt(document.getElementById('goal-carbs-target')?.textContent)   || 225,
+                    fat     : parseInt(document.getElementById('goal-fat-target')?.textContent)     || 67,
+                };
+            }
+
+            /* ── Helper: set text content ── */
+            function setEl(id, val) {
+                const el = document.getElementById(id);
+                if (el) el.textContent = val;
+            }
+
+            /* ── Helper: set progress bar width ── */
+            function setBar(id, pct) {
+                const el = document.getElementById(id);
+                if (el) el.style.width = pct + '%';
+            }
+
+            /* ── Update komponen layout-daily.blade.php ── */
+            function updateDailyIntake(totals) {
+                if (!totals) return;
+                const t = getLiveTargets();
+
+                function pct(val, max) {
+                    return max > 0 ? Math.min(Math.round(val / max * 100), 100) : 0;
+                }
+
+                // ── Carbs ──
+                const carbs      = Math.round(totals.carbs   || 0);
+                const carbsPct   = pct(carbs, t.carbs);
+                const carbsLeft  = Math.max(t.carbs - carbs, 0);
+                setEl('daily-carbs-cur',    carbs);
+                setEl('daily-carbs-target', t.carbs);
+                setEl('daily-carbs-left',   carbsLeft);
+                setEl('daily-carbs-pct',    carbsPct);
+                setBar('daily-bar-carbs',   carbsPct);
+
+                // ── Protein ──
+                const protein     = Math.round(totals.protein || 0);
+                const proteinPct  = pct(protein, t.protein);
+                const proteinLeft = Math.max(t.protein - protein, 0);
+                setEl('daily-protein-cur',    protein);
+                setEl('daily-protein-target', t.protein);
+                setEl('daily-protein-left',   proteinLeft);
+                setEl('daily-protein-pct',    proteinPct);
+                setBar('daily-bar-protein',   proteinPct);
+
+                // ── Fat ──
+                const fat      = Math.round(totals.fat || 0);
+                const fatPct   = pct(fat, t.fat);
+                const fatLeft  = Math.max(t.fat - fat, 0);
+                setEl('daily-fat-cur',    fat);
+                setEl('daily-fat-target', t.fat);
+                setEl('daily-fat-left',   fatLeft);
+                setEl('daily-fat-pct',    fatPct);
+                setBar('daily-bar-fat',   fatPct);
+
+                // ── Calories widget di Reports ──
+                const cal = Math.round(totals.calories || 0);
+                setEl('current-kkal', cal);
+                if (typeof updateProgressFromDOM === 'function') updateProgressFromDOM();
+            }
+
+            /* ── Render timeline Meals & Drinks ── */
             function renderHomeMeals(grouped) {
                 const container = document.getElementById('home-meals-timeline');
                 const empty     = document.getElementById('home-meals-empty');
@@ -407,9 +487,7 @@
 
                 container.innerHTML = '';
 
-                // Flatten semua log + slot
                 let allLogs = [];
-
                 SLOTS.forEach(slot => {
                     (grouped[slot] || []).forEach(log => {
                         allLogs.push({ ...log, slot });
@@ -423,10 +501,8 @@
                 }
 
                 empty.style.display = 'none';
-                countEl.textContent =
-                    allLogs.length + ' Meal' + (allLogs.length > 1 ? 's' : '');
+                countEl.textContent = allLogs.length + ' Meal' + (allLogs.length > 1 ? 's' : '');
 
-                // Sort berdasarkan jam makan
                 allLogs.sort((a, b) => {
                     const tA = (a.meal_time || SLOT_TIME[a.slot] || '00:00').substring(0, 5);
                     const tB = (b.meal_time || SLOT_TIME[b.slot] || '00:00').substring(0, 5);
@@ -434,16 +510,12 @@
                 });
 
                 allLogs.forEach((log, index) => {
-
                     const isLast      = index === allLogs.length - 1;
                     const slot        = log.slot;
-                    const timeDisplay =
-                        (log.meal_time || SLOT_TIME[slot] || '00:00').substring(0, 5);
+                    const timeDisplay = (log.meal_time || SLOT_TIME[slot] || '00:00').substring(0, 5);
 
                     const row = document.createElement('div');
-
                     row.className = 'd-flex align-items-start mb-3 timeline-meal-row';
-
                     row.innerHTML = `
                         <div class="meal-time-col">
                             <span class="meal-time-text">${timeDisplay}</span>
@@ -480,63 +552,37 @@
                                 <div class="d-flex align-items-center gap-3 nutrition-meal flex-wrap">
 
                                     <div class="d-flex align-items-center gap-1">
-                                        <svg xmlns="http://www.w3.org/2000/svg"
-                                            width="16"
-                                            height="16"
-                                            viewBox="0 0 16 16"
-                                            fill="none">
-
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16" fill="none">
                                             <path d="M5.66671 9.66667C6.10873 9.66667 6.53266 9.49107 6.84522 9.17851C7.15778 8.86595 7.33337 8.44203 7.33337 8C7.33337 7.08 7.00004 6.66667 6.66671 6C5.95204 4.57133 6.51737 3.29733 8.00004 2C8.33337 3.66667 9.33337 5.26667 10.6667 6.33333C12 7.4 12.6667 8.66667 12.6667 10C12.6667 10.6128 12.546 11.2197 12.3115 11.7859C12.077 12.352 11.7332 12.8665 11.2999 13.2998C10.8665 13.7332 10.3521 14.0769 9.7859 14.3114C9.21971 14.546 8.61288 14.6667 8.00004 14.6667C7.38721 14.6667 6.78037 14.546 6.21418 14.3114C5.648 14.0769 5.13355 13.7332 4.70021 13.2998C4.26687 12.8665 3.92312 12.352 3.6886 11.7859C3.45408 11.2197 3.33337 10.6128 3.33337 10C3.33337 9.23133 3.62204 8.47067 4.00004 8C4.00004 8.44203 4.17564 8.86595 4.4882 9.17851C4.80076 9.49107 5.22468 9.66667 5.66671 9.66667Z"
-                                                stroke="#FF6900"
-                                                stroke-width="1.33333"
-                                                stroke-linecap="round"
-                                                stroke-linejoin="round"/>
+                                                stroke="#FF6900" stroke-width="1.33333" stroke-linecap="round" stroke-linejoin="round"/>
                                         </svg>
-
-                                        <p class="font-size-s m-0">
-                                            ${Math.round(log.calories)} kcal
-                                        </p>
+                                        <p class="font-size-s m-0">${Math.round(log.calories)} kcal</p>
                                     </div>
 
                                     <div class="d-flex align-items-center gap-1">
-
-                                        <svg xmlns="http://www.w3.org/2000/svg"
-                                            width="16"
-                                            height="16"
-                                            viewBox="0 0 16 16"
-                                            fill="none">
-
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16" fill="none">
                                             <g clip-path="url(#clip0_home_protein_${log.id})">
-
                                                 <path d="M10.9334 9.13335C11.4802 8.72243 11.9219 8.18791 12.2225 7.57351C12.5231 6.95911 12.674 6.28228 12.6628 5.59839C12.6516 4.9145 12.4787 4.24297 12.1582 3.63872C11.8377 3.03447 11.3787 2.51468 10.8188 2.12184C10.2589 1.72901 9.61389 1.4743 8.93665 1.37855C8.2594 1.2828 7.5691 1.34872 6.92222 1.57093C6.27534 1.79314 5.69025 2.16532 5.2148 2.65704C4.73935 3.14875 4.38705 3.74603 4.18672 4.40001C3.45339 6.48668 3.66672 7.00002 2.06672 8.45335C1.74789 8.71473 1.51763 9.06825 1.40746 9.46553C1.29728 9.86281 1.31257 10.2844 1.45123 10.6727C1.5899 11.0609 1.84516 11.3969 2.18208 11.6345C2.519 11.8721 2.92111 11.9997 3.33339 12C6.00005 12 8.93338 10.8 10.9334 9.13335Z"
-                                                    stroke="#00A63E"
-                                                    stroke-width="1.33333"
-                                                    stroke-linecap="round"
-                                                    stroke-linejoin="round"/>
-
+                                                    stroke="#00A63E" stroke-width="1.33333" stroke-linecap="round" stroke-linejoin="round"/>
                                             </g>
-
                                             <defs>
                                                 <clipPath id="clip0_home_protein_${log.id}">
                                                     <rect width="16" height="16" fill="white"/>
                                                 </clipPath>
                                             </defs>
                                         </svg>
-
-                                        <p class="font-size-s m-0">
-                                            ${log.protein}g protein
-                                        </p>
+                                        <p class="font-size-s m-0">${log.protein}g protein</p>
                                     </div>
 
                                 </div>
                             </div>
                         </div>
                     `;
-
                     container.appendChild(row);
                 });
             }
 
+            /* ── Fetch data dari API ── */
             async function loadHomeMeals() {
                 document.getElementById('home-meals-loading').style.display = 'block';
                 try {
@@ -545,6 +591,7 @@
                     });
                     const data = await res.json();
                     renderHomeMeals(data.grouped || {});
+                    updateDailyIntake(data.totals  || null);
                 } catch (e) {
                     console.error('loadHomeMeals:', e);
                 } finally {
@@ -552,20 +599,24 @@
                 }
             }
 
-            /* Kalau user tambah meal dari modal manapun, home ikut update */
+            /* ── Event: meal ditambah dari modal mana pun ── */
             window.addEventListener('meal-added', function (e) {
-                if (e.detail && e.detail.grouped) renderHomeMeals(e.detail.grouped);
+                const detail = e.detail || {};
+                if (detail.grouped) renderHomeMeals(detail.grouped);
+                if (detail.totals)  updateDailyIntake(detail.totals);
+                // Jika detail tidak lengkap, reload ulang dari API
+                if (!detail.grouped || !detail.totals) loadHomeMeals();
             });
 
             document.addEventListener('DOMContentLoaded', loadHomeMeals);
         })();
 
-        /* ── Widget scripts — tidak diubah ── */
+        /* ── Widget scripts ── */
         document.addEventListener("DOMContentLoaded", () => {
-            const plusBtn   = document.getElementById("plus");
-            const minusBtn  = document.getElementById("minus");
+            const plusBtn    = document.getElementById("plus");
+            const minusBtn   = document.getElementById("minus");
             const waterValue = document.getElementById("water-value-report");
-            const waterBar  = document.querySelector(".water-bar");
+            const waterBar   = document.querySelector(".water-bar");
             let current = 0;
             const goal = 2000, step = 200;
 
@@ -581,10 +632,10 @@
         });
 
         document.addEventListener("DOMContentLoaded", () => {
-            const upBtn      = document.getElementById("up-btn");
-            const downBtn    = document.getElementById("down-btn");
+            const upBtn       = document.getElementById("up-btn");
+            const downBtn     = document.getElementById("down-btn");
             const currentText = document.getElementById("current-weight");
-            const diffText   = document.getElementById("value-weight-kg");
+            const diffText    = document.getElementById("value-weight-kg");
             let current = 68.0;
             const target = 65.0, min = 50, max = 80, step = 0.5;
 
@@ -603,22 +654,22 @@
         });
 
         document.addEventListener("DOMContentLoaded", () => {
-            const height    = 170;
-            let weight      = 68;
-            const bmiText   = document.getElementById("current-bmi");
+            const height     = 170;
+            let weight       = 68;
+            const bmiText    = document.getElementById("current-bmi");
             const ketElement = document.getElementById("ket-bmi");
             const weightText = document.getElementById("ket-berat");
-            const plusBtn   = document.getElementById("plus-weight");
-            const minusBtn  = document.getElementById("minus-weight");
+            const plusBtn    = document.getElementById("plus-weight");
+            const minusBtn   = document.getElementById("minus-weight");
             const greenPaths = document.querySelectorAll(".svg-weight path[stroke='#34D399']");
-            const needle    = greenPaths[greenPaths.length - 1];
+            const needle     = greenPaths[greenPaths.length - 1];
 
             function mapRange(v, i0, i1, o0, o1) { return (v - i0) * (o1 - o0) / (i1 - i0) + o0; }
             function calcBMI(w, h) { const hm = h / 100; return w / (hm * hm); }
 
             function updateBMI() {
                 const bmi = calcBMI(weight, height);
-                bmiText.textContent   = bmi.toFixed(1);
+                bmiText.textContent    = bmi.toFixed(1);
                 weightText.textContent = `${weight} kg`;
                 let status, color, angle;
                 if      (bmi < 18.5) { status = "Underweight"; color = "#60A5FA"; angle = mapRange(bmi, 10, 18.5, -90, -25); }
@@ -635,8 +686,8 @@
         });
 
         function updateProgressFromDOM() {
-            const current = parseInt(document.getElementById("current-kkal").textContent);
-            const target  = parseInt(document.getElementById("maks-kkal").textContent);
+            const current = parseInt(document.getElementById("current-kkal").textContent) || 0;
+            const target  = parseInt(document.getElementById("maks-kkal").textContent)    || 2000;
             const percent = Math.min((current / target) * 100, 100);
             document.getElementById("ket-presentase").textContent = `${percent.toFixed(0)}%`;
             [seg1, seg2, seg3, seg4].forEach((seg, i) => {

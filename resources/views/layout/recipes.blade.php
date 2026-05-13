@@ -138,7 +138,6 @@
     <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable">
         <div class="modal-content recipe-detail-modal">
 
-            {{-- ✅ CLOSE BUTTON — position:absolute, z-index tinggi, DI LUAR image wrapper --}}
             <button type="button"
                     class="recipe-modal-close"
                     data-bs-dismiss="modal"
@@ -164,23 +163,19 @@
             {{-- Body --}}
             <div class="modal-body p-0">
 
-                {{-- Loading --}}
                 <div id="detailLoading" class="text-center py-5">
                     <div class="spinner-border spinner-border-sm" style="color:#EA5C2B;" role="status"></div>
                     <p class="text-muted small mt-2 mb-0">Memuat resep...</p>
                 </div>
 
-                {{-- Content --}}
                 <div id="detailContent" style="display:none;" class="recipe-detail-content">
 
                     <p id="detailDesc" class="detail-desc"></p>
 
-                    {{-- Nutrition --}}
                     <div id="detailNutrition" class="detail-nutrition-row"></div>
 
                     <hr class="detail-divider">
 
-                    {{-- Bahan-bahan --}}
                     <div class="mb-4">
                         <div class="d-flex align-items-center justify-content-between mb-3">
                             <h6 class="detail-section-title mb-0">🧂 Ingredients</h6>
@@ -191,7 +186,6 @@
 
                     <hr class="detail-divider">
 
-                    {{-- Cara Masak --}}
                     <div class="pb-2">
                         <h6 class="detail-section-title mb-3">👨‍🍳 How To Prepare</h6>
                         <ol id="detailSteps" class="detail-steps-list"></ol>
@@ -207,19 +201,390 @@
 {{-- ── Modal Your Recipes ── --}}
 <div class="modal fade" id="modalYourRecipes" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable">
-        <div class="modal-content border-0" style="border-radius:16px;">
-            <div class="modal-header border-0 pb-0">
-                <h5 class="modal-title fw-bold">📖 Your Recipes</h5>
+        <div class="modal-content border-0 yr-modal">
+            <div class="modal-header yr-header">
+                <div class="d-flex align-items-center gap-2">
+                    <div class="yr-header-icon">📖</div>
+                    <div>
+                        <h5 class="modal-title fw-bold m-0" style="font-size:.95rem;color:#111827;">Your Recipes</h5>
+                        <p class="m-0" style="font-size:.68rem;color:#9CA3AF;">Resep yang kamu buat</p>
+                    </div>
+                </div>
                 <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
             </div>
-            <div class="modal-body p-3">
-                <div class="row g-3" id="gridYourRecipes">
-                    <div class="text-center text-muted py-5">Loading...</div>
+            <div class="modal-body p-3" id="yr-body">
+                <div class="d-flex justify-content-center align-items-center py-5">
+                    <div class="spinner-border spinner-border-sm me-2" style="color:#EA5C2B;"></div>
+                    <span class="text-muted small">Memuat resepmu...</span>
                 </div>
             </div>
         </div>
     </div>
 </div>
+
+{{-- ── Confirm Delete Modal ── --}}
+<div class="modal fade" id="modalConfirmDelete" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered" style="max-width:360px;">
+        <div class="modal-content border-0" style="border-radius:20px;overflow:hidden;">
+            <div style="height:3px;background:linear-gradient(90deg,#ef4444,#f97316);"></div>
+            <div class="modal-body text-center p-4">
+                <div style="width:52px;height:52px;background:#FEF2F2;border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 auto 14px;font-size:1.5rem;">🗑️</div>
+                <h6 class="fw-bold mb-1" style="color:#111827;">Hapus Resep?</h6>
+                <p class="text-muted small mb-3" id="deleteRecipeName" style="font-size:.78rem;">Resep ini akan dihapus permanen.</p>
+                <div class="d-flex gap-2 justify-content-center">
+                    <button type="button" class="yr-btn-cancel" data-bs-dismiss="modal">Batal</button>
+                    <button type="button" class="yr-btn-delete" id="btnConfirmDelete">
+                        <span id="deleteSpinner" style="display:none;" class="spinner-border spinner-border-sm me-1"></span>
+                        Hapus
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.yr-modal {
+    border-radius: 20px !important;
+    box-shadow: 0 24px 64px rgba(0,0,0,.14) !important;
+    overflow: hidden;
+}
+.yr-header {
+    border-bottom: 1px solid rgba(0,0,0,.07);
+    padding: 16px 20px 14px;
+}
+.yr-header-icon {
+    width: 34px; height: 34px;
+    background: linear-gradient(135deg, #ea5c2b, #f97316);
+    border-radius: 10px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 1rem;
+    box-shadow: 0 4px 10px rgba(234,92,43,.3);
+}
+
+/* Recipe row card */
+.yr-card {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 10px 12px;
+    border-radius: 14px;
+    border: 1px solid #F3F4F6;
+    background: #FAFAFA;
+    margin-bottom: 8px;
+    transition: all .18s;
+    cursor: pointer;
+}
+.yr-card:hover { background: #fff; border-color: #E5E7EB; box-shadow: 0 4px 16px rgba(0,0,0,.08); transform: translateY(-1px); }
+.yr-card-img {
+    width: 60px; height: 60px;
+    border-radius: 10px;
+    object-fit: cover;
+    flex-shrink: 0;
+    background: #F3F4F6;
+}
+.yr-card-info { flex: 1; min-width: 0; }
+.yr-card-title {
+    font-size: .82rem; font-weight: 700; color: #111827;
+    margin: 0 0 3px;
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+.yr-card-meta { display: flex; gap: 5px; flex-wrap: wrap; align-items: center; }
+.yr-card-tag {
+    font-size: .62rem; font-weight: 600;
+    background: rgba(234,92,43,.1); color: #ea5c2b;
+    border-radius: 20px; padding: 2px 8px;
+}
+.yr-card-time {
+    font-size: .62rem; color: #9CA3AF;
+}
+.yr-card-vis {
+    font-size: .62rem; font-weight: 600;
+    border-radius: 20px; padding: 2px 8px;
+}
+.yr-card-vis.public  { background: rgba(149,205,65,.12); color: #6ab32b; }
+.yr-card-vis.private { background: rgba(107,114,128,.1); color: #6B7280; }
+
+.yr-btn-delete-card {
+    flex-shrink: 0;
+    width: 32px; height: 32px;
+    border-radius: 50%;
+    border: 1.5px solid #FECACA;
+    background: #FFF5F5;
+    color: #EF4444;
+    font-size: .8rem;
+    display: flex; align-items: center; justify-content: center;
+    cursor: pointer;
+    transition: all .15s;
+    padding: 0;
+}
+.yr-btn-delete-card:hover { background: #FEE2E2; border-color: #EF4444; transform: scale(1.1); }
+
+/* Empty state */
+.yr-empty {
+    text-align: center;
+    padding: 40px 20px;
+}
+.yr-empty-icon { font-size: 2.5rem; margin-bottom: 10px; }
+.yr-empty-text { font-size: .82rem; color: #6B7280; margin: 0; }
+.yr-empty-sub  { font-size: .72rem; color: #9CA3AF; margin: 4px 0 0; }
+
+/* Confirm delete buttons */
+.yr-btn-cancel {
+    border: 1.5px solid #E5E7EB; background: #F9FAFB; color: #6B7280;
+    border-radius: 50px; padding: .4rem 1.1rem; font-size: .8rem; font-weight: 600;
+    cursor: pointer; transition: all .15s;
+}
+.yr-btn-cancel:hover { background: #F3F4F6; }
+.yr-btn-delete {
+    border: none; background: linear-gradient(135deg, #ef4444, #dc2626); color: #fff;
+    border-radius: 50px; padding: .4rem 1.2rem; font-size: .8rem; font-weight: 700;
+    cursor: pointer; box-shadow: 0 4px 12px rgba(239,68,68,.3); transition: all .15s;
+    display: flex; align-items: center;
+}
+.yr-btn-delete:hover { opacity: .88; transform: translateY(-1px); }
+.yr-btn-delete:disabled { opacity: .55; cursor: not-allowed; transform: none; }
+</style>
+
+<script>
+/* ══════════════════════════
+   BACKDROP CLEANUP UTILITY
+   Fix: halaman gelap & tidak bisa diklik setelah modal ditutup
+══════════════════════════ */
+function cleanupBackdrops() {
+    // Hanya bersihkan jika tidak ada modal yang masih terbuka
+    var openModals = document.querySelectorAll('.modal.show');
+    if (openModals.length === 0) {
+        document.querySelectorAll('.modal-backdrop').forEach(function(el) { el.remove(); });
+        document.body.classList.remove('modal-open');
+        document.body.style.removeProperty('padding-right');
+        document.body.style.removeProperty('overflow');
+    }
+}
+
+// Pasang cleanup di semua modal saat halaman sudah siap
+document.addEventListener('DOMContentLoaded', function() {
+    ['modalYourRecipes', 'modalConfirmDelete', 'modalRecipeDetail', 'modalAddRecipe'].forEach(function(id) {
+        var el = document.getElementById(id);
+        if (!el) return;
+        el.addEventListener('hidden.bs.modal', function() {
+            setTimeout(cleanupBackdrops, 50);
+        });
+    });
+});
+</script>
+
+<script>
+/* ══════════════════════════
+   YOUR RECIPES
+══════════════════════════ */
+(function() {
+    var deleteTargetId   = null;
+    var deleteTargetName = null;
+
+    function yrTagColor(tag) {
+        var m = {
+            breakfast:'#95CD41',lunch:'#EA5C2B',dinner:'#2B7FFF',
+            snacks:'#FBBF24',desserts:'#A78BFA',drinks:'#34D399',
+            Breakfast:'#95CD41',Lunch:'#EA5C2B',Dinner:'#2B7FFF',
+        };
+        return m[tag] || '#6B7280';
+    }
+
+    function yrBuildCard(r) {
+        var img      = r.image_url || '{{ asset("img/meal1_home.png") }}';
+        var title    = r.nama_makanan || 'Resep';
+        var tag      = (r.meal_type || '');
+        var tagLabel = tag.charAt(0).toUpperCase() + tag.slice(1);
+        var timeStr  = r.cook_time ? r.cook_time + ' min' : '';
+        var vis      = r.is_public ? 'public' : 'private';
+        var visLabel = r.is_public ? '🌍 Publik' : '🔒 Pribadi';
+        var fallbackImg = '{{ asset("img/meal1_home.png") }}';
+
+        var card = document.createElement('div');
+        card.className = 'yr-card';
+        card.dataset.id = r.id;
+        card.innerHTML =
+            '<img class="yr-card-img" src="' + img + '" alt="' + title + '" onerror="this.src=\'' + fallbackImg + '\'">'
+        + '<div class="yr-card-info">'
+        +   '<p class="yr-card-title">' + title + '</p>'
+        +   '<div class="yr-card-meta">'
+        +     (tag ? '<span class="yr-card-tag" style="background:' + yrTagColor(tag) + '22;color:' + yrTagColor(tag) + '">' + tagLabel + '</span>' : '')
+        +     (timeStr ? '<span class="yr-card-time">⏱ ' + timeStr + '</span>' : '')
+        +     '<span class="yr-card-vis ' + vis + '">' + visLabel + '</span>'
+        +   '</div>'
+        + '</div>'
+        + '<button type="button" class="yr-btn-delete-card" title="Hapus resep" onclick="yrAskDelete(event,' + r.id + ',\'' + title.replace(/'/g, '') + '\')">'
+        +   '<svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M3 6h18M8 6V4h8v2M19 6l-1 14H6L5 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>'
+        + '</button>';
+
+        /* klik card → buka detail (kecuali klik tombol delete) */
+        card.addEventListener('click', function(e) {
+            if (e.target.closest('.yr-btn-delete-card')) return;
+            var yrModal = bootstrap.Modal.getInstance(document.getElementById('modalYourRecipes'));
+            if (yrModal) {
+                yrModal.hide();
+                // Tunggu modal benar-benar tertutup sebelum buka detail
+                document.getElementById('modalYourRecipes').addEventListener('hidden.bs.modal', function openDetailAfterClose() {
+                    document.getElementById('modalYourRecipes').removeEventListener('hidden.bs.modal', openDetailAfterClose);
+                    window.openDetail(r.id);
+                });
+            } else {
+                window.openDetail(r.id);
+            }
+        });
+
+        return card;
+    }
+
+    window.yrLoadMyRecipes = async function() {
+        var body = document.getElementById('yr-body');
+        body.innerHTML = '<div class="d-flex justify-content-center align-items-center py-5"><div class="spinner-border spinner-border-sm me-2" style="color:#EA5C2B;"></div><span class="text-muted small">Memuat resepmu...</span></div>';
+
+        try {
+            var res  = await fetch('/api/recipes/mine');
+            var json = await res.json();
+            var data = Array.isArray(json.data) ? json.data : (json.data?.data ?? []);
+
+            body.innerHTML = '';
+
+            if (data.length === 0) {
+                body.innerHTML = '<div class="yr-empty"><div class="yr-empty-icon">🍽️</div><p class="yr-empty-text">Belum ada resep.</p><p class="yr-empty-sub">Yuk tambah resep pertamamu!</p></div>';
+                return;
+            }
+
+            var count = document.createElement('p');
+            count.style.cssText = 'font-size:.72rem;color:#9CA3AF;margin:0 0 10px;padding:0 2px;';
+            count.textContent = data.length + ' resep';
+            body.appendChild(count);
+
+            data.forEach(function(r) {
+                body.appendChild(yrBuildCard(r));
+            });
+        } catch(e) {
+            body.innerHTML = '<div class="yr-empty"><div class="yr-empty-icon">⚠️</div><p class="yr-empty-text">Gagal memuat resep.</p></div>';
+        }
+    };
+
+    /* ── Ask delete confirmation ── */
+    window.yrAskDelete = function(e, id, name) {
+        e.stopPropagation();
+        deleteTargetId   = id;
+        deleteTargetName = name;
+        document.getElementById('deleteRecipeName').textContent = '"' + name + '" akan dihapus permanen dan tidak bisa dikembalikan.';
+        new bootstrap.Modal(document.getElementById('modalConfirmDelete')).show();
+    };
+
+    /* ── Confirm delete ── */
+    document.getElementById('btnConfirmDelete').addEventListener('click', async function() {
+        if (!deleteTargetId) return;
+        var btn     = this;
+        var spinner = document.getElementById('deleteSpinner');
+        btn.disabled = true;
+        spinner.style.display = 'inline-block';
+
+        try {
+            var csrfToken = document.querySelector('meta[name="csrf-token"]');
+            var res = await fetch('/api/recipes/' + deleteTargetId, {
+                method: 'DELETE',
+                headers: {
+                    'X-CSRF-TOKEN': csrfToken ? csrfToken.content : '',
+                    'Accept': 'application/json'
+                }
+            });
+
+            var json = await res.json();
+
+            /* Tutup confirm modal, lalu buka kembali Your Recipes */
+            var cdModal = bootstrap.Modal.getInstance(document.getElementById('modalConfirmDelete'));
+            if (cdModal) {
+                cdModal.hide();
+                document.getElementById('modalConfirmDelete').addEventListener('hidden.bs.modal', function reopenYr() {
+                    document.getElementById('modalConfirmDelete').removeEventListener('hidden.bs.modal', reopenYr);
+                    new bootstrap.Modal(document.getElementById('modalYourRecipes')).show();
+                });
+            }
+
+            if (res.ok) {
+                /* Hapus card dari DOM */
+                var card = document.querySelector('#yr-body .yr-card[data-id="' + deleteTargetId + '"]');
+                if (card) {
+                    card.style.transition = 'all .25s';
+                    card.style.opacity = '0';
+                    card.style.transform = 'translateX(20px)';
+                    setTimeout(function() { card.remove(); }, 250);
+                }
+
+                /* Update counter */
+                var countEl = document.querySelector('#yr-body > p');
+                if (countEl) {
+                    var remaining = document.querySelectorAll('#yr-body .yr-card').length - 1;
+                    if (remaining <= 0) {
+                        document.getElementById('yr-body').innerHTML = '<div class="yr-empty"><div class="yr-empty-icon">🍽️</div><p class="yr-empty-text">Belum ada resep.</p><p class="yr-empty-sub">Yuk tambah resep pertamamu!</p></div>';
+                    } else {
+                        countEl.textContent = remaining + ' resep';
+                    }
+                }
+
+                /* Refresh grid utama */
+                if (typeof window.fetchRecommended === 'function') window.fetchRecommended();
+                if (typeof window.fetchPopular     === 'function') window.fetchPopular();
+
+                yrShowToast('Resep "' + deleteTargetName + '" berhasil dihapus.');
+            } else {
+                yrShowToast(json.message || 'Gagal menghapus resep.', true);
+            }
+        } catch(err) {
+            /* Tutup confirm modal dan buka kembali Your Recipes meski error */
+            var cdModal = bootstrap.Modal.getInstance(document.getElementById('modalConfirmDelete'));
+            if (cdModal) {
+                cdModal.hide();
+                document.getElementById('modalConfirmDelete').addEventListener('hidden.bs.modal', function reopenYrErr() {
+                    document.getElementById('modalConfirmDelete').removeEventListener('hidden.bs.modal', reopenYrErr);
+                    new bootstrap.Modal(document.getElementById('modalYourRecipes')).show();
+                });
+            }
+            yrShowToast('Gagal terhubung ke server.', true);
+        } finally {
+            btn.disabled = false;
+            spinner.style.display = 'none';
+            deleteTargetId = null;
+        }
+    });
+
+    /* ── Toast ── */
+    function yrShowToast(msg, isError) {
+        var toast = document.createElement('div');
+        var color = isError ? '#ef4444' : '#95cd41';
+        toast.style.cssText = 'position:fixed;bottom:24px;right:24px;z-index:9999;'
+            + 'background:#fff;border-radius:14px;padding:12px 16px;'
+            + 'box-shadow:0 8px 30px rgba(0,0,0,.18);display:flex;align-items:center;gap:10px;'
+            + 'border-left:4px solid ' + color + ';max-width:280px;'
+            + 'animation:yr-slide-in .3s ease;font-size:.78rem;color:#374151;font-weight:600;';
+        toast.textContent = msg;
+        var style = document.createElement('style');
+        style.textContent = '@keyframes yr-slide-in{from{opacity:0;transform:translateX(20px)}to{opacity:1;transform:none}}';
+        document.head.appendChild(style);
+        document.body.appendChild(toast);
+        setTimeout(function() {
+            toast.style.transition = 'opacity .4s';
+            toast.style.opacity = '0';
+            setTimeout(function() { toast.remove(); }, 400);
+        }, 3000);
+    }
+
+    /* ── Trigger load saat modal dibuka ── */
+    document.getElementById('modalYourRecipes').addEventListener('show.bs.modal', function() {
+        window.yrLoadMyRecipes();
+    });
+
+    /* ── Tombol Your Recipes ── */
+    document.getElementById('btnYourRecipes').addEventListener('click', function(e) {
+        e.preventDefault();
+        new bootstrap.Modal(document.getElementById('modalYourRecipes')).show();
+    });
+})();
+</script>
 
 @include('components.modal_add_recipes')
 
@@ -248,7 +613,6 @@
     overflow:hidden;
 }
 
-/* ✅ Close button — absolute, z-index 1070 (di atas segalanya) */
 .recipe-modal-close {
     position: absolute;
     top: 12px;
@@ -269,13 +633,9 @@
     padding: 0;
     line-height: 1;
 }
-.recipe-modal-close:hover {
-    background: #fff;
-    transform: scale(1.1);
-}
+.recipe-modal-close:hover { background: #fff; transform: scale(1.1); }
 .recipe-modal-close:focus { outline:none; }
 
-/* Hero */
 .recipe-detail-hero {
     position: relative;
     height: 210px;
@@ -292,7 +652,6 @@
 .recipe-detail-overlay {
     position: absolute;
     inset: 0;
-    /* Gradient dari bawah ke atas — teks terbaca, gambar tetap terlihat */
     background: linear-gradient(
         to top,
         rgba(0,0,0,.78) 0%,
@@ -312,8 +671,6 @@
     text-shadow: 0 1px 4px rgba(0,0,0,.5);
     line-height: 1.3;
 }
-
-/* Meta pills inside hero */
 .detail-meta-pill {
     display: inline-flex;
     align-items: center;
@@ -327,33 +684,14 @@
     color: #fff;
     font-weight: 500;
 }
+.recipe-detail-content { padding: 18px 22px 24px; }
+.detail-desc { color: #6B7280; font-size: .875rem; line-height: 1.7; margin-bottom: 1rem; }
 
-/* Content wrapper */
-.recipe-detail-content {
-    padding: 18px 22px 24px;
-}
-.detail-desc {
-    color: #6B7280;
-    font-size: .875rem;
-    line-height: 1.7;
-    margin-bottom: 1rem;
-}
-
-/* Nutrition */
-.detail-nutrition-row {
-    display: flex;
-    gap: .5rem;
-    flex-wrap: wrap;
-    margin-bottom: 1.25rem;
-}
+.detail-nutrition-row { display:flex; gap:.5rem; flex-wrap:wrap; margin-bottom:1.25rem; }
 .detail-nut-badge {
-    flex: 1;
-    min-width: 60px;
-    background: #FFF9F5;
-    border: 1px solid #FFE5D0;
-    border-radius: 12px;
-    padding: .55rem .5rem .4rem;
-    text-align: center;
+    flex:1; min-width:60px;
+    background:#FFF9F5; border:1px solid #FFE5D0;
+    border-radius:12px; padding:.55rem .5rem .4rem; text-align:center;
 }
 .detail-nut-badge .nv { font-size:.95rem;font-weight:700;color:#EA5C2B;line-height:1; }
 .detail-nut-badge .nl { font-size:.62rem;color:#9CA3AF;margin-top:3px;line-height:1.2; }
@@ -366,26 +704,19 @@
     border-radius:20px;padding:.2rem .65rem;
 }
 
-/* Ingredients */
 .detail-ingredients-list { list-style:none;padding:0;margin:0; }
 .detail-ingredients-list li {
     display:flex;align-items:flex-start;gap:.6rem;
-    padding:.45rem 0;
-    border-bottom:1px solid #F9FAFB;
+    padding:.45rem 0; border-bottom:1px solid #F9FAFB;
     font-size:.875rem;color:#374151;line-height:1.55;
 }
 .detail-ingredients-list li:last-child { border-bottom:none; }
-.ing-bullet {
-    width:8px;height:8px;border-radius:50%;
-    background:#EA5C2B;margin-top:.38rem;flex-shrink:0;
-}
+.ing-bullet { width:8px;height:8px;border-radius:50%;background:#EA5C2B;margin-top:.38rem;flex-shrink:0; }
 
-/* Steps */
 .detail-steps-list { list-style:none;padding:0;margin:0; }
 .detail-steps-list li {
     display:flex;align-items:flex-start;gap:.7rem;
-    padding:.6rem 0;
-    border-bottom:1px solid #F9FAFB;
+    padding:.6rem 0; border-bottom:1px solid #F9FAFB;
     font-size:.875rem;color:#374151;line-height:1.6;
 }
 .detail-steps-list li:last-child { border-bottom:none; }
@@ -417,17 +748,13 @@
         return s.charAt(0).toUpperCase() + s.slice(1);
     }
 
-    /**
-     * Safely parse to array.
-     * Handles: already array | JSON string | double-encoded JSON string | null
-     */
     function safeArray(val) {
         if (Array.isArray(val)) return val;
         if (!val && val !== 0) return [];
         if (typeof val === 'string') {
             try {
                 let p = JSON.parse(val);
-                if (typeof p === 'string') p = JSON.parse(p); // double-encoded
+                if (typeof p === 'string') p = JSON.parse(p);
                 return Array.isArray(p) ? p : [];
             } catch { return []; }
         }
@@ -436,11 +763,17 @@
 
     function tagColor(tag) {
         const m = {
-            Breakfast:'#95CD41',Lunch:'#EA5C2B',Dinner:'#2B7FFF',
-            Snacks:'#FBBF24',Desserts:'#A78BFA',Drinks:'#34D399',
-            Vegan:'#2B7FFF',Vegetarian:'#95CD41','Low-Carb':'#FBBF24',
-            'Gluten-Free':'#F472B6',Keto:'#8B5CF6','Dairy-Free':'#06B6D4',
-            'High-Protein':'#EA5C2B','Low-Calorie':'#34D399','Quick Meals':'#95CD41',
+            Breakfast:'#95CD41',breakfast:'#95CD41',
+            Lunch:'#EA5C2B',lunch:'#EA5C2B',
+            Dinner:'#2B7FFF',dinner:'#2B7FFF',
+            Snacks:'#FBBF24',snacks:'#FBBF24',
+            Desserts:'#A78BFA',desserts:'#A78BFA',
+            Drinks:'#34D399',drinks:'#34D399',
+            Vegan:'#2B7FFF',Vegetarian:'#95CD41',
+            'Low-Carb':'#FBBF24','Gluten-Free':'#F472B6',
+            Keto:'#8B5CF6','Dairy-Free':'#06B6D4',
+            'High-Protein':'#EA5C2B','Low-Calorie':'#34D399',
+            'Quick Meals':'#95CD41','Quick Meal':'#95CD41',
         };
         return m[tag] || '#6B7280';
     }
@@ -448,10 +781,10 @@
     /* ── Card builder ── */
     function buildCard(r) {
         const tags = safeArray(r.tags).slice(0,2)
-            .map(t=>`<span class="recipe-tag" style="background:${tagColor(t)}">${escHtml(t)}</span>`)
+            .map(t=>`<span class="recipe-tag" style="background:${tagColor(t)}">${escHtml(capitalize(t))}</span>`)
             .join('');
         const timeTag = r.cook_time
-            ? `<span class="recipe-tag" style="background:#6B7280">#${r.cook_time}min</span>`:'';
+            ? `<span class="recipe-tag" style="background:#6B7280">#${r.cook_time}min</span>` : '';
         const img = r.image_url ?? '{{ asset("img/meal1_home.png") }}';
         return `
         <div class="col-6 col-md-4 col-xl-3">
@@ -463,7 +796,7 @@
                 <p class="recipe-card-title mb-0">${escHtml(r.nama_makanan)}</p>
                 <span class="recipe-card-menu">⋮</span>
               </div>
-              <p class="recipe-card-desc">${escHtml(truncate(r.description??'',90))}</p>
+              <p class="recipe-card-desc">${escHtml(truncate(r.description ?? '', 90))}</p>
               <div class="d-flex gap-1 flex-wrap">${tags}${timeTag}</div>
             </div>
           </div>
@@ -472,13 +805,13 @@
 
     function populateGrid(gridId, data) {
         const el = $id(gridId);
-        el.innerHTML = (!data || data.length===0)
+        el.innerHTML = (!data || data.length === 0)
             ? '<p class="text-muted small ps-2 py-2">Belum ada resep.</p>'
             : data.map(buildCard).join('');
     }
 
-    /* ── API calls ── */
-    async function fetchRecommended() {
+    /* ── API calls — di-expose ke window agar modal_add_recipes bisa memanggil ── */
+    window.fetchRecommended = async function () {
         try {
             const r = await fetch('/api/recipes/recommended?limit=4');
             if (!r.ok) throw new Error(r.status);
@@ -487,9 +820,9 @@
             $id('gridRecommended').innerHTML =
                 '<p class="text-muted small ps-2">Gagal memuat. <a href="#" onclick="location.reload()">Refresh</a></p>';
         }
-    }
+    };
 
-    async function fetchPopular() {
+    window.fetchPopular = async function () {
         try {
             const r = await fetch('/api/recipes/popular?limit=4');
             if (!r.ok) throw new Error(r.status);
@@ -498,7 +831,7 @@
             $id('gridPopular').innerHTML =
                 '<p class="text-muted small ps-2">Gagal memuat. <a href="#" onclick="location.reload()">Refresh</a></p>';
         }
-    }
+    };
 
     async function fetchFiltered() {
         const params = new URLSearchParams();
@@ -507,46 +840,45 @@
         const kw = $id('searchInput').value.trim();
         if (kw) params.set('search', kw);
         try {
-            const r    = await fetch('/api/recipes?'+params);
+            const r    = await fetch('/api/recipes?' + params);
             const data = (await r.json()).data ?? [];
             populateGrid('gridSearch', data);
-            $id('emptyState').style.display = data.length===0 ? 'block':'none';
+            $id('emptyState').style.display = data.length === 0 ? 'block' : 'none';
         } catch {
             $id('gridSearch').innerHTML = '<p class="text-muted small ps-2">Gagal memuat.</p>';
         }
     }
 
-    /* ── Search mode ── */
-    let activeMealType=null, activeTags=[], searchTimeout=null;
-
+    /* ── Search / filter mode ── */
+    let activeMealType = null, activeTags = [], searchTimeout = null;
     const HIDEABLE = ['sectionRecommended','gridRecommended','sectionPopular','gridPopular'];
 
     function enterSearchMode(label) {
-        $id('searchResultsSection').style.display='block';
-        $id('searchResultsLabel').textContent=label;
-        HIDEABLE.forEach(id=>{ $id(id).style.display='none'; });
+        $id('searchResultsSection').style.display = 'block';
+        $id('searchResultsLabel').textContent = label;
+        HIDEABLE.forEach(id => { $id(id).style.display = 'none'; });
     }
     function exitSearchMode() {
-        $id('searchResultsSection').style.display='none';
-        $id('emptyState').style.display='none';
-        HIDEABLE.forEach(id=>{ $id(id).style.display=''; });
+        $id('searchResultsSection').style.display = 'none';
+        $id('emptyState').style.display = 'none';
+        HIDEABLE.forEach(id => { $id(id).style.display = ''; });
     }
     function applyFilter() {
         const hasFilter = activeMealType || activeTags.length || $id('searchInput').value.trim();
         if (hasFilter) {
-            enterSearchMode(activeMealType ? capitalize(activeMealType)+' Recipes' : 'Filter Results');
+            enterSearchMode(activeMealType ? capitalize(activeMealType) + ' Recipes' : 'Filter Results');
             fetchFiltered();
         } else { exitSearchMode(); }
     }
 
-    document.querySelectorAll('.filter-meal-type').forEach(el=>{
-        el.addEventListener('click', function(){
+    document.querySelectorAll('.filter-meal-type').forEach(el => {
+        el.addEventListener('click', function () {
             const val = this.dataset.value;
-            document.querySelectorAll('.filter-meal-type').forEach(e=>{
+            document.querySelectorAll('.filter-meal-type').forEach(e => {
                 e.classList.remove('active');
                 e.querySelector('.filter-dot').classList.remove('oren');
             });
-            activeMealType = (activeMealType===val) ? null : val;
+            activeMealType = (activeMealType === val) ? null : val;
             if (activeMealType) {
                 this.classList.add('active');
                 this.querySelector('.filter-dot').classList.add('oren');
@@ -555,11 +887,11 @@
         });
     });
 
-    document.querySelectorAll('.filter-pref').forEach(el=>{
-        el.addEventListener('click', function(){
+    document.querySelectorAll('.filter-pref').forEach(el => {
+        el.addEventListener('click', function () {
             const val = this.dataset.value;
             if (activeTags.includes(val)) {
-                activeTags = activeTags.filter(t=>t!==val);
+                activeTags = activeTags.filter(t => t !== val);
                 this.classList.remove('active');
                 this.querySelector('.filter-dot').classList.remove('oren');
             } else {
@@ -571,46 +903,28 @@
         });
     });
 
-    $id('btnResetFilter').addEventListener('click',()=>{
-        activeMealType=null; activeTags=[];
-        $id('searchInput').value='';
-        document.querySelectorAll('.filter-item').forEach(e=>{
+    $id('btnResetFilter').addEventListener('click', () => {
+        activeMealType = null; activeTags = [];
+        $id('searchInput').value = '';
+        document.querySelectorAll('.filter-item').forEach(e => {
             e.classList.remove('active');
             e.querySelector('.filter-dot')?.classList.remove('oren');
         });
         exitSearchMode();
     });
 
-    $id('searchInput').addEventListener('input',()=>{
+    $id('searchInput').addEventListener('input', () => {
         clearTimeout(searchTimeout);
         searchTimeout = setTimeout(applyFilter, 350);
-    });
-
-    /* ── Your Recipes ── */
-    $id('btnYourRecipes').addEventListener('click', async e=>{
-        e.preventDefault();
-        new bootstrap.Modal($id('modalYourRecipes')).show();
-        try {
-            const r = await fetch('/api/recipes/mine');
-            const data = (await r.json()).data ?? [];
-            const grid = $id('gridYourRecipes');
-            grid.innerHTML = data.length===0
-                ? '<div class="col-12 text-center text-muted py-5">Kamu belum punya resep. Yuk tambah!</div>'
-                : data.map(buildCard).join('');
-        } catch {
-            $id('gridYourRecipes').innerHTML=
-                '<div class="col-12 text-center text-muted py-4">Gagal memuat.</div>';
-        }
     });
 
     /* ══════════════════════════════════
        OPEN DETAIL MODAL
     ══════════════════════════════════ */
-    window.openDetail = async function(id) {
+    window.openDetail = async function (id) {
         const modalEl = $id('modalRecipeDetail');
         const modal   = bootstrap.Modal.getOrCreateInstance(modalEl);
 
-        // Reset
         $id('detailLoading').style.display  = 'block';
         $id('detailContent').style.display  = 'none';
         $id('detailTitle').textContent      = '';
@@ -620,44 +934,37 @@
         modal.show();
 
         try {
-            const res  = await fetch(`/api/recipes/${id}`);
-            if (!res.ok) throw new Error('HTTP '+res.status);
-            const r    = (await res.json()).data;
+            const res = await fetch(`/api/recipes/${id}`);
+            if (!res.ok) throw new Error('HTTP ' + res.status);
+            const r   = (await res.json()).data;
 
-            /* Image */
             $id('detailImage').src = r.image_url ?? '{{ asset("img/meal1_home.png") }}';
             $id('detailImage').alt = r.nama_makanan;
-
-            /* Title */
             $id('detailTitle').textContent = r.nama_makanan;
 
-            /* Tags */
-            $id('detailTags').innerHTML = safeArray(r.tags).map(t=>
-                `<span class="recipe-tag" style="background:${tagColor(t)};font-size:.68rem;opacity:.9">${escHtml(t)}</span>`
+            $id('detailTags').innerHTML = safeArray(r.tags).map(t =>
+                `<span class="recipe-tag" style="background:${tagColor(t)};font-size:.68rem;opacity:.9">${escHtml(capitalize(t))}</span>`
             ).join('');
 
-            /* Meta */
             const metas = [];
-            if (r.cook_time)  metas.push(['⏱', r.cook_time+' menit']);
+            if (r.cook_time)  metas.push(['⏱', r.cook_time + ' menit']);
             if (r.difficulty) metas.push(['📊', capitalize(r.difficulty)]);
             if (r.meal_type)  metas.push(['🍽', capitalize(r.meal_type)]);
-            $id('detailMeta').innerHTML = metas.map(([icon,label])=>
+            $id('detailMeta').innerHTML = metas.map(([icon, label]) =>
                 `<span class="detail-meta-pill">${icon} ${escHtml(label)}</span>`
             ).join('');
 
-            /* Description */
             $id('detailDesc').textContent = r.description ?? '';
 
-            /* Nutrition */
             const macros = [
-                {val:r.calories, lbl:'Kalori',  unit:'kcal', int:true},
-                {val:r.protein,  lbl:'Protein', unit:'g'},
-                {val:r.carbs,    lbl:'Karbo',   unit:'g'},
-                {val:r.fat,      lbl:'Lemak',   unit:'g'},
-                {val:r.fiber,    lbl:'Serat',   unit:'g'},
+                {val: r.calories, lbl: 'Kalori',  unit: 'kcal', int: true},
+                {val: r.protein,  lbl: 'Protein', unit: 'g'},
+                {val: r.carbs,    lbl: 'Karbo',   unit: 'g'},
+                {val: r.fat,      lbl: 'Lemak',   unit: 'g'},
+                {val: r.fiber,    lbl: 'Serat',   unit: 'g'},
             ];
-            $id('detailNutrition').innerHTML = macros.map(m=>{
-                const v = parseFloat(m.val??0);
+            $id('detailNutrition').innerHTML = macros.map(m => {
+                const v = parseFloat(m.val ?? 0);
                 const d = m.int ? Math.round(v) : v.toFixed(1);
                 return `<div class="detail-nut-badge">
                     <div class="nv">${d}</div>
@@ -665,53 +972,49 @@
                 </div>`;
             }).join('');
 
-            /* Servings */
             $id('detailServings').textContent = r.servings ? `${r.servings} porsi` : '';
 
-            /* ✅ Ingredients — handles text column yang berisi JSON string */
             const ings = safeArray(r.ingredients);
             $id('detailIngredients').innerHTML = ings.length
-                ? ings.map(ing=>{
+                ? ings.map(ing => {
                     let html = '';
                     if (typeof ing === 'string') {
                         html = escHtml(ing);
                     } else if (ing && typeof ing === 'object') {
                         const qty = [ing.amount, ing.unit].filter(Boolean).join(' ');
                         html = qty
-                            ? `<strong>${escHtml(qty)}</strong>&nbsp;${escHtml(ing.name??'')}`
-                            : escHtml(ing.name??'');
+                            ? `<strong>${escHtml(qty)}</strong>&nbsp;${escHtml(ing.name ?? '')}`
+                            : escHtml(ing.name ?? '');
                     }
                     return `<li><span class="ing-bullet"></span><span>${html}</span></li>`;
                 }).join('')
                 : `<li><span class="ing-bullet" style="background:#D1D5DB"></span>
                    <span class="text-muted">Data bahan belum tersedia.</span></li>`;
 
-            /* ✅ Cara masak — handles text column yang berisi JSON string */
             const steps = safeArray(r.cara_masak);
             $id('detailSteps').innerHTML = steps.length
-                ? steps.map((s,i)=>{
-                    const txt = typeof s==='string' ? s : (s?.step ?? JSON.stringify(s));
+                ? steps.map((s, i) => {
+                    const txt = typeof s === 'string' ? s : (s?.step ?? JSON.stringify(s));
                     return `<li>
-                        <span class="step-num">${i+1}</span>
+                        <span class="step-num">${i + 1}</span>
                         <span>${escHtml(txt)}</span>
                     </li>`;
                 }).join('')
                 : `<li><span class="step-num" style="background:#D1D5DB">?</span>
                    <span class="text-muted">Data langkah memasak belum tersedia.</span></li>`;
 
-            /* Show */
             $id('detailLoading').style.display = 'none';
             $id('detailContent').style.display = 'block';
 
-        } catch(err) {
+        } catch (err) {
             $id('detailLoading').innerHTML =
                 '<p class="text-danger text-center py-3">Gagal memuat resep. Coba lagi.</p>';
         }
     };
 
     /* ── Init ── */
-    fetchRecommended();
-    fetchPopular();
+    window.fetchRecommended();
+    window.fetchPopular();
 })();
 </script>
 

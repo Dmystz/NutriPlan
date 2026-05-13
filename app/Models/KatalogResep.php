@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Support\Facades\Storage;
 
 class KatalogResep extends Model
 {
@@ -78,9 +79,17 @@ class KatalogResep extends Model
 
     public function getImageUrlAttribute(): string
     {
-        return $this->image_path
-            ? asset($this->image_path)
-            : asset('img/meal1_home.png');
+        if (!$this->image_path) {
+            return asset('img/meal1_home.png');
+        }
+
+        // Data lama: path dimulai dengan "img/" → langsung pakai asset()
+        if (str_starts_with($this->image_path, 'img/')) {
+            return asset($this->image_path);
+        }
+
+        // Data baru: upload via storage → pakai Storage::url()
+        return Storage::disk('public')->url($this->image_path);
     }
 
     public function getMealTypeColorAttribute(): string
@@ -100,15 +109,27 @@ class KatalogResep extends Model
 
     public function getIngredientsListAttribute(): array
     {
-        return array_filter(
-            array_map('trim', preg_split('/\r\n|\r|\n/', $this->ingredients ?? ''))
-        );
+        $val = $this->ingredients;
+        if (!$val) return [];
+        
+        // Coba parse sebagai JSON dulu
+        $decoded = json_decode($val, true);
+        if (is_array($decoded)) return array_filter($decoded);
+        
+        // Kalau bukan JSON, split per baris
+        return array_filter(array_map('trim', preg_split('/\r\n|\r|\n/', $val)));
     }
 
     public function getCaraMasakListAttribute(): array
     {
-        return array_filter(
-            array_map('trim', preg_split('/\r\n|\r|\n/', $this->cara_masak ?? ''))
-        );
+        $val = $this->cara_masak;
+        if (!$val) return [];
+        
+        // Coba parse sebagai JSON dulu
+        $decoded = json_decode($val, true);
+        if (is_array($decoded)) return array_filter($decoded);
+        
+        // Kalau bukan JSON, split per baris
+        return array_filter(array_map('trim', preg_split('/\r\n|\r|\n/', $val)));
     }
 }

@@ -1,3 +1,25 @@
+{{-- Inisialisasi nilai target dari DB via __DAYS_INIT__ --}}
+<script>
+(function () {
+    const d = window.__DAYS_INIT__;
+    if (!d) return;
+    const map = {
+        'daily-carbs-target'   : d.targetMakro?.carbs   || 225,
+        'daily-protein-target' : d.targetMakro?.protein || 125,
+        'daily-fat-target'     : d.targetMakro?.fat     || 67,
+        'daily-carbs-left'     : d.targetMakro?.carbs   || 225,
+        'daily-protein-left'   : d.targetMakro?.protein || 125,
+        'daily-fat-left'       : d.targetMakro?.fat     || 67,
+    };
+    document.addEventListener('DOMContentLoaded', function () {
+        Object.entries(map).forEach(([id, val]) => {
+            const el = document.getElementById(id);
+            if (el) el.textContent = val;
+        });
+    });
+})();
+</script>
+
 <div class="daily-list gap-2 p-1">
 
     {{-- Carbs --}}
