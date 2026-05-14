@@ -131,9 +131,11 @@
     </nav>
 
     <main>
-        <div class="container-fluid min-vh-100 px-5 row lat-blkg konten">
-            @yield('content')
-        </div>
+<div class="container-fluid min-vh-100 px-5 lat-blkg konten">
+    <div class="row">
+        @yield('content')
+    </div>
+</div>
     </main>
 
     @include('components.modal_edit_profile')
@@ -149,9 +151,15 @@
             box-shadow: 0 10px 40px rgba(0, 0, 0, 0.15);
             overflow: hidden;
         }
+        
         .profile-modal-header {
             background: linear-gradient(135deg, #95cd41 0%, #ea5c2b 100%);
             padding: 1.5rem 1.5rem 3rem;
+        }
+        html {
+            background: linear-gradient(to top right, #ffd8df, #f0ffdf);
+            /* atau kalau mau solid aja: */
+            background-color: #f0ffdf;
         }
         .profile-avatar {
             width: 64px;
