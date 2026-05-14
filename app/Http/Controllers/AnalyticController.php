@@ -157,4 +157,31 @@ class AnalyticController extends Controller
 
         return response()->json(['data' => $history]);
     }
+    
+    public function latest()
+    {
+        $user = $this->getUser();
+        if (! $user) {
+            return response()->json(['data' => null], 401);
+        }
+
+        $record = BmiRecord::where('user_id', $user->id)
+            ->orderBy('recorded_at', 'desc')
+            ->orderBy('id', 'desc')
+            ->first();
+
+        if (! $record) {
+            return response()->json(['data' => null]);
+        }
+
+        return response()->json([
+            'data' => [
+                'berat_badan'  => $record->berat_badan,
+                'tinggi_badan' => $record->tinggi_badan,
+                'bmi_value'    => $record->bmi_value,
+                'status'       => $record->status,
+                'recorded_at'  => $record->recorded_at,
+            ]
+        ]);
+    }
 }

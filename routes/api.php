@@ -26,6 +26,7 @@ Route::middleware(['web', 'auth.custom'])->group(function () {
     Route::delete('/meal-logs/{id}', [MealLogController::class, 'destroy']);
 
     Route::get('/meal-plan/day', [MealPlanController::class, 'dayData']);
+    Route::get('/bmi-latest', [App\Http\Controllers\AnalyticController::class, 'latest']);
     Route::prefix('recipes')->group(function () {
  
     // Section cards (Recommended & Popular) — dipanggil JS saat blade load

@@ -631,58 +631,104 @@
             updateWater();
         });
 
-        document.addEventListener("DOMContentLoaded", () => {
-            const upBtn       = document.getElementById("up-btn");
-            const downBtn     = document.getElementById("down-btn");
-            const currentText = document.getElementById("current-weight");
-            const diffText    = document.getElementById("value-weight-kg");
-            let current = 68.0;
-            const target = 65.0, min = 50, max = 80, step = 0.5;
+        document.addEventListener("DOMContentLoaded", async () => {
 
-            function updateGauge() {
-                currentText.textContent = current.toFixed(1);
-                const diff = current - target;
-                diffText.textContent = `${diff >= 0 ? "+" : ""}${diff.toFixed(1)}kg`;
-                const needle = document.querySelector(".svg-weight path[stroke='#374151']");
-                let angle = ((current - min) / (max - min)) * 120 - 60;
+            const HEIGHT_FALLBACK = 170;
+
+            /* ── Elements: Weight card ── */
+            const currentWeightText = document.getElementById("current-weight");
+            const diffWeightText    = document.getElementById("value-weight-kg");
+            const targetWeightEl    = document.getElementById("target-weight");
+
+            /* ── Elements: BMI card ── */
+            const bmiText  = document.getElementById("current-bmi");
+            const ketBmi   = document.getElementById("ket-bmi");
+            const ketBerat = document.getElementById("ket-berat");
+
+            /* ── State ── */
+            let currentWeight = 68.0;
+            let heightCm      = HEIGHT_FALLBACK;
+            let targetWeight  = parseFloat(targetWeightEl?.textContent) || 65.0;
+
+            /* ── Render: Weight gauge ── */
+            function renderWeightGauge(weight) {
+                if (currentWeightText) currentWeightText.textContent = weight.toFixed(1);
+
+                const diff = weight - targetWeight;
+                if (diffWeightText)
+                    diffWeightText.textContent = `${diff >= 0 ? "+" : ""}${diff.toFixed(1)}kg`;
+
+                const min = 50, max = 80;
+                let angle = ((weight - min) / (max - min)) * 120 - 60;
                 angle = Math.max(-60, Math.min(60, angle));
-                needle.setAttribute("transform", `rotate(${angle},64.5,69.875)`);
+
+                // Jarum weight card — ambil yang pertama (sebelum BMI card)
+                const needles = document.querySelectorAll(".svg-weight path[stroke='#374151']");
+                if (needles[0]) needles[0].setAttribute("transform", `rotate(${angle},64.5,69.875)`);
             }
-            upBtn.addEventListener("click",   () => { if (current < max) { current += step; updateGauge(); } });
-            downBtn.addEventListener("click", () => { if (current > min) { current -= step; updateGauge(); } });
-            updateGauge();
-        });
 
-        document.addEventListener("DOMContentLoaded", () => {
-            const height     = 170;
-            let weight       = 68;
-            const bmiText    = document.getElementById("current-bmi");
-            const ketElement = document.getElementById("ket-bmi");
-            const weightText = document.getElementById("ket-berat");
-            const plusBtn    = document.getElementById("plus-weight");
-            const minusBtn   = document.getElementById("minus-weight");
-            const greenPaths = document.querySelectorAll(".svg-weight path[stroke='#34D399']");
-            const needle     = greenPaths[greenPaths.length - 1];
-
+            /* ── Render: BMI gauge ── */
             function mapRange(v, i0, i1, o0, o1) { return (v - i0) * (o1 - o0) / (i1 - i0) + o0; }
-            function calcBMI(w, h) { const hm = h / 100; return w / (hm * hm); }
 
-            function updateBMI() {
-                const bmi = calcBMI(weight, height);
-                bmiText.textContent    = bmi.toFixed(1);
-                weightText.textContent = `${weight} kg`;
+            function renderBmiGauge(weight, height) {
+                const hm  = height / 100;
+                const bmi = weight / (hm * hm);
+
+                if (bmiText)  bmiText.textContent  = bmi.toFixed(1);
+                if (ketBerat) ketBerat.textContent = `${Math.round(weight)} kg`;
+
                 let status, color, angle;
                 if      (bmi < 18.5) { status = "Underweight"; color = "#60A5FA"; angle = mapRange(bmi, 10, 18.5, -90, -25); }
                 else if (bmi < 25)   { status = "Normal";      color = "#34D399"; angle = mapRange(bmi, 18.5, 25, -25, 10); }
                 else if (bmi < 30)   { status = "Overweight";  color = "#FBBF24"; angle = mapRange(bmi, 25, 30, 10, 45); }
                 else                 { status = "Obese";        color = "#F87171"; angle = mapRange(bmi, 30, 40, 45, 90); }
-                ketElement.textContent  = status;
-                ketElement.style.color  = color;
-                needle.setAttribute("transform", `rotate(${angle},64.5,71.875)`);
+
+                if (ketBmi) { ketBmi.textContent = status; ketBmi.style.color = color; }
+
+                const greenPaths = document.querySelectorAll(".crd6-content .svg-weight path[stroke='#34D399']");
+                const needle     = greenPaths[greenPaths.length - 1];
+                if (needle) needle.setAttribute("transform", `rotate(${angle},64.5,71.875)`);
             }
-            plusBtn.onclick  = () => { weight++;           updateBMI(); };
-            minusBtn.onclick = () => { if (weight > 1) weight--; updateBMI(); };
-            updateBMI();
+
+            /* ── Fetch BMI terbaru dari DB ── */
+            try {
+                const res  = await fetch('/api/bmi-latest', { headers: { 'Accept': 'application/json' } });
+                const json = await res.json();
+
+                if (json.data) {
+                    currentWeight = parseFloat(json.data.berat_badan)  || currentWeight;
+                    heightCm      = parseFloat(json.data.tinggi_badan) || heightCm;
+
+                    // Update label tinggi di BMI card
+                    const bmiCard    = ketBmi?.closest('.crd6-content');
+                    const heightLabel = bmiCard?.querySelector('.p-crd-home');
+                    if (heightLabel) heightLabel.textContent = `${Math.round(heightCm)} cm`;
+                }
+            } catch (e) {
+                console.warn('loadBmiLatest: pakai nilai default.', e);
+            }
+
+            /* ── Render awal ── */
+            renderWeightGauge(currentWeight);
+            renderBmiGauge(currentWeight, heightCm);
+
+            /* ── Tombol manual (quick-adjust, tidak simpan ke DB) ── */
+            document.getElementById("up-btn")?.addEventListener("click", () => {
+                currentWeight = Math.min(currentWeight + 0.5, 200);
+                renderWeightGauge(currentWeight); renderBmiGauge(currentWeight, heightCm);
+            });
+            document.getElementById("down-btn")?.addEventListener("click", () => {
+                currentWeight = Math.max(currentWeight - 0.5, 30);
+                renderWeightGauge(currentWeight); renderBmiGauge(currentWeight, heightCm);
+            });
+            document.getElementById("plus-weight")?.addEventListener("click", () => {
+                currentWeight = Math.min(Math.round(currentWeight) + 1, 200);
+                renderWeightGauge(currentWeight); renderBmiGauge(currentWeight, heightCm);
+            });
+            document.getElementById("minus-weight")?.addEventListener("click", () => {
+                currentWeight = Math.max(Math.round(currentWeight) - 1, 30);
+                renderWeightGauge(currentWeight); renderBmiGauge(currentWeight, heightCm);
+            });
         });
 
         function updateProgressFromDOM() {
