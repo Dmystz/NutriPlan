@@ -17,7 +17,7 @@
         <div class="row py-0">
             {{-- Top bar: greeting + search --}}
             <div class="col-12 col-md-4 mb-2">
-                <h5 class="fw-bold">Selamat datang, {{ session('user_name') }}</h5>
+                <h5 class="fw-bold">Hello, {{ session('user_name') }}</h5>
                 <p class="tgl">You have 0 activity today</p>
                 <h4 class="mb-1 fw-500">Meal plan - Today</h4>
                 <p class="text-muted tgl">{{ date('l, d F Y') }}</p>

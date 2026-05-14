@@ -51,14 +51,14 @@
     width:100%; padding:.55rem 1rem .55rem 2.6rem;
     border:1.5px solid #e5e7eb; border-radius:12px;
     font-size:.85rem; outline:none; transition:border .2s;
-    background:#fff;
+    background: rgba(255, 248, 240, 0.92);
 }
 .nut-search-wrap input:focus { border-color: var(--warna-oren); }
 .nut-search-wrap svg { position:absolute; left:.75rem; top:50%; transform:translateY(-50%); opacity:.45; }
 
 /* Hero detail panel */
 .nutrition-hero-panel {
-    background:#fff; border-radius:18px;
+    bbackground: rgba(255, 248, 240, 0.92); border-radius:18px;
     padding:1.25rem 1.4rem; box-shadow:0 2px 10px rgba(0,0,0,.06);
 }
 .hero-meal-img { width:140px; height:110px; object-fit:cover; border-radius:14px; flex-shrink:0; }
@@ -68,7 +68,7 @@
 
 /* Macro cards */
 .macro-card {
-    flex:1 1 160px; background:#fff; border-radius:14px;
+    flex:1 1 160px; background: rgba(255, 248, 240, 0.92); border-radius:14px;
     padding:1rem 1.1rem; box-shadow:0 1px 6px rgba(0,0,0,.06);
     min-width:140px;
 }
@@ -79,7 +79,7 @@
 
 /* Breakdown panel */
 .breakdown-panel {
-    background:#fff; border-radius:14px;
+    background: rgba(255, 248, 240, 0.92); border-radius:14px;
     padding:1.1rem 1.2rem; box-shadow:0 1px 6px rgba(0,0,0,.06);
 }
 .breakdown-row { padding:.35rem 0; border-bottom:1px solid #F3F4F6; }
@@ -88,7 +88,7 @@
 .bd-bar-fill { height:100%; border-radius:99px; }
 
 /* Info panels */
-.info-panel { background:#fff; border-radius:14px; padding:1.1rem 1.2rem; box-shadow:0 1px 6px rgba(0,0,0,.06); }
+.info-panel { background: rgba(255, 248, 240, 0.92); border-radius:14px; padding:1.1rem 1.2rem; box-shadow:0 1px 6px rgba(0,0,0,.06); }
 .ing-dot { display:inline-block; width:10px; height:10px; border-radius:50%; flex-shrink:0; }
 .step-circle {
     display:inline-flex; align-items:center; justify-content:center;
@@ -104,7 +104,7 @@
     gap:1rem;
 }
 .meal-card {
-    background:#fff; border-radius:14px; overflow:hidden;
+    background: rgba(255, 248, 240, 0.92); border-radius:14px; overflow:hidden;
     box-shadow:0 1px 6px rgba(0,0,0,.07);
     cursor:pointer; transition:transform .18s, box-shadow .18s;
     text-decoration:none; color:inherit;

@@ -52,7 +52,7 @@
             max-width: 420px;
             border-radius: 15px;
             box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
-            background: rgba(255, 255, 255, 0.92);
+            background: rgba(255, 248, 240, 0.92);
             backdrop-filter: blur(12px);
             padding: 2rem 2.5rem;
             animation: slideUp 0.5s ease;
@@ -173,17 +173,20 @@
             border-radius: 50px !important;
             padding: 0.5rem 1.1rem;
             font-size: 0.9rem;
-            border: 1.5px solid #E5E7EB;
-            background: linear-gradient(90deg, rgba(149, 205, 65, 0.1) 0%, rgba(234, 92, 43, 0.08) 100%);
+            border: none;
+            background: linear-gradient(90deg, #95cd41 0%, #ea5c2b 100%);
+            color: white;
         }
 
         .form-control::placeholder {
-            color: #9CA3AF;
+            color: rgba(255, 255, 255, 0.75);
         }
 
         .form-control:focus {
-            box-shadow: 0 0 0 0.2rem rgba(234, 92, 43, .25);
-            border-color: #ea5c2b;
+            box-shadow: 0 0 0 3px rgba(149, 205, 65, 0.35);
+            outline: none;
+            background: linear-gradient(90deg, #95cd41 0%, #ea5c2b 100%);
+            color: white;
         }
 
         .hint-text {
@@ -195,21 +198,20 @@
 
         /* === Register Button === */
         .btn-oren {
-            background-color: #ea5c2b;
-            color: white;
             border-radius: 50px;
             padding: 0.6rem;
             font-size: 1rem;
-            transition: all 0.25s ease;
-            box-shadow: 0 4px 12px rgba(234, 92, 43, 0.3);
             border: none;
+            color: white;
+            background: linear-gradient(90deg, #95cd41 0%, #ea5c2b 100%);
+            transition: opacity 0.25s ease;
+            box-shadow: 0 4px 12px rgba(149, 205, 65, 0.35);
         }
 
         .btn-oren:hover {
-            background-color: #cd4c22;
+            opacity: 0.88;
             color: white;
             transform: translateY(-1px);
-            box-shadow: 0 6px 18px rgba(205, 76, 34, 0.4);
         }
 
         /* === Footer === */

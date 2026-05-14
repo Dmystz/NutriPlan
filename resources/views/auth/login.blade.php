@@ -52,7 +52,7 @@
             max-width: 400px;
             border-radius: 15px;
             box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
-            background: rgba(255, 255, 255, 0.92);
+            background: rgba(255, 248, 240, 0.92);
             backdrop-filter: blur(12px);
             padding: 2rem 2.5rem;
             animation: slideUp 0.5s ease;
@@ -162,13 +162,20 @@
             border-radius: 50px !important;
             padding: 0.5rem 1.1rem;
             font-size: 0.9rem;
-            border: 1.5px solid #E5E7EB;
-            background: rgba(149, 205, 65, 0.07);
+            border: none;
+            background: linear-gradient(90deg, #95cd41 0%, #ea5c2b 100%);
+            color: white;
+        }
+
+        .form-control::placeholder {
+            color: rgba(255, 255, 255, 0.75);
         }
 
         .form-control:focus {
-            box-shadow: 0 0 0 0.2rem rgba(149, 205, 65, .35);
-            border-color: #95cd41;
+            box-shadow: 0 0 0 3px rgba(149, 205, 65, 0.35);
+            outline: none;
+            background: linear-gradient(90deg, #95cd41 0%, #ea5c2b 100%);
+            color: white;
         }
 
         .form-check-label {
@@ -198,21 +205,20 @@
 
         /* === Login Button === */
         .btn-ijo {
-            background-color: #95cd41;
-            color: white;
             border-radius: 50px;
             padding: 0.6rem;
             font-size: 1rem;
-            transition: all 0.25s ease;
-            box-shadow: 0 4px 12px rgba(149, 205, 65, 0.35);
             border: none;
+            color: white;
+            background: linear-gradient(90deg, #95cd41 0%, #ea5c2b 100%);
+            transition: opacity 0.25s ease;
+            box-shadow: 0 4px 12px rgba(149, 205, 65, 0.35);
         }
 
         .btn-ijo:hover {
-            background-color: #6e9c29;
+            opacity: 0.88;
             color: white;
             transform: translateY(-1px);
-            box-shadow: 0 6px 18px rgba(110, 156, 41, 0.4);
         }
 
         /* === Footer === */

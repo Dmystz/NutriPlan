@@ -1336,7 +1336,7 @@ echo "body { background-color: #f0f0f0; }";
     /* ── Nutrition page extra styles ── */
     .nutrition-hero {
         border-radius: 20px;
-        background: rgba(252, 252, 252, 0.60);
+        background: rgba(255, 248, 240, 0.92);
         box-shadow: 0 4px 16px 0 rgba(140, 136, 136, 0.18);
         backdrop-filter: blur(5px);
         border: 0.8px solid rgba(0, 0, 0, 0.08);
@@ -1351,13 +1351,24 @@ echo "body { background-color: #f0f0f0; }";
         flex-shrink: 0;
     }
 
+    .recipes-sidebar {
+        background: rgba(255, 248, 240, 0.92) !important;
+    }
+
+    .card-motivasi { background: rgba(255, 248, 240, 0.92) !important; }
+    .wrapper-meal-days { background: rgba(255, 248, 240, 0.92) !important; }
+    .nutrition-panel { background: rgba(255, 248, 240, 0.92) !important; }
+    .wrapper-content-meal-days { background: rgba(255, 248, 240, 0.92) !important; }
+
     @media (max-width: 576px) {
         .nutrition-hero img.hero-meal-img {
             width: 100px;
             height: 90px;
         }
     }
-
+    .wrapper-home1 {
+        background: rgba(255, 248, 240, 0.92) !important;
+    }
     .tag-toast {
         background: var(--warna-oren);
         color: #fff;
@@ -2795,7 +2806,9 @@ echo "body { background-color: #f0f0f0; }";
         opacity: 0.45;
         transition: opacity 0.15s;
     }
-
+    html {
+    scrollbar-gutter: stable;
+    }
     .modal-header .btn-close:hover {
         opacity: 0.85;
     }

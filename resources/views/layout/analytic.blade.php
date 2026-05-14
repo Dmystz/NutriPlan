@@ -351,7 +351,7 @@
         /* ── Base Card ──────────────────────────────────────────────── */
         .analytic-card {
             border-radius: 18px;
-            background: rgba(252,252,252,0.80);
+            background: rgba(255,248,240,0.92);
             box-shadow: 0 4px 20px rgba(140,136,136,0.15);
             backdrop-filter: blur(8px);
             border: 0.8px solid rgba(0,0,0,0.07);
@@ -485,7 +485,7 @@
         .chart-wrap { position:relative; height:130px; }
 
         /* ── CTA Banner ──────────────────────────────────────────────── */
-        .cta-banner { border-radius:18px; background:rgba(252,252,252,0.80); backdrop-filter:blur(8px); box-shadow:0 4px 20px rgba(140,136,136,0.15); border:0.8px solid rgba(0,0,0,0.07); padding:1.25rem 1.75rem; }
+        .cta-banner { border-radius:18px; background:rgba(255,248,240,0.92); backdrop-filter:blur(8px); box-shadow:0 4px 20px rgba(140,136,136,0.15); border:0.8px solid rgba(0,0,0,0.07); padding:1.25rem 1.75rem; }
         .cta-icon { font-size:2.5rem; }
         .btn-create-plan { background:linear-gradient(90deg,#ea5c2b 0%,#f97316 100%); color:#fff; font-weight:700; font-size:0.9rem; border:none; border-radius:50px; padding:0.65rem 1.5rem; text-decoration:none; box-shadow:0 4px 14px rgba(234,92,43,0.35); transition:all 0.25s; white-space:nowrap; }
         .btn-create-plan:hover { opacity:0.88; transform:translateY(-1px); color:#fff; }
