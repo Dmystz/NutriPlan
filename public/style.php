@@ -471,7 +471,13 @@ echo "body { background-color: #f0f0f0; }";
     }
 
     /* Media breakpoint*/
-
+body.modal-open {
+    padding-right: 0 !important;
+    overflow-y: scroll !important;
+}
+.navbar.fixed-top {
+    padding-right: 0 !important;
+}
     @media (max-width: 1199px) {
         #navbarSupportedContent {
             position: absolute;

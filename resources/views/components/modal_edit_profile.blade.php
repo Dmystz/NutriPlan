@@ -249,13 +249,16 @@
         transition: all 0.15s;
         font-family: var(--font-sans);
     }
+body.modal-open {
+    padding-right: 0 !important;
+    overflow-y: scroll !important;
+}
     .gender-btn.active {
         background: #eaf3de;
         color: #3B6D11;
         border-color: #95cd41;
         font-weight: 500;
     }
-
     @media (max-width: 400px) {
         .form-row { grid-template-columns: 1fr; }
         .profile-body { padding: 1rem; }

@@ -142,7 +142,47 @@
 
     {{-- Bootstrap --}}
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
-
+<script>
+document.addEventListener('click', function(e) {
+    const btn = e.target.closest('#btnOpenEditProfile');
+    if (!btn) return;
+    
+    e.preventDefault();
+    
+    const profileModalEl = document.getElementById('profileModal');
+    const profileModal = bootstrap.Modal.getInstance(profileModalEl);
+    
+    // Sembunyikan modal pertama
+    profileModalEl.classList.remove('show');
+    profileModalEl.style.display = 'none';
+    profileModalEl.removeAttribute('aria-modal');
+    profileModalEl.setAttribute('aria-hidden', 'true');
+    
+    // Hapus backdrop
+    document.querySelector('.modal-backdrop')?.remove();
+    
+    // Bersihkan body
+    document.body.classList.remove('modal-open');
+    document.body.style.paddingRight = '0';
+    document.body.style.overflow = '';
+    
+    // Destroy instance supaya tidak konflik
+    if (profileModal) profileModal.dispose();
+    
+    // Buka edit profile
+    const editModal = new bootstrap.Modal(document.getElementById('editProfileModal'));
+    editModal.show();
+    
+    // Saat edit profile ditutup, reinit profileModal supaya bisa dibuka lagi
+    document.getElementById('editProfileModal').addEventListener('hidden.bs.modal', function reinit() {
+        document.body.style.paddingRight = '0';
+        document.body.style.overflow = '';
+        // Reinit profileModal
+        new bootstrap.Modal(document.getElementById('profileModal'));
+        this.removeEventListener('hidden.bs.modal', reinit);
+    });
+});
+    </script>
     {{-- Styles --}}
     <style>
         .profile-modal-content {
@@ -243,6 +283,7 @@
             cursor: pointer;
             transition: all 0.2s;
         }
+        
         .btn-logout-profile:hover { background: #cd4c22; color: #fff; }
         @media (max-width: 576px) {
             #profileModal .modal-dialog { margin: auto 1rem; max-width: calc(100% - 2rem); }
@@ -305,10 +346,9 @@
                             </div>
                         </div>
 
-                        <a href="#" class="btn-edit-profile" data-bs-toggle="modal"
-                            data-bs-target="#editProfileModal">
-                            Edit Profile
-                        </a>
+<a href="#" class="btn-edit-profile" id="btnOpenEditProfile">
+    Edit Profile
+</a>
 
                         <form action="{{ route('logout') }}" method="POST" class="m-0">
                             @csrf
