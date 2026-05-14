@@ -14,7 +14,7 @@
     /* ── Week grid cards ── */
     .week-card {
         border-radius: 16px; border: .8px solid rgba(0,0,0,.08);
-        background: rgba(252,252,252,.70);
+        background: rgba(255,248,240,.92);
         box-shadow: 0 4px 16px 0 rgba(140,136,136,.18);
         backdrop-filter: blur(5px);
         min-height: 11rem; display: flex; flex-direction: column;
@@ -25,7 +25,7 @@
 
     .week-card-planned {
         border-radius: 16px; border: .8px solid rgba(0,0,0,.08);
-        background: rgba(255,255,255,.88);
+        background: rgba(255,248,240,.92);
         box-shadow: 0 4px 16px 0 rgba(140,136,136,.18);
         backdrop-filter: blur(5px);
         min-height: 11rem; display: flex; flex-direction: column;
@@ -85,7 +85,7 @@
     /* ── Sidebar ── */
     .wrapper-meal-week-sidebar {
         border-radius: 16px; border: .8px solid rgba(0,0,0,.08);
-        background: rgba(252,252,252,.70);
+        background: rgba(255,248,240,.92);
         box-shadow: 0 4px 16px 0 rgba(140,136,136,.18);
         backdrop-filter: blur(5px); overflow-y: auto; max-height: 72vh;
     }
@@ -562,149 +562,117 @@
         }
     }
     async function loadWeekGrid() {
-    try {
-        const res  = await fetch('/api/week-meal-plan', {
-            headers: { Accept: 'application/json' }
-        });
+        try {
+            const res  = await fetch('/api/week-meal-plan', { headers: { Accept: 'application/json' } });
+            const days = await res.json();
+            const grid = document.getElementById('week-grid');
+            grid.innerHTML = '';
 
-        const days = await res.json();
+            days.forEach((day) => {
+                const col = document.createElement('div');
+                col.className = 'col-12 col-sm-6 col-xl-4';
+                col.setAttribute('data-week-col', day.date);
 
-        const grid = document.getElementById('week-grid');
+                // Support both 'meals' array (baru) dan 'meal' singular (lama) 
+                const meals = day.meals ?? (day.meal ? [day.meal] : []);
+                const isPlanned = day.is_planned && meals.length > 0;
 
-        grid.innerHTML = '';
+                if (isPlanned) {
+                    // ── Build semua meal rows ──
+                    const mealRowsHtml = meals.map(meal => {
+                    const imgHtml = meal.image_path
+                        ? `<img src="${meal.image_path}"
+                                alt="${meal.name}"
+                                class="gambar-meal gambar-meal-week"
+                                onerror="this.outerHTML=`
+                                    + "`" +
+                                    `<div class='gambar-meal gambar-meal-week d-flex align-items-center justify-content-center'
+                                            style='background:rgba(0,0,0,.04);border-radius:10px;font-size:1.4rem;'>
+                                            ${meal.emoji ?? '🍽️'}
+                                    </div>`
+                                    + "`" +
+                                `">`
+                        : `<div class="gambar-meal gambar-meal-week d-flex align-items-center justify-content-center"
+                                style="background:rgba(0,0,0,.04);border-radius:10px;font-size:1.4rem;">
+                                ${meal.emoji ?? '🍽️'}
+                        </div>`;
+                        const slotIcon = { Breakfast:'☀️', Snack:'🍎', Lunch:'🥗', Dinner:'🌙' };
 
-        days.forEach((day, i) => {
-
-            if (day.is_planned && day.meal) {
-
-                const meal = day.meal;
-
-                grid.innerHTML += `
-                    <div class="col-12 col-sm-6 col-xl-4">
-
-                        <div class="week-card-planned">
-
-                            <div class="d-flex justify-content-between align-items-start mb-2">
-                                <p class="week-card-date m-0">
-                                    ${day.month_day}<br>
-                                    ${day.day_name}
-                                </p>
-
-                                <span class="badge-planned">
-                                    Planned
-                                </span>
-                            </div>
-
-                            <div class="d-flex align-items-start mb-2 timeline-meal-row">
-
+                        return `
+                            <div class="d-flex align-items-start mb-2 timeline-meal-row"
+                                style="border-bottom:.6px solid rgba(0,0,0,.06);padding-bottom:.6rem;">
                                 <div class="meal-time-col">
-                                    <span class="meal-time-text">
-                                        ${meal.meal_time ?? '13:00'}
-                                    </span>
+                                    <span class="meal-time-text">${(meal.meal_time ?? '13:00').substring(0,5)}</span>
                                 </div>
-
                                 <div class="meal-timeline-col">
                                     <div class="meal-dot-timeline"></div>
                                 </div>
-
                                 <div class="wrapper-content-meal-days d-flex px-2 py-1 flex-grow-1">
-
                                     <div class="d-flex align-items-center flex-shrink-0">
-
-                                        ${meal.image_path
-                                            ? `
-                                                <img src="${meal.image_path}"
-                                                    class="gambar-meal gambar-meal-week"
-                                                    onerror="this.style.display='none'">
-                                            `
-                                            : `
-                                                <div class="gambar-meal gambar-meal-week d-flex align-items-center justify-content-center"
-                                                    style="background:rgba(0,0,0,.04);border-radius:10px;font-size:1.4rem;">
-                                                    ${meal.emoji ?? '🍽️'}
-                                                </div>
-                                            `
-                                        }
-
+                                        ${imgHtml}
                                     </div>
-
                                     <div class="d-flex flex-column ms-2 justify-content-center flex-grow-1">
-
-                                        <p class="type-meal m-0 p-0">
-                                            ${(meal.meal_slot ?? 'Meal').toUpperCase()}
-                                        </p>
-
-                                        <h6 class="name-meal mb-1 p-0 fw-bold"
-                                            style="font-size:.78rem;line-height:1.3;">
-                                            ${meal.name}
-                                        </h6>
-
+                                        <p class="type-meal m-0 p-0">${slotIcon[meal.meal_slot] ?? '🍽️'} ${(meal.meal_slot ?? 'Meal').toUpperCase()}</p>
+                                        <h6 class="name-meal mb-1 p-0 fw-bold" style="font-size:.78rem;line-height:1.3;">${meal.name}</h6>
                                         <div class="d-flex align-items-center gap-3 nutrition-meal flex-wrap">
-
-                                            <div class="d-flex align-items-center gap-1">
-                                                <p class="font-size-s m-0">
-                                                    ${Math.round(meal.calories ?? 0)} kcal
-                                                </p>
-                                            </div>
-
-                                            <div class="d-flex align-items-center gap-1">
-                                                <p class="font-size-s m-0">
-                                                    ${meal.protein ?? 0}g protein
-                                                </p>
-                                            </div>
-
+                                            <p class="font-size-s m-0">${Math.round(meal.calories ?? 0)} kcal</p>
+                                            <p class="font-size-s m-0">${meal.protein ?? 0}g protein</p>
                                         </div>
                                     </div>
-
+                                    <div class="flex-shrink-0">
+                                        <button class="btn-delete-jadwal" style="width:auto;padding:.25rem .5rem;margin-top:0;"
+                                            onclick="weekDeleteLog(${meal.id ?? ''}, this)">
+                                            🗑
+                                        </button>
+                                    </div>
                                 </div>
+                            </div>`;
+                    }).join('');
+
+                    col.innerHTML = `
+                        <div class="week-card-planned">
+                            <div class="d-flex justify-content-between align-items-start mb-2">
+                                <p class="week-card-date m-0">${day.month_day}<br>${day.day_name}</p>
+                                <span class="badge-planned">${meals.length} meal${meals.length > 1 ? 's' : ''}</span>
                             </div>
-
+                            ${mealRowsHtml}
+                            <button class="btn-plan-oren mt-2"
+                                onclick="pmOpenModal(this)"
+                                data-date="${day.date}"
+                                data-date-display="${day.month_day}"
+                                data-date-day="${day.day_name}"
+                                data-label="${day.day_name}, ${day.month_day}">
+                                + Add More
+                            </button>
                         </div>
+                    `;
 
-                    </div>
-                `;
-
-            } else {
-
-                grid.innerHTML += `
-                    <div class="col-12 col-sm-6 col-xl-4">
-
+                } else {
+                    col.innerHTML = `
                         <div class="week-card">
-
-                            <p class="week-card-date m-0">
-                                ${day.month_day}<br>
-                                ${day.day_name}
-                            </p>
-
+                            <p class="week-card-date m-0">${day.month_day}<br>${day.day_name}</p>
                             <div class="d-flex flex-column gap-2 mt-2">
-
-                                <p class="week-no-plan-txt m-0">
-                                    No meals planned yet.
-                                </p>
-
+                                <p class="week-no-plan-txt m-0">No meals planned yet.</p>
                                 <button class="btn-plan-oren"
-                                    data-bs-toggle="modal"
-                                    data-bs-target="#modalPlanManually"
+                                    onclick="pmOpenModal(this)"
                                     data-date="${day.date}"
+                                    data-date-display="${day.month_day}"
+                                    data-date-day="${day.day_name}"
                                     data-label="${day.day_name}, ${day.month_day}">
-
                                     + Plan Manually
-
                                 </button>
-
                             </div>
-
                         </div>
+                    `;
+                }
 
-                    </div>
-                `;
-            }
-        });
+                grid.appendChild(col);
+            });
 
         } catch (e) {
             console.error('loadWeekGrid:', e);
         }
     }
-
     /* ══════════════════════════════════════════
        MODAL PLAN MANUALLY — state
     ══════════════════════════════════════════ */
@@ -859,12 +827,12 @@
        Render inner HTML untuk .week-card-planned
        persis mengikuti struktur meal_template DAYS VIEW
     ══════════════════════════════════════════ */
-    function buildPlannedCardHTML(food, slot, mealTime, dateDisplay, dateDay, logId) {
+    function buildPlannedCardHTML(food, slot, mealTime, dateDisplay, dateDay, logId, dateRaw) {
         const name    = food.name    ?? food.nama    ?? '';
         const kcal    = Math.round((food.calories ?? food.kalori    ?? 0) * pmServ);
         const protein = Math.round((food.protein  ?? food.protein_g ?? 0) * pmServ);
         const emoji   = food.emoji  ?? '🍽️';
-        const slotCap = slot.charAt(0).toUpperCase() + slot.slice(1);
+        const slotCap  = slot.charAt(0).toUpperCase() + slot.slice(1);
         const slotIcon = { Breakfast:'☀️', Snack:'🍎', Lunch:'🥗', Dinner:'🌙' };
 
         const imgHtml = food.image_path
@@ -873,76 +841,50 @@
             : `<div class="gambar-meal gambar-meal-week d-flex align-items-center justify-content-center"
                     style="background:rgba(0,0,0,.04);border-radius:10px;font-size:1.4rem;">
                     ${emoji}
-               </div>`;
+            </div>`;
 
+        // ← SATU return saja, sudah include tombol Add More
         return `
-            {{-- Header: tanggal + badge --}}
             <div class="d-flex justify-content-between align-items-start mb-2">
                 <p class="week-card-date m-0">${dateDisplay}<br>${dateDay}</p>
                 <span class="badge-planned">Planned</span>
             </div>
 
-            {{-- meal_template DAYS VIEW structure --}}
             <div class="d-flex align-items-start mb-2 timeline-meal-row">
-
                 <div class="meal-time-col">
                     <span class="meal-time-text">${mealTime}</span>
                 </div>
-
                 <div class="meal-timeline-col">
                     <div class="meal-dot-timeline"></div>
                 </div>
-
                 <div class="wrapper-content-meal-days d-flex px-2 py-1 flex-grow-1">
-
                     <div class="d-flex align-items-center flex-shrink-0">
                         ${imgHtml}
                     </div>
-
                     <div class="d-flex flex-column ms-2 justify-content-center flex-grow-1">
-
                         <p class="type-meal m-0 p-0">${slotIcon[slotCap] ?? '🍽️'} ${slotCap.toUpperCase()}</p>
-
                         <h6 class="name-meal mb-1 p-0 fw-bold" style="font-size:.78rem;line-height:1.3;">${name}</h6>
-
                         <div class="d-flex align-items-center gap-3 nutrition-meal flex-wrap">
-
-                            <div class="d-flex align-items-center gap-1">
-                                <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 16 16" fill="none">
-                                    <path d="M5.66671 9.66667C6.10873 9.66667 6.53266 9.49107 6.84522 9.17851C7.15778 8.86595 7.33337 8.44203 7.33337 8C7.33337 7.08 7.00004 6.66667 6.66671 6C5.95204 4.57133 6.51737 3.29733 8.00004 2C8.33337 3.66667 9.33337 5.26667 10.6667 6.33333C12 7.4 12.6667 8.66667 12.6667 10C12.6667 10.6128 12.546 11.2197 12.3115 11.7859C12.077 12.352 11.7332 12.8665 11.2999 13.2998C10.8665 13.7332 10.3521 14.0769 9.7859 14.3114C9.21971 14.546 8.61288 14.6667 8.00004 14.6667C7.38721 14.6667 6.78037 14.546 6.21418 14.3114C5.648 14.0769 5.13355 13.7332 4.70021 13.2998C4.26687 12.8665 3.92312 12.352 3.6886 11.7859C3.45408 11.2197 3.33337 10.6128 3.33337 10C3.33337 9.23133 3.62204 8.47067 4.00004 8C4.00004 8.44203 4.17564 8.86595 4.4882 9.17851C4.80076 9.49107 5.22468 9.66667 5.66671 9.66667Z"
-                                        stroke="#FF6900" stroke-width="1.33333" stroke-linecap="round" stroke-linejoin="round"/>
-                                </svg>
-                                <p class="font-size-s m-0">${kcal} kcal</p>
-                            </div>
-
-                            <div class="d-flex align-items-center gap-1">
-                                <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 16 16" fill="none">
-                                    <g clip-path="url(#clip_pm_new)">
-                                        <path d="M10.9334 9.13335C11.4802 8.72243 11.9219 8.18791 12.2225 7.57351C12.5231 6.95911 12.674 6.28228 12.6628 5.59839C12.6516 4.9145 12.4787 4.24297 12.1582 3.63872C11.8377 3.03447 11.3787 2.51468 10.8188 2.12184C10.2589 1.72901 9.61389 1.4743 8.93665 1.37855C8.2594 1.2828 7.5691 1.34872 6.92222 1.57093C6.27534 1.79314 5.69025 2.16532 5.2148 2.65704C4.73935 3.14875 4.38705 3.74603 4.18672 4.40001C3.45339 6.48668 3.66672 7.00002 2.06672 8.45335C1.74789 8.71473 1.51763 9.06825 1.40746 9.46553C1.29728 9.86281 1.31257 10.2844 1.45123 10.6727C1.5899 11.0609 1.84516 11.3969 2.18208 11.6345C2.519 11.8721 2.92111 11.9997 3.33339 12C6.00005 12 8.93338 10.8 10.9334 9.13335Z"
-                                            stroke="#00A63E" stroke-width="1.33333" stroke-linecap="round" stroke-linejoin="round"/>
-                                        <path d="M12.3333 4L13.7933 7C14.0728 7.85924 14.0758 8.78448 13.8019 9.64552C13.5281 10.5066 12.9911 11.2601 12.2666 11.8C10.2666 13.4667 7.33331 14.6667 4.66664 14.6667C4.29548 14.6662 3.93177 14.5624 3.61623 14.3669C3.30069 14.1715 3.04576 13.8921 2.87998 13.56L1.59998 11"
-                                            stroke="#00A63E" stroke-width="1.33333" stroke-linecap="round" stroke-linejoin="round"/>
-                                        <path d="M8.33329 7.33333C9.25377 7.33333 9.99996 6.58714 9.99996 5.66667C9.99996 4.74619 9.25377 4 8.33329 4C7.41282 4 6.66663 4.74619 6.66663 5.66667C6.66663 6.58714 7.41282 7.33333 8.33329 7.33333Z"
-                                            stroke="#00A63E" stroke-width="1.33333" stroke-linecap="round" stroke-linejoin="round"/>
-                                    </g>
-                                    <defs>
-                                        <clipPath id="clip_pm_new">
-                                            <rect width="16" height="16" fill="white"/>
-                                        </clipPath>
-                                    </defs>
-                                </svg>
-                                <p class="font-size-s m-0">${protein}g protein</p>
-                            </div>
-
+                            <p class="font-size-s m-0">${kcal} kcal</p>
+                            <p class="font-size-s m-0">${protein}g protein</p>
                         </div>
                     </div>
                 </div>
             </div>
 
-            {{-- Tombol hapus (tanpa edit — log baru tidak punya jadwal_makanan id) --}}
             <button class="btn-delete-jadwal"
                 onclick="weekDeleteLog(${logId}, this)">
                 🗑 Hapus Plan
+            </button>
+
+            <button class="btn-plan-oren mt-2"
+                data-bs-toggle="modal"
+                data-bs-target="#modalPlanManually"
+                data-date="${dateRaw}"
+                data-date-display="${dateDisplay}"
+                data-date-day="${dateDay}"
+                data-label="${dateDay}, ${dateDisplay}">
+                + Add More
             </button>
         `;
     }
@@ -952,27 +894,22 @@
        Dipanggil setelah pmSavePlan berhasil
     ══════════════════════════════════════════ */
     function updateWeekCard(date, logData, slot, mealTime) {
-        /* Cari col wrapper berdasarkan data-week-col */
         const col = document.querySelector(`[data-week-col="${date}"]`);
         if (!col) return;
 
-        /* Ambil info tanggal dari tombol trigger */
         const dateDisplay = pmTriggerBtn?.dataset.dateDisplay ?? '';
         const dateDay     = pmTriggerBtn?.dataset.dateDay     ?? '';
         const logId       = logData.id ?? logData.data?.id ?? null;
 
-        /* Buat elemen card baru */
         const newCard = document.createElement('div');
         newCard.className = 'week-card-planned just-planned';
         newCard.innerHTML = buildPlannedCardHTML(
-            pmSelectedFood, slot, mealTime, dateDisplay, dateDay, logId
+            pmSelectedFood, slot, mealTime, dateDisplay, dateDay, logId, date
         );
 
-        /* Ganti card lama dengan yang baru */
         col.innerHTML = '';
         col.appendChild(newCard);
 
-        /* Hapus class animasi setelah selesai */
         setTimeout(() => newCard.classList.remove('just-planned'), 400);
     }
 
@@ -989,27 +926,10 @@
                 headers: { 'X-CSRF-TOKEN': CSRF, Accept: 'application/json' }
             });
             if (res.ok) {
-                /* Kembalikan card ke tampilan unplanned */
-                const card = btn.closest('.week-card-planned');
-                const col  = btn.closest('[data-week-col]');
-                if (!col) { location.reload(); return; }
-                const date        = col.dataset.weekCol;
-                const dateDisplay = card.querySelector('.week-card-date')?.innerHTML ?? '';
-                col.innerHTML = `
-                    <div class="week-card">
-                        <p class="week-card-date m-0">${dateDisplay}</p>
-                        <div class="d-flex flex-column gap-2 mt-2">
-                            <p class="week-no-plan-txt m-0">No meals planned yet.</p>
-                            <button class="btn-plan-oren"
-                                data-bs-toggle="modal" data-bs-target="#modalPlanManually"
-                                data-date="${date}"
-                                data-date-display="${dateDisplay.replace('<br>', ' ').replace(/<[^>]+>/g,'').trim()}"
-                                data-date-day=""
-                                data-label="${dateDisplay.replace('<br>', ', ').replace(/<[^>]+>/g,'').trim()}">
-                                + Plan Manually
-                            </button>
-                        </div>
-                    </div>`;
+                // Refresh grid dari server — biar konsisten, termasuk kalau
+                // masih ada meal lain di hari itu (jangan balik ke unplanned dulu)
+                await loadWeekGrid();
+                loadWeekSidebar();
             } else {
                 alert('Gagal menghapus.');
                 btn.disabled = false;
@@ -1069,12 +989,12 @@
 
             const data = await res.json().catch(() => ({}));
 
-            if (res.ok) {
+                if (res.ok) {
                 /* Tutup modal */
                 bootstrap.Modal.getInstance(document.getElementById('modalPlanManually'))?.hide();
 
-                /* ── Update card di DOM langsung tanpa reload ── */
-                updateWeekCard(pmSelectedDate, data, selSlot, custTime);
+                /* ── Refresh grid dari server ── */
+                await loadWeekGrid();
 
                 /* Kalau tanggal = hari ini, refresh sidebar juga */
                 if (pmSelectedDate === today) {
@@ -1129,11 +1049,13 @@
 
         /* ── Plan Manually ── */
         if (e.target.id === 'modalPlanManually') {
-            const btn  = e.relatedTarget;
-            pmTriggerBtn   = btn ?? null;   // simpan referensi untuk updateWeekCard
+            const btn = e.relatedTarget ?? document.activeElement;
+            pmTriggerBtn = btn ?? null;
 
             /* Reset state */
-            pmSelectedDate = btn?.dataset.date ?? null;
+            pmSelectedDate = btn?.dataset?.date
+                ?? btn?.getAttribute?.('data-date')
+                ?? null;
             pmSelectedId   = null;
             pmSelectedFood = null;
             pmServ         = 1;
@@ -1209,7 +1131,30 @@
                 headers: { 'X-CSRF-TOKEN': CSRF, Accept: 'application/json' }
             });
             if (res.ok) {
-                location.reload();
+                /* Kembalikan card ke tampilan unplanned tanpa reload */
+                const col = btn.closest('[data-week-col]');
+                if (!col) { location.reload(); return; }
+
+                const date        = col.dataset.weekCol;
+                const dateEl      = col.querySelector('.week-card-date');
+                const dateDisplay = dateEl?.innerHTML ?? '';
+
+                col.innerHTML = `
+                    <div class="week-card">
+                        <p class="week-card-date m-0">${dateDisplay}</p>
+                        <div class="d-flex flex-column gap-2 mt-2">
+                            <p class="week-no-plan-txt m-0">No meals planned yet.</p>
+                            <button class="btn-plan-oren"
+                                data-bs-toggle="modal"
+                                data-bs-target="#modalPlanManually"
+                                data-date="${date}"
+                                data-date-display="${dateDisplay.replace('<br>', ' ').replace(/<[^>]+>/g,'').trim()}"
+                                data-date-day=""
+                                data-label="${dateDisplay.replace('<br>', ', ').replace(/<[^>]+>/g,'').trim()}">
+                                + Plan Manually
+                            </button>
+                        </div>
+                    </div>`;
             } else {
                 alert('Gagal menghapus jadwal.');
                 btn.disabled = false;
@@ -1285,8 +1230,51 @@
        BOOT
     ══════════════════════════════════════════ */
     loadWeekSidebar();
+    loadWeekGrid();
     window.addEventListener('meal-added', loadWeekSidebar);
+    window.pmOpenModal = function (btn) {
+        pmTriggerBtn   = btn;
+        pmSelectedDate = btn.dataset.date ?? null;
+        pmSelectedId   = null;
+        pmSelectedFood = null;
+        pmServ         = 1;
 
+        const sub = document.getElementById('pm-subtitle');
+        if (sub) sub.textContent = `${btn.dataset.label ?? ''} · Tambahkan makanan ke rencana`;
+
+        const sv = document.getElementById('pm-serv-val');
+        if (sv) sv.textContent = '1';
+        const search = document.getElementById('pm-search');
+        if (search) { search.value = ''; pmFilterFoods(''); }
+
+        document.querySelectorAll('#pm-slot-row .pm-slot-btn').forEach(b => {
+            b.classList.remove('active-breakfast','active-snack','active-lunch','active-dinner');
+            b.classList.add('btn-outline-secondary');
+            if (b.dataset.slot === 'lunch') {
+                b.classList.remove('btn-outline-secondary');
+                b.classList.add('active-lunch');
+            }
+        });
+
+        const timeInput = document.getElementById('pm-custom-time');
+        if (timeInput) timeInput.value = '13:00';
+
+        document.querySelectorAll('#pm-food-list .pm-food-item')
+            .forEach(el => el.classList.remove('selected'));
+
+        const preview = document.getElementById('pm-selected-preview');
+        if (preview) preview.style.display = 'none';
+
+        const saveBtn = document.getElementById('pm-save-btn');
+        if (saveBtn) { saveBtn.disabled = false; saveBtn.textContent = '💾 Simpan Plan'; }
+
+        loadPmFoods();
+
+        const modalEl = document.getElementById('modalPlanManually');
+        let modal = bootstrap.Modal.getInstance(modalEl);
+        if (!modal) modal = new bootstrap.Modal(modalEl);
+        modal.show();
+    };
 })();
 
 </script>

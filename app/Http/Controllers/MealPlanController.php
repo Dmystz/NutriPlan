@@ -225,4 +225,97 @@ class MealPlanController extends Controller
 
         return response()->json(['success' => true, 'message' => 'Preferensi berhasil disimpan!']);
     }
+    public function weekPlan()
+    {
+        $userId = $this->userId();
+
+        $days = collect(range(1, 6))->map(function (int $i) use ($userId) {
+
+            $date    = now()->addDays($i);
+            $dateStr = $date->toDateString();
+
+            /* =========================
+            Ambil MealLog
+            ========================== */
+            $logs = MealLog::where('user_id', $userId)
+                ->whereDate('log_date', $dateStr)
+                ->orderBy('meal_time')
+                ->get();
+
+            /* =========================
+            Ambil JadwalMakanan
+            ========================== */
+            $jadwals = JadwalMakanan::forUser($userId)
+                ->forDate($dateStr)
+                ->with('resep')
+                ->orderBy('meal_time')
+                ->get();
+
+            /* =========================
+            Format MealLog
+            ========================== */
+            $logMeals = $logs->map(function ($log) {
+
+                return [
+                    'source'      => 'log',
+                    'id'          => $log->id,
+                    'name'        => $log->name,
+                    'meal_slot'   => $log->meal_slot,
+                    'meal_time'   => $log->meal_time,
+                    'calories'    => $log->calories,
+                    'protein'     => $log->protein,
+
+                    // fallback image
+                    'image_path'  => $log->image_path
+                        ?? asset('images/default_meal.png'),
+
+                    'emoji'       => '🍽️',
+                ];
+            });
+
+            /* =========================
+            Format Jadwal
+            ========================== */
+            $jadwalMeals = $jadwals->map(function ($jadwal) {
+
+                return [
+                    'source'      => 'jadwal',
+                    'id'          => $jadwal->id,
+                    'name'        => $jadwal->resep->nama_makanan ?? 'Meal',
+                    'meal_slot'   => $jadwal->meal_type,
+                    'meal_time'   => $jadwal->meal_time,
+
+                    'calories'    => $jadwal->resep->calories ?? 0,
+                    'protein'     => $jadwal->resep->protein ?? 0,
+
+                    'image_path'  => $jadwal->resep->image_path
+                        ? asset('storage/' . $jadwal->resep->image_path)
+                        : asset('images/default_meal.png'),
+
+                    'emoji'       => '🍽️',
+                ];
+            });
+
+            /* =========================
+            Gabungkan semua meal
+            ========================== */
+            $allMeals = $logMeals
+                ->concat($jadwalMeals)
+                ->sortBy('meal_time')
+                ->values();
+
+            return [
+                'date'       => $dateStr,
+                'day_name'   => $date->format('l'),
+                'month_day'  => $date->format('M j'),
+
+                'is_planned' => $allMeals->isNotEmpty(),
+
+                // SEKARANG ARRAY
+                'meals'      => $allMeals,
+            ];
+        });
+
+        return response()->json($days);
+    }
 }

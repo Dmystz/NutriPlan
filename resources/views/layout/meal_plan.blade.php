@@ -71,46 +71,38 @@
     </div>
 
     <script>
-        document.addEventListener('DOMContentLoaded', function () {
+    document.addEventListener('DOMContentLoaded', function () {
+        const daysSection = document.getElementById('days-section');
+        const weekSection = document.getElementById('week-section');
+        const hariRadio   = document.getElementById('hari');
+        const mingguRadio = document.getElementById('minggu');
 
-            const daysSection = document.getElementById('days-section');
-            const weekSection = document.getElementById('week-section');
+        /* ── Fungsi switch tab ── */
+        function switchTab(tab) {
+            if (tab === 'minggu') {
+                weekSection.classList.remove('d-none');
+                daysSection.classList.add('d-none');
+                mingguRadio.checked = true;
+            } else {
+                daysSection.classList.remove('d-none');
+                weekSection.classList.add('d-none');
+                hariRadio.checked = true;
+            }
+            localStorage.setItem('mealPlanTab', tab);
+        }
 
-            // default
-            daysSection.classList.remove('d-none');
-            weekSection.classList.add('d-none');
+        /* ── Restore tab terakhir saat load/refresh ── */
+        switchTab(localStorage.getItem('mealPlanTab') ?? 'hari');
 
-            // toggle
-            document.querySelectorAll("input[name='btnradio']")
-                .forEach(function (radio) {
-
-                    radio.addEventListener('change', function () {
-
-                        if (this.value === 'hari') {
-
-                            daysSection.classList.remove('d-none');
-                            weekSection.classList.add('d-none');
-
-                            daysSection.scrollIntoView({
-                                behavior: 'smooth'
-                            });
-
-                        } else {
-
-                            weekSection.classList.remove('d-none');
-                            daysSection.classList.add('d-none');
-
-                            weekSection.scrollIntoView({
-                                behavior: 'smooth'
-                            });
-
-                        }
-
-                    });
-
-                });
-
+        /* ── Listener klik radio ── */
+        document.querySelectorAll("input[name='btnradio']").forEach(function (radio) {
+            radio.addEventListener('change', function () {
+                switchTab(this.value);
+                (this.value === 'hari' ? daysSection : weekSection)
+                    .scrollIntoView({ behavior: 'smooth' });
+            });
         });
+    });
     </script>
 
 @endsection

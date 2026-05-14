@@ -24,7 +24,7 @@ Route::middleware(['web', 'auth.custom'])->group(function () {
     Route::get('/meal-logs/{id}', [MealLogController::class, 'show']);
     Route::put('/meal-logs/{id}', [MealLogController::class, 'update']);
     Route::delete('/meal-logs/{id}', [MealLogController::class, 'destroy']);
-
+    Route::get('/week-meal-plan', [MealPlanController::class, 'weekPlan']);
     Route::get('/meal-plan/day', [MealPlanController::class, 'dayData']);
     Route::get('/bmi-latest', [App\Http\Controllers\AnalyticController::class, 'latest']);
     Route::prefix('recipes')->group(function () {
