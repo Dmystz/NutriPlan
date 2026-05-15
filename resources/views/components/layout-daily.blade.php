@@ -180,7 +180,10 @@
             </div>
             <div class="col-7 ps-1">
                 <p class="p-0 m-0 p-card-daily fw-bold">Water</p>
-                <p class="p-0 m-0 p-card-daily text-muted">1500 / 2000 ml</p>
+                <p class="p-0 m-0 p-card-daily text-muted">
+                    <span id="daily-water-cur">1500</span> /
+                    <span id="daily-water-target">2000</span> ml
+                </p>
             </div>
             <div class="col-4">
                 <div class="align-items-center d-flex justify-content-end h-100 gap-2">
@@ -199,16 +202,97 @@
             </div>
             <div class="col-12">
                 <div class="progress-daily">
-                    <div class="progress-bar-daily-water" role="progressbar"
-                        style="width:75%" aria-valuenow="1500" aria-valuemin="0" aria-valuemax="2000">
+                    <div class="progress-bar-daily-water"
+                        id="daily-bar-water"
+                        role="progressbar"
+                        style="width:75%"
+                        aria-valuenow="1500"
+                        aria-valuemin="0"
+                        aria-valuemax="2000">
                     </div>
                 </div>
             </div>
             <div class="col-12 d-flex justify-content-between">
-                <p class="p-0 m-0 p-card-daily text-muted">500 ml left</p>
-                <p class="p-0 m-0 p-card-daily text-muted">75%</p>
+                <p class="p-0 m-0 p-card-daily text-muted">
+                    <span id="daily-water-left">500</span> ml left
+                </p>
+
+                <p class="p-0 m-0 p-card-daily text-muted">
+                    <span id="daily-water-pct">75</span>%
+                </p>
             </div>
         </div>
     </div>
 
 </div>
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+
+    const macros = [
+        { key: 'carbs',   step: 5,   unit: 'g'  },
+        { key: 'protein', step: 5,   unit: 'g'  },
+        { key: 'fat',     step: 5,   unit: 'g'  },
+        { key: 'water',   step: 250, unit: 'ml' },
+    ];
+
+    macros.forEach(m => {
+
+        const curEl = document.getElementById(`daily-${m.key}-cur`);
+        if (!curEl) return;
+
+        const container = curEl.closest('.container-content-daily');
+
+        const minusBtn = container.querySelectorAll('.btn-daily')[0];
+        const plusBtn  = container.querySelectorAll('.btn-daily')[1];
+
+        minusBtn.addEventListener('click', () => {
+            updateMacro(m.key, -m.step);
+        });
+
+        plusBtn.addEventListener('click', () => {
+            updateMacro(m.key, m.step);
+        });
+
+        refreshMacro(m.key);
+    });
+
+    function updateMacro(key, delta) {
+
+        const curEl    = document.getElementById(`daily-${key}-cur`);
+        const targetEl = document.getElementById(`daily-${key}-target`);
+
+        let current = parseInt(curEl.textContent) || 0;
+        const target = parseInt(targetEl.textContent) || 0;
+
+        current += delta;
+
+        if (current < 0) current = 0;
+
+        curEl.textContent = current;
+
+        refreshMacro(key);
+    }
+
+    function refreshMacro(key) {
+
+        const curEl    = document.getElementById(`daily-${key}-cur`);
+        const targetEl = document.getElementById(`daily-${key}-target`);
+        const leftEl   = document.getElementById(`daily-${key}-left`);
+        const pctEl    = document.getElementById(`daily-${key}-pct`);
+        const barEl    = document.getElementById(`daily-bar-${key}`);
+
+        const current = parseInt(curEl.textContent) || 0;
+        const target  = parseInt(targetEl.textContent) || 1;
+
+        const left = Math.max(target - current, 0);
+        const pct  = Math.min(Math.round((current / target) * 100), 100);
+
+        leftEl.textContent = left;
+        pctEl.textContent  = pct;
+
+        barEl.style.width = `${pct}%`;
+        barEl.setAttribute('aria-valuenow', current);
+    }
+
+});
+</script>
