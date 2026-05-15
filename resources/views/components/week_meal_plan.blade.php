@@ -42,14 +42,23 @@
     .week-card-date   { font-size: .78rem; font-weight: 700; color: #111827; line-height: 1.3; }
     .week-no-plan-txt { font-size: .75rem; font-weight: 500; color: #374151; }
 
-    .btn-plan-oren {
-        width: 100%; background: var(--warna-oren); color: #fff;
-        font-size: .78rem; font-weight: 500; border: none;
-        border-radius: 50px; padding: .45rem 0;
-        transition: background .2s ease; cursor: pointer;
-    }
-    .btn-plan-oren:hover { background: #cd4c22; }
+.btn-plan-oren {
+    width: 100%;
+    background: linear-gradient(90deg, #95cd41 0%, #ea5c2b 100%);
+    color: #fff;
+    font-size: .78rem;
+    font-weight: 500;
+    border: none;
+    border-radius: 50px;
+    padding: .45rem 0;
+    transition: all 0.3s ease;
+    cursor: pointer;
+}
 
+.btn-plan-oren:hover {
+    background: linear-gradient(90deg, #7ab535 0%, #cd4c22 100%);
+    box-shadow: 0 0 0 3px rgba(149, 205, 65, 0.35);
+}
     .btn-plan-ijo {
         width: 100%; background: var(--warna-ijo); color: #fff;
         font-size: .78rem; font-weight: 500; border: none;

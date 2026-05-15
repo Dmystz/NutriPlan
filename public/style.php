@@ -97,14 +97,26 @@ echo "body { background-color: #f0f0f0; }";
         background-color: #cd4c22;
     }
 
-    .oren {
-        background-color: var(--warna-oren);
-        transition: all 0.3s ease;
-    }
+.oren {
+    background-color: var(--warna-oren);
+    transition: all 0.3s ease;
+}
 
-    .oren:hover {
-        background-color: #cd4c22;
-    }
+.oren:hover {
+    background-color: #cd4c22;
+}
+
+/* Override khusus untuk tombol Add Meal */
+.oren.rounded-pill.add-meal-btn {
+    background: linear-gradient(90deg, #95cd41 0%, #ea5c2b 100%);
+    color: white;
+    border: none;
+}
+
+.oren.rounded-pill.add-meal-btn:hover {
+    background: linear-gradient(90deg, #7ab535 0%, #cd4c22 100%);
+    box-shadow: 0 0 0 3px rgba(149, 205, 65, 0.35);
+}
 
     .nav-link {
         font-size: 1rem;
@@ -601,25 +613,27 @@ body.modal-open {
     }
 
     /* Homepage */
-    .form-control {
-        background: linear-gradient(90deg, #EA5C2B 0%, #95CD41 100%);
-        border-radius: 200px;
-        padding-left: 2.5rem;
-        box-shadow: none;
-        border: none;
-        outline: none;
-    }
+.form-control {
+    border-radius: 50px !important;
+    padding: 0.5rem 1.1rem 0.5rem 2.5rem;
+    font-size: 0.9rem;
+    border: none;
+    background: linear-gradient(90deg, #95cd41 0%, #ea5c2b 100%);
+    color: white;
+    width: 100%;
+    transition: all 0.3s ease;
+}
 
-    .form-control::placeholder {
-        color: #f0ffdf;
-    }
+.form-control::placeholder {
+    color: rgba(255, 255, 255, 0.75);
+}
 
-    .form-control:focus {
-        color: #f0ffdf;
-        box-shadow: none;
-        border: none;
-        outline: none;
-    }
+.form-control:focus {
+    box-shadow: 0 0 0 3px rgba(149, 205, 65, 0.35);
+    outline: none;
+    background: linear-gradient(90deg, #7ab535 0%, #cd4c22 100%);
+    color: white;
+}
 
     .btn-check:checked+.bg-radio {
         background-color: #FFF;
@@ -1577,16 +1591,26 @@ body.modal-open {
         min-width: 160px;
     }
 
-    .filter-search-box {
-        border-radius: 50px;
-        border: 1px solid #E5E7EB;
-        background: #F9FAFB;
-        padding: 0.35rem 0.75rem;
-        font-size: 0.78rem;
-        outline: none;
-        width: 100%;
-        color: #374151;
-    }
+.filter-search-box {
+    border-radius: 50px !important;
+    padding: 0.5rem 1.1rem;
+    font-size: 0.9rem;
+    border: none;
+    background: linear-gradient(90deg, #95cd41 0%, #ea5c2b 100%);
+    color: white;
+    width: 100%;
+}
+
+.filter-search-box::placeholder {
+    color: rgba(255, 255, 255, 0.75);
+}
+
+.filter-search-box:focus {
+    box-shadow: 0 0 0 3px rgba(149, 205, 65, 0.35);
+    outline: none;
+    background: linear-gradient(90deg, #95cd41 0%, #ea5c2b 100%);
+    color: white;
+}
 
     .filter-group-title {
         font-size: 0.72rem;
