@@ -286,27 +286,14 @@ echo "body { background-color: #f0f0f0; }";
         border-radius: 10px;
     }
 
-    /* ── card-6: aspect-ratio square, full width dalam grid ── */
+    /* ── card-6: ukuran tetap seperti style.php 1 ── */
     .card-6 {
-        width: 100% !important;
-        height: auto !important;
-        aspect-ratio: 1 / 1;
-        min-width: 0;
+        width: 6rem;
+        height: 6rem;
         border-radius: 10px;
         background: #FFF;
         box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.10), 0 2px 4px -2px rgba(0, 0, 0, 0.10);
-        margin: 0 !important;
-        overflow: hidden;
-    }
-
-    /* ── Isi card-6 ── */
-    .card-6 .crd6-content {
-        width: 100%;
-        height: 100%;
-        display: flex;
-        flex-direction: column;
-        justify-content: space-between;
-        box-sizing: border-box;
+        margin: 0.5rem;
     }
 
     .card-7 {
@@ -706,57 +693,41 @@ echo "body { background-color: #f0f0f0; }";
         backdrop-filter: blur(5px);
     }
 
-    /* ── wrapper-daily-home & wrapper-shop-home: full width, auto height ── */
+    /* ── wrapper-daily-home: lebar tetap 16rem seperti style.php 1 ── */
     .wrapper-daily-home {
-        width: 100%;
-        max-width: 100%;
-        height: auto;
-        min-height: 0;
+        width: 16rem;
+        height: 20rem;
         margin-bottom: 1rem;
         padding: 1rem;
         border-radius: 10px;
         background: rgba(252, 252, 252, 0.23);
         box-shadow: 0 10px 24px 0 rgba(140, 136, 136, 0.25);
         backdrop-filter: blur(5px);
-        box-sizing: border-box;
+        overflow: hidden;
     }
 
-    /* ── wrapper-report-home: full width, auto height ── */
+    /* ── wrapper-report-home: lebar tetap 16rem seperti style.php 1 ── */
     .wrapper-report-home {
         border-radius: 10px;
         background: rgba(252, 252, 252, 0.23);
         box-shadow: 0 10px 24px 0 rgba(140, 136, 136, 0.50);
         backdrop-filter: blur(5px);
-        width: 100%;
-        max-width: 15rem;
-        height: auto;
-        min-height: 0;
+        width: 16rem;
+        height: 20rem;
         margin-bottom: 1rem;
         padding: 1rem;
-        box-sizing: border-box;
     }
 
-    /* ── Grid 2×2 untuk 4 card-6 ── */
-    .wrapper-report-home .d-flex.flex-wrap {
-        display: grid !important;
-        grid-template-columns: 1fr 1fr;
-        gap: 0.5rem;
-        margin-top: 0.5rem;
-        width: 100%;
-    }
-
-    /* ── wrapper-shop-home: full width, auto height ── */
+    /* ── wrapper-shop-home: lebar tetap 16rem seperti style.php 1 ── */
     .wrapper-shop-home {
         border-radius: 10px;
         background: rgba(252, 252, 252, 0.23);
         box-shadow: 0 10px 24px 0 rgba(140, 136, 136, 0.50);
         backdrop-filter: blur(5px);
-        width: 100%;
-        max-width: 15rem;
-        min-height: 20rem;
+        width: 16rem;
+        height: 20rem;
         padding: 1rem;
         margin-bottom: 1rem;
-        box-sizing: border-box;
     }
 
     .wrapper-shop-list-home {
@@ -764,22 +735,20 @@ echo "body { background-color: #f0f0f0; }";
         background: none;
         margin: 0;
         height: calc(100% - 2rem);
-        min-height: 15rem;
     }
 
-    /* ── Daily list: auto height ── */
+    /* ── wrapper-daily-list-home: overflow hidden dengan tinggi tetap ── */
     .wrapper-daily-list-home {
-        overflow: visible;
+        overflow: hidden;
         background: none;
-        height: auto;
+        height: calc(100% - 2rem);
     }
 
     .daily-list {
-        overflow-y: visible;
+        overflow-y: auto;
         display: flex;
         flex-direction: column;
-        height: auto;
-        gap: 0.4rem;
+        height: calc(100% - 1rem);
     }
 
     .daily-list::-webkit-scrollbar {
@@ -795,11 +764,10 @@ echo "body { background-color: #f0f0f0; }";
         min-width: 10rem;
     }
 
-    /* ── Activity chart: auto height ── */
+    /* ── wrapper-activity-home: tinggi mengisi sisa ruang ── */
     .wrapper-activity-home {
         width: 100%;
-        height: auto;
-        min-height: 140px;
+        height: calc(100% - 2rem);
         margin: 0;
     }
 
@@ -847,16 +815,14 @@ echo "body { background-color: #f0f0f0; }";
         display: none;
     }
 
-    /* ── Daily Intake: container tidak fixed height ── */
+    /* ── container-content-daily ── */
     .container-content-daily {
         border-radius: 14px;
         border: 1px solid rgba(0, 0, 0, 0.25);
         background: rgba(252, 252, 252, 0.23);
         backdrop-filter: blur(5px);
         width: 100%;
-        height: auto;
-        min-height: 4rem;
-        padding: 0.5rem;
+        height: 5rem;
     }
 
     .btn-daily {
@@ -968,11 +934,9 @@ echo "body { background-color: #f0f0f0; }";
         justify-content: space-between;
     }
 
-    /* ── water-container: tumbuh mengisi ruang ── */
     .water-container {
         width: 100%;
-        flex: 1 1 0;
-        min-height: 0;
+        height: 3.2rem;
         background-color: rgba(74, 85, 101, 0.5);
         border-radius: 10px;
         margin-bottom: 0.1rem;
@@ -989,22 +953,8 @@ echo "body { background-color: #f0f0f0; }";
         position: relative;
     }
 
-    /* ── SVG gauge weight: full width ── */
-    .card-6 .svg-weight {
-        width: 100%;
-        height: auto;
-    }
-
-    /* ── SVG BMI: full width ── */
     .svg-bmi {
-        width: 100%;
-        height: auto;
-    }
-
-    /* ── Calories SVG circle: full width ── */
-    .card-6 .d-flex.justify-content-center.align-items-center.position-relative svg {
-        width: 70%;
-        height: auto;
+        height: 2.5rem;
     }
 
     .water-bar {
@@ -1124,8 +1074,38 @@ echo "body { background-color: #f0f0f0; }";
     }
 
     .chart-activity {
-        height: 120px;
-        margin-top: 0.5rem;
+        height: calc(100% - 2rem);
+        margin-top: 2rem;
+    }
+
+    /* ── Activity bar chart ── */
+    .bar {
+        width: 100%;
+        border-radius: 24px;
+        background: rgba(30, 77, 106, 0.50);
+        transition: height 0.3s ease;
+    }
+
+    .highest-bar {
+        width: 100%;
+        border-radius: 24px;
+        background: linear-gradient(180deg, #51A2FF 0%, #155DFC 100%);
+        transition: height 0.3s ease;
+    }
+
+    .nilai-bar {
+        position: absolute;
+        top: -1.2rem;
+    }
+
+    .day-bar {
+        position: relative;
+        height: 100%;
+        width: 1.8rem;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: end;
     }
 
     /* ================================================================
@@ -1554,7 +1534,7 @@ echo "body { background-color: #f0f0f0; }";
             width: 100%;
             max-width: 100%;
             height: auto;
-            min-height: 0;
+            min-height: 14rem;
         }
 
         .wrapper-home1 {
@@ -1589,16 +1569,8 @@ echo "body { background-color: #f0f0f0; }";
             width: 100%;
         }
 
-        .wrapper-report-home .d-flex.flex-wrap {
-            gap: 0.35rem;
-        }
-
         .chart-activity {
             height: 110px;
-        }
-
-        .card-6 .crd6-content {
-            padding: 0.4rem 0.45rem;
         }
 
         .crd6-content .p-water {
@@ -2962,10 +2934,6 @@ echo "body { background-color: #f0f0f0; }";
 
         .card-4 .clock-history {
             width: 1.2rem;
-        }
-
-        .wrapper-report-home .d-flex.flex-wrap {
-            gap: 0.4rem;
         }
 
         .card-6 .p-water {
