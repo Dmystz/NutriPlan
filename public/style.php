@@ -3128,24 +3128,369 @@ echo "body { background-color: #f0f0f0; }";
             font-size: 0.34rem;
         }
     }
-    .filter-search-box {
-    border-radius: 50px !important;
-    padding: 0.5rem 1.1rem;
-    font-size: 0.9rem;
-    border: none;
-    background: linear-gradient(90deg, #95cd41 0%, #ea5c2b 100%);
-    color: white;
-    width: 100%;
+
+    /* ================================================================
+       RECIPES RECOMMENDATION — RESPONSIVE COMPONENT
+       (Semua class berawalan .recom-* — tidak ada duplikasi dengan di atas)
+       ================================================================ */
+
+    /* ── Container ── */
+    .recom-wrapper {
+        min-height: 100%;
+        box-sizing: border-box;
     }
 
-    .filter-search-box::placeholder {
-        color: rgba(255, 255, 255, 0.75);
+    /* ── Header ── */
+    .recom-header {
+        border-bottom: 1px solid rgba(0, 0, 0, .06);
+        padding-bottom: .5rem;
     }
 
-    .filter-search-box:focus {
-        box-shadow: 0 0 0 3px rgba(149, 205, 65, 0.35);
-        outline: none;
-        background: linear-gradient(90deg, #95cd41 0%, #ea5c2b 100%);
-        color: white;
+    .recom-spark {
+        color: #ea5c2b;
+        font-size: .85rem;
+    }
+
+    .recom-title {
+        font-size: .82rem;
+        font-weight: 700;
+        color: #111827;
+        white-space: nowrap;
+    }
+
+    .recom-badge {
+        font-size: .58rem;
+        font-weight: 600;
+        color: #ea5c2b;
+        background: rgba(234, 92, 43, .10);
+        border: 1px solid rgba(234, 92, 43, .20);
+        border-radius: 50px;
+        padding: 2px 8px;
+        white-space: nowrap;
+    }
+
+    /* ── Scrollable list ── */
+    .recom-list {
+        overflow-y: auto;
+        flex: 1 1 auto;
+        padding-right: 2px;
+    }
+
+    .recom-list::-webkit-scrollbar {
+        width: 3px;
+    }
+
+    .recom-list::-webkit-scrollbar-thumb {
+        background: #E5E7EB;
+        border-radius: 3px;
+    }
+
+    /* ── Base card shell ── */
+    .recom-card {
+        border-radius: 12px;
+        background: rgba(252, 252, 252, .85);
+        border: .8px solid rgba(0, 0, 0, .08);
+        box-shadow: 0 2px 8px rgba(140, 136, 136, .14);
+        overflow: hidden;
+        transition: box-shadow .2s ease, transform .15s ease;
+    }
+
+    .recom-card:hover {
+        box-shadow: 0 4px 16px rgba(140, 136, 136, .26);
+        transform: translateY(-1px);
+    }
+
+    /* ── Featured card ── */
+    .recom-card--featured .recom-card__img-wrap {
+        position: relative;
+        width: 100%;
+        overflow: hidden;
+        border-radius: 12px 12px 0 0;
+        aspect-ratio: 16 / 9;
+    }
+
+    .recom-card__img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        display: block;
+        transition: transform .3s ease;
+    }
+
+    .recom-card--featured:hover .recom-card__img {
+        transform: scale(1.04);
+    }
+
+    .recom-card__overlay {
+        position: absolute;
+        bottom: 6px;
+        left: 6px;
+        display: flex;
+        gap: 4px;
+        flex-wrap: wrap;
+    }
+
+    .recom-card__tag {
+        font-size: .55rem;
+        font-weight: 700;
+        color: #fff;
+        background: rgba(234, 92, 43, .88);
+        border-radius: 50px;
+        padding: 2px 7px;
+        backdrop-filter: blur(4px);
+    }
+
+    .recom-card__tag--green {
+        background: rgba(149, 205, 65, .88);
+        color: #2d4a0e;
+    }
+
+    .recom-card__body {
+        padding: .6rem .7rem;
+    }
+
+    .recom-card__name {
+        font-size: .72rem;
+        font-weight: 700;
+        color: #111827;
+        line-height: 1.35;
+        margin: 0 0 .4rem;
+        display: -webkit-box;
+        -webkit-line-clamp: 2;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+    }
+
+    .recom-card__name--sm {
+        font-size: .68rem;
+        -webkit-line-clamp: 2;
+        margin: 0;
+    }
+
+    .recom-card__macros {
+        display: flex;
+        gap: 4px;
+        flex-wrap: wrap;
+        margin-bottom: .5rem;
+    }
+
+    .recom-macro {
+        font-size: .52rem;
+        font-weight: 700;
+        border-radius: 4px;
+        padding: 1px 5px;
+    }
+
+    .recom-macro--protein {
+        background: rgba(251, 44, 54, .10);
+        color: #fb2c36;
+    }
+
+    .recom-macro--carbs {
+        background: rgba(254, 154, 0, .10);
+        color: #e08a00;
+    }
+
+    .recom-macro--fat {
+        background: rgba(149, 205, 65, .12);
+        color: #446611;
+    }
+
+    .recom-card__btn {
+        width: 100%;
+        border: none;
+        background: linear-gradient(90deg, #ea5c2b 0%, #f97316 100%);
+        color: #fff;
+        font-size: .68rem;
+        font-weight: 700;
+        border-radius: 8px;
+        padding: .38rem .5rem;
+        cursor: pointer;
+        transition: opacity .2s ease, transform .15s ease;
+    }
+
+    .recom-card__btn:hover {
+        opacity: .88;
+        transform: translateY(-1px);
+    }
+
+    /* ── Mini card ── */
+    .recom-card--mini {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        padding: .45rem .5rem;
+        border-radius: 12px;
+        background: rgba(252, 252, 252, .85);
+        border: .8px solid rgba(0, 0, 0, .08);
+        box-shadow: 0 2px 8px rgba(140, 136, 136, .10);
+    }
+
+    .recom-card--mini__img {
+        width: 52px;
+        height: 52px;
+        border-radius: 9px;
+        object-fit: cover;
+        flex-shrink: 0;
+    }
+
+    .recom-card--mini__body {
+        flex: 1 1 auto;
+        min-width: 0;
+    }
+
+    .recom-card--mini__add {
+        flex-shrink: 0;
+        width: 24px;
+        height: 24px;
+        border-radius: 50%;
+        border: 1.5px solid #ea5c2b;
+        background: transparent;
+        color: #ea5c2b;
+        font-size: .95rem;
+        font-weight: 700;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        transition: all .18s ease;
+        line-height: 1;
+        padding: 0;
+    }
+
+    .recom-card--mini__add:hover {
+        background: #ea5c2b;
+        color: #fff;
+        box-shadow: 0 3px 8px rgba(234, 92, 43, .30);
+    }
+
+    /* ── Info chips ── */
+    .recom-chip {
+        font-size: .52rem;
+        font-weight: 600;
+        color: #6B7280;
+        background: #F3F4F6;
+        border-radius: 50px;
+        padding: 1px 6px;
+        white-space: nowrap;
+    }
+
+    .recom-chip--time {
+        color: #446611;
+        background: rgba(149, 205, 65, .12);
+    }
+
+    /* ── Responsive: < xl — horizontal strip ── */
+    @media (max-width: 1199.98px) {
+        .recom-wrapper {
+            flex-direction: row;
+            flex-wrap: wrap;
+            gap: 8px;
+            padding: .5rem;
+        }
+
+        .recom-header {
+            width: 100%;
+            border-bottom: none;
+            padding-bottom: 0;
+            margin-bottom: 4px;
+        }
+
+        .recom-list {
+            display: flex;
+            flex-direction: row;
+            flex-wrap: nowrap;
+            gap: 8px;
+            overflow-x: auto;
+            overflow-y: hidden;
+            width: 100%;
+            padding-bottom: 4px;
+        }
+
+        .recom-list::-webkit-scrollbar {
+            height: 3px;
+            width: auto;
+        }
+
+        .recom-card--featured {
+            min-width: 170px;
+            max-width: 200px;
+            flex-shrink: 0;
+            margin-bottom: 0 !important;
+        }
+
+        .recom-card--featured .recom-card__img-wrap {
+            aspect-ratio: 4 / 3;
+        }
+
+        .recom-card--mini {
+            min-width: 170px;
+            max-width: 200px;
+            flex-shrink: 0;
+            margin-bottom: 0 !important;
+            flex-direction: column;
+            align-items: flex-start;
+            padding: .5rem;
+        }
+
+        .recom-card--mini__img {
+            width: 100%;
+            height: 80px;
+            border-radius: 9px;
+            object-fit: cover;
+        }
+
+        .recom-card--mini__add {
+            align-self: flex-end;
+            margin-top: 4px;
+        }
+    }
+
+    /* ── Responsive: < md — more compact ── */
+    @media (max-width: 767.98px) {
+
+        .recom-card--featured,
+        .recom-card--mini {
+            min-width: 140px;
+            max-width: 160px;
+        }
+
+        .recom-card--featured .recom-card__img-wrap {
+            aspect-ratio: 1 / 1;
+        }
+
+        .recom-card--mini__img {
+            height: 65px;
+        }
+
+        .recom-card__name {
+            font-size: .65rem;
+        }
+
+        .recom-card__name--sm {
+            font-size: .62rem;
+        }
+
+        .recom-card__btn {
+            font-size: .62rem;
+        }
+    }
+
+    /* ── Responsive: < sm — smallest ── */
+    @media (max-width: 575.98px) {
+
+        .recom-card--featured,
+        .recom-card--mini {
+            min-width: 130px;
+            max-width: 145px;
+        }
+
+        .recom-title {
+            font-size: .75rem;
+        }
+
+        .recom-badge {
+            font-size: .52rem;
+        }
     }
 </style>
