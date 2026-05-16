@@ -613,27 +613,27 @@ body.modal-open {
     }
 
     /* Homepage */
-.form-control {
-    border-radius: 50px !important;
-    padding: 0.5rem 1.1rem 0.5rem 2.5rem;
-    font-size: 0.9rem;
-    border: none;
-    background: linear-gradient(90deg, #95cd41 0%, #ea5c2b 100%);
-    color: white;
-    width: 100%;
-    transition: all 0.3s ease;
-}
+    .form-control {
+        border-radius: 50px !important;
+        padding: 0.5rem 1.1rem 0.5rem 2.5rem;
+        font-size: 0.9rem;
+        border: none;
+        background: linear-gradient(90deg, #95cd41 0%, #ea5c2b 100%);
+        color: white;
+        width: 100%;
+        transition: all 0.3s ease;
+    }
 
-.form-control::placeholder {
-    color: rgba(255, 255, 255, 0.75);
-}
+    .form-control::placeholder {
+        color: rgba(255, 255, 255, 0.75);
+    }
 
-.form-control:focus {
-    box-shadow: 0 0 0 3px rgba(149, 205, 65, 0.35);
-    outline: none;
-    background: linear-gradient(90deg, #7ab535 0%, #cd4c22 100%);
-    color: white;
-}
+    .form-control:focus {
+        box-shadow: 0 0 0 3px rgba(149, 205, 65, 0.35);
+        outline: none;
+        background: linear-gradient(90deg, #7ab535 0%, #cd4c22 100%);
+        color: white;
+    }
 
     .btn-check:checked+.bg-radio {
         background-color: #FFF;
