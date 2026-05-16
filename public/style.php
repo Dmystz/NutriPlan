@@ -97,26 +97,14 @@ echo "body { background-color: #f0f0f0; }";
         background-color: #cd4c22;
     }
 
-.oren {
-    background-color: var(--warna-oren);
-    transition: all 0.3s ease;
-}
+    .oren {
+        background-color: var(--warna-oren);
+        transition: all 0.3s ease;
+    }
 
-.oren:hover {
-    background-color: #cd4c22;
-}
-
-/* Override khusus untuk tombol Add Meal */
-.oren.rounded-pill.add-meal-btn {
-    background: linear-gradient(90deg, #95cd41 0%, #ea5c2b 100%);
-    color: white;
-    border: none;
-}
-
-.oren.rounded-pill.add-meal-btn:hover {
-    background: linear-gradient(90deg, #7ab535 0%, #cd4c22 100%);
-    box-shadow: 0 0 0 3px rgba(149, 205, 65, 0.35);
-}
+    .oren:hover {
+        background-color: #cd4c22;
+    }
 
     .nav-link {
         font-size: 1rem;
@@ -298,6 +286,7 @@ echo "body { background-color: #f0f0f0; }";
         border-radius: 10px;
     }
 
+    /* ── card-6: ukuran tetap seperti style.php 1 ── */
     .card-6 {
         width: 6rem;
         height: 6rem;
@@ -354,6 +343,7 @@ echo "body { background-color: #f0f0f0; }";
         background: rgba(139, 136, 136, 1);
         border-radius: 10px;
         z-index: 1;
+        padding: clamp(0.5rem, 1.5vw, 1rem) clamp(0.5rem, 2vw, 1.5rem);
     }
 
     #planner {
@@ -363,6 +353,7 @@ echo "body { background-color: #f0f0f0; }";
     .pnl-pg5 {
         background: white;
         border-radius: 8px;
+        padding: clamp(0.25rem, 0.6vw, 0.5rem);
     }
 
     .clock-history {
@@ -483,13 +474,15 @@ echo "body { background-color: #f0f0f0; }";
     }
 
     /* Media breakpoint*/
-body.modal-open {
-    padding-right: 0 !important;
-    overflow-y: scroll !important;
-}
-.navbar.fixed-top {
-    padding-right: 0 !important;
-}
+    body.modal-open {
+        padding-right: 0 !important;
+        overflow-y: scroll !important;
+    }
+
+    .navbar.fixed-top {
+        padding-right: 0 !important;
+    }
+
     @media (max-width: 1199px) {
         #navbarSupportedContent {
             position: absolute;
@@ -515,6 +508,24 @@ body.modal-open {
         .item {
             margin: 0 auto;
             width: 18.75rem;
+        }
+
+        /* Rata tengah bagian kanan (ikon + user info) saat mobile */
+        #navbarSupportedContent .d-flex.justify-content-center.flex-grow-0 {
+            justify-content: center !important;
+            flex-direction: row;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+            padding-bottom: 1rem;
+        }
+
+        #navbarSupportedContent .d-flex.justify-content-center.flex-grow-0 .navbar-nav {
+            justify-content: center;
+        }
+
+        .user-account-info {
+            text-align: center;
         }
     }
 
@@ -614,25 +625,23 @@ body.modal-open {
 
     /* Homepage */
     .form-control {
-        border-radius: 50px !important;
-        padding: 0.5rem 1.1rem 0.5rem 2.5rem;
-        font-size: 0.9rem;
+        background: linear-gradient(90deg, #EA5C2B 0%, #95CD41 100%);
+        border-radius: 200px;
+        padding-left: 2.5rem;
+        box-shadow: none;
         border: none;
-        background: linear-gradient(90deg, #95cd41 0%, #ea5c2b 100%);
-        color: white;
-        width: 100%;
-        transition: all 0.3s ease;
+        outline: none;
     }
 
     .form-control::placeholder {
-        color: rgba(255, 255, 255, 0.75);
+        color: #f0ffdf;
     }
 
     .form-control:focus {
-        box-shadow: 0 0 0 3px rgba(149, 205, 65, 0.35);
+        color: #f0ffdf;
+        box-shadow: none;
+        border: none;
         outline: none;
-        background: linear-gradient(90deg, #7ab535 0%, #cd4c22 100%);
-        color: white;
     }
 
     .btn-check:checked+.bg-radio {
@@ -684,6 +693,7 @@ body.modal-open {
         backdrop-filter: blur(5px);
     }
 
+    /* ── wrapper-daily-home: lebar tetap 16rem seperti style.php 1 ── */
     .wrapper-daily-home {
         width: 16rem;
         height: 20rem;
@@ -696,15 +706,7 @@ body.modal-open {
         overflow: hidden;
     }
 
-    .wrapper-home1 {
-        border-radius: 10px;
-        background: #FFF;
-        box-shadow: 5px 5px 10px 0 rgba(0, 0, 0, 0.25);
-        min-height: 100%;
-        height: auto;
-        min-width: 10rem;
-    }
-
+    /* ── wrapper-report-home: lebar tetap 16rem seperti style.php 1 ── */
     .wrapper-report-home {
         border-radius: 10px;
         background: rgba(252, 252, 252, 0.23);
@@ -716,6 +718,7 @@ body.modal-open {
         padding: 1rem;
     }
 
+    /* ── wrapper-shop-home: lebar tetap 16rem seperti style.php 1 ── */
     .wrapper-shop-home {
         border-radius: 10px;
         background: rgba(252, 252, 252, 0.23);
@@ -734,6 +737,7 @@ body.modal-open {
         height: calc(100% - 2rem);
     }
 
+    /* ── wrapper-daily-list-home: overflow hidden dengan tinggi tetap ── */
     .wrapper-daily-list-home {
         overflow: hidden;
         background: none;
@@ -751,51 +755,16 @@ body.modal-open {
         display: none;
     }
 
-    .wrapper-content-meal-home {
-        border-radius: 16px;
-        border: 0.8px solid rgba(0, 0, 0, 0.20);
-        background: rgba(252, 252, 252, 0.23);
-        box-shadow: 0 10px 24px 0 rgba(140, 136, 136, 0.25);
-        backdrop-filter: blur(5px);
-        width: 17.5rem;
-        height: 7rem;
-        margin-left: auto;
+    .wrapper-home1 {
+        border-radius: 10px;
+        background: #FFF;
+        box-shadow: 5px 5px 10px 0 rgba(0, 0, 0, 0.25);
+        min-height: 100%;
+        height: auto;
+        min-width: 10rem;
     }
 
-    .chart-activity {
-        height: calc(100% - 2rem);
-        margin-top: 2rem;
-    }
-
-    .bar {
-        width: 100%;
-        border-radius: 24px;
-        background: rgba(30, 77, 106, 0.50);
-        transition: height 0.3s ease;
-    }
-
-    .highest-bar {
-        width: 100%;
-        border-radius: 24px;
-        background: linear-gradient(180deg, #51A2FF 0%, #155DFC 100%);
-        transition: height 0.3s ease;
-    }
-
-    .nilai-bar {
-        position: absolute;
-        top: -1.2rem;
-    }
-
-    .day-bar {
-        position: relative;
-        height: 100%;
-        width: 1.8rem;
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        justify-content: end;
-    }
-
+    /* ── wrapper-activity-home: tinggi mengisi sisa ruang ── */
     .wrapper-activity-home {
         width: 100%;
         height: calc(100% - 2rem);
@@ -846,6 +815,7 @@ body.modal-open {
         display: none;
     }
 
+    /* ── container-content-daily ── */
     .container-content-daily {
         border-radius: 14px;
         border: 1px solid rgba(0, 0, 0, 0.25);
@@ -866,7 +836,6 @@ body.modal-open {
         height: 16px;
         cursor: pointer;
     }
-
 
     .btn-report {
         border-radius: 10px;
@@ -984,6 +953,10 @@ body.modal-open {
         position: relative;
     }
 
+    .svg-bmi {
+        height: 2.5rem;
+    }
+
     .water-bar {
         position: absolute;
         left: 0;
@@ -1008,7 +981,6 @@ body.modal-open {
         left: 50%;
     }
 
-
     #current-bmi {
         position: absolute;
         z-index: 2;
@@ -1030,10 +1002,6 @@ body.modal-open {
         transform: translate(-50%, -50%);
         top: 60%;
         left: 50%;
-    }
-
-    .svg-bmi {
-        height: 2.5rem;
     }
 
     #target-p-weight {
@@ -1105,12 +1073,45 @@ body.modal-open {
         height: 60%;
     }
 
-    /* Tambahan styling code banyak */
+    .chart-activity {
+        height: calc(100% - 2rem);
+        margin-top: 2rem;
+    }
+
+    /* ── Activity bar chart ── */
+    .bar {
+        width: 100%;
+        border-radius: 24px;
+        background: rgba(30, 77, 106, 0.50);
+        transition: height 0.3s ease;
+    }
+
+    .highest-bar {
+        width: 100%;
+        border-radius: 24px;
+        background: linear-gradient(180deg, #51A2FF 0%, #155DFC 100%);
+        transition: height 0.3s ease;
+    }
+
+    .nilai-bar {
+        position: absolute;
+        top: -1.2rem;
+    }
+
+    .day-bar {
+        position: relative;
+        height: 100%;
+        width: 1.8rem;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: end;
+    }
+
     /* ================================================================
-       DAYS MEAL PLAN — tambahkan di bawah style yang sudah ada
+       DAYS MEAL PLAN
        ================================================================ */
 
-    /* --- Motivational card (left sidebar) --- */
     .card-motivasi {
         border-radius: 16px;
         border: 0.8px solid rgba(0, 0, 0, 0.08);
@@ -1119,7 +1120,6 @@ body.modal-open {
         backdrop-filter: blur(5px);
     }
 
-    /* --- Scrollable meal container (middle column) --- */
     .wrapper-meal-days {
         border-radius: 16px;
         border: 0.8px solid rgba(0, 0, 0, 0.08);
@@ -1134,7 +1134,6 @@ body.modal-open {
         display: none;
     }
 
-    /* --- Meal card used inside the Days timeline --- */
     .wrapper-content-meal-days {
         border-radius: 14px;
         border: 0.8px solid rgba(0, 0, 0, 0.15);
@@ -1150,7 +1149,6 @@ body.modal-open {
         box-shadow: 0 6px 20px 0 rgba(140, 136, 136, 0.35);
     }
 
-    /* --- Timeline layout helpers --- */
     .timeline-meal-row {
         position: relative;
     }
@@ -1197,7 +1195,6 @@ body.modal-open {
         margin-top: 2px;
     }
 
-    /* --- Date navigation button --- */
     .btn-nav-date {
         border: 1px solid #D1D5DB;
         background: #FFF;
@@ -1236,7 +1233,6 @@ body.modal-open {
         line-height: 1.4;
     }
 
-    /* --- Nutrition / Daily Goals panel --- */
     .nutrition-panel {
         border-radius: 16px;
         border: 0.8px solid rgba(0, 0, 0, 0.08);
@@ -1245,7 +1241,6 @@ body.modal-open {
         backdrop-filter: blur(5px);
     }
 
-    /* --- Donut chart wrapper --- */
     .donut-wrapper {
         position: relative;
         display: inline-flex;
@@ -1273,7 +1268,6 @@ body.modal-open {
         color: #6B7280;
     }
 
-    /* --- Legend dot --- */
     .legend-dot {
         width: 8px;
         height: 8px;
@@ -1282,7 +1276,6 @@ body.modal-open {
         flex-shrink: 0;
     }
 
-    /* --- Tip icon circle --- */
     .tip-icon-circle {
         width: 28px;
         height: 28px;
@@ -1297,10 +1290,9 @@ body.modal-open {
     }
 
     /* ================================================================
-       RESPONSIVE OVERRIDES
+       RESPONSIVE OVERRIDES — Days Meal Plan
        ================================================================ */
 
-    /* Tablet (≤ 992px): stack middle + right, allow meal list to grow */
     @media (max-width: 992px) {
         .wrapper-meal-days {
             max-height: none;
@@ -1311,7 +1303,6 @@ body.modal-open {
         }
     }
 
-    /* Mobile (≤ 768px): full-width columns, compact timeline */
     @media (max-width: 768px) {
         .meal-time-col {
             min-width: 2.2rem;
@@ -1341,7 +1332,6 @@ body.modal-open {
         }
     }
 
-    /* Small mobile (≤ 480px) */
     @media (max-width: 480px) {
         .meal-time-col {
             min-width: 2rem;
@@ -1375,10 +1365,21 @@ body.modal-open {
         background: rgba(255, 248, 240, 0.92) !important;
     }
 
-    .card-motivasi { background: rgba(255, 248, 240, 0.92) !important; }
-    .wrapper-meal-days { background: rgba(255, 248, 240, 0.92) !important; }
-    .nutrition-panel { background: rgba(255, 248, 240, 0.92) !important; }
-    .wrapper-content-meal-days { background: rgba(255, 248, 240, 0.92) !important; }
+    .card-motivasi {
+        background: rgba(255, 248, 240, 0.92) !important;
+    }
+
+    .wrapper-meal-days {
+        background: rgba(255, 248, 240, 0.92) !important;
+    }
+
+    .nutrition-panel {
+        background: rgba(255, 248, 240, 0.92) !important;
+    }
+
+    .wrapper-content-meal-days {
+        background: rgba(255, 248, 240, 0.92) !important;
+    }
 
     @media (max-width: 576px) {
         .nutrition-hero img.hero-meal-img {
@@ -1386,9 +1387,11 @@ body.modal-open {
             height: 90px;
         }
     }
+
     .wrapper-home1 {
         background: rgba(255, 248, 240, 0.92) !important;
     }
+
     .tag-toast {
         background: var(--warna-oren);
         color: #fff;
@@ -1537,6 +1540,10 @@ body.modal-open {
         .wrapper-home1 {
             min-height: 12rem;
         }
+
+        .chart-activity {
+            height: 140px;
+        }
     }
 
     @media (max-width: 767px) {
@@ -1545,21 +1552,15 @@ body.modal-open {
             max-height: none;
         }
 
-        .wrapper-report-home {
-            width: 100%;
-            height: auto;
-        }
-
+        .wrapper-report-home,
         .wrapper-shop-home,
         .wrapper-daily-home {
             width: 100%;
             height: auto;
-            min-height: 12rem;
         }
 
-        .card-6 {
-            width: 5.5rem;
-            height: 5.5rem;
+        .chart-activity {
+            height: 130px;
         }
     }
 
@@ -1568,9 +1569,8 @@ body.modal-open {
             width: 100%;
         }
 
-        .card-6 {
-            width: 5rem;
-            height: 5rem;
+        .chart-activity {
+            height: 110px;
         }
 
         .crd6-content .p-water {
@@ -1579,8 +1579,6 @@ body.modal-open {
     }
 
     /* ── Recipes page extra styles ── */
-
-    /* Sidebar filter */
     .recipes-sidebar {
         border-radius: 16px;
         background: rgba(252, 252, 252, 0.70);
@@ -1591,26 +1589,16 @@ body.modal-open {
         min-width: 160px;
     }
 
-.filter-search-box {
-    border-radius: 50px !important;
-    padding: 0.5rem 1.1rem;
-    font-size: 0.9rem;
-    border: none;
-    background: linear-gradient(90deg, #95cd41 0%, #ea5c2b 100%);
-    color: white;
-    width: 100%;
-}
-
-.filter-search-box::placeholder {
-    color: rgba(255, 255, 255, 0.75);
-}
-
-.filter-search-box:focus {
-    box-shadow: 0 0 0 3px rgba(149, 205, 65, 0.35);
-    outline: none;
-    background: linear-gradient(90deg, #95cd41 0%, #ea5c2b 100%);
-    color: white;
-}
+    .filter-search-box {
+        border-radius: 50px;
+        border: 1px solid #E5E7EB;
+        background: #F9FAFB;
+        padding: 0.35rem 0.75rem;
+        font-size: 0.78rem;
+        outline: none;
+        width: 100%;
+        color: #374151;
+    }
 
     .filter-group-title {
         font-size: 0.72rem;
@@ -1661,7 +1649,6 @@ body.modal-open {
         background: var(--warna-oren);
     }
 
-    /* Hero banner */
     .recipes-hero-banner {
         border-radius: 20px;
         background: linear-gradient(120deg, var(--warna-oren) 0%, #f97316 100%);
@@ -1728,12 +1715,6 @@ body.modal-open {
         box-shadow: 0 6px 20px 0 rgba(110, 156, 41, 0.30);
     }
 
-    .btn-your-recipe:hover {
-        background: #6e9c29;
-        color: #fff;
-    }
-
-    /* Recipe card */
     .recipe-card {
         border-radius: 16px;
         background: rgba(252, 252, 252, 0.85);
@@ -1800,7 +1781,6 @@ body.modal-open {
         color: #6B7280;
     }
 
-    /* Section title */
     .section-title {
         font-size: 0.92rem;
         font-weight: 700;
@@ -1811,8 +1791,7 @@ body.modal-open {
         margin-bottom: 0.75rem;
     }
 
-    /* === ANALYTIC PAGE ADDITIONS ONLY === */
-
+    /* === ANALYTIC PAGE === */
     .analytic-card {
         border-radius: 18px;
         background: rgba(252, 252, 252, 0.80);
@@ -1834,7 +1813,6 @@ body.modal-open {
         font-size: 1.1rem;
     }
 
-    /* Gender toggle */
     .gender-toggle {
         display: flex;
         border-radius: 50px;
@@ -1860,7 +1838,6 @@ body.modal-open {
         font-weight: 600;
     }
 
-    /* Inputs */
     .analytic-label {
         font-size: 0.78rem;
         color: #374151;
@@ -1899,7 +1876,6 @@ body.modal-open {
         pointer-events: none;
     }
 
-    /* Calculate button */
     .btn-calculate {
         display: flex;
         align-items: center;
@@ -1922,7 +1898,6 @@ body.modal-open {
         transform: translateY(-1px);
     }
 
-    /* Gauge */
     .gauge-wrap {
         position: relative;
         width: 100%;
@@ -1956,7 +1931,6 @@ body.modal-open {
         display: block;
     }
 
-    /* BMI Classification */
     .bmi-class-list {
         display: flex;
         flex-direction: column;
@@ -2003,7 +1977,6 @@ body.modal-open {
         padding: 1px 6px;
     }
 
-    /* Summary */
     .summary-list {
         display: flex;
         flex-direction: column;
@@ -2047,7 +2020,6 @@ body.modal-open {
         padding: 2px 10px;
     }
 
-    /* Insights */
     .insight-card {
         display: flex;
         align-items: flex-start;
@@ -2091,13 +2063,11 @@ body.modal-open {
         margin-bottom: 0;
     }
 
-    /* Chart */
     .chart-wrap {
         position: relative;
         height: 130px;
     }
 
-    /* CTA Banner */
     .cta-banner {
         border-radius: 18px;
         background: rgba(252, 252, 252, 0.80);
@@ -2132,7 +2102,6 @@ body.modal-open {
         box-shadow: 0 6px 20px rgba(234, 92, 43, 0.45);
     }
 
-    /* Responsive tweaks */
     @media (max-width: 767px) {
         .analytic-card {
             padding: 1rem;
@@ -2177,7 +2146,6 @@ body.modal-open {
         color: var(--warna-oren);
     }
 
-    /* ── Adjust Plan: preference chips ── */
     .adj-pref-chip {
         border: 0.8px solid #E5E7EB;
         border-radius: 50px;
@@ -2203,7 +2171,6 @@ body.modal-open {
         font-weight: 700;
     }
 
-    /* ── Adjust Plan: number chips ── */
     .adj-num-chip {
         width: 40px;
         height: 40px;
@@ -2232,7 +2199,6 @@ body.modal-open {
         color: var(--warna-oren);
     }
 
-    /* ── Adjust Plan: slider ── */
     .adj-slider {
         -webkit-appearance: none;
         width: 100%;
@@ -2266,7 +2232,6 @@ body.modal-open {
         background: #95CD41;
     }
 
-    /* ── Avoid chips ── */
     .adj-avoid-chip {
         background: rgba(234, 92, 43, 0.08);
         border: 0.8px solid rgba(234, 92, 43, 0.25);
@@ -2278,11 +2243,8 @@ body.modal-open {
     }
 
     /* ================================================================
-   MODAL EXTRA STYLES — Plan Manually · Add Meal · Edit Plan
-   Tambahkan di bawah style.css yang sudah ada
-   ================================================================ */
-
-    /* ── Tombol footer modal ── */
+       MODAL EXTRA STYLES
+       ================================================================ */
     .btn-cancel-modal {
         border: 1.5px solid #E5E7EB;
         background: #F9FAFB;
@@ -2301,7 +2263,6 @@ body.modal-open {
         color: #374151;
     }
 
-    /* Tombol simpan — oranye (Plan Manually & Add Meal) */
     .btn-save-modal-oren {
         border: none;
         background: linear-gradient(135deg, #ea5c2b 0%, #f97316 100%);
@@ -2321,7 +2282,6 @@ body.modal-open {
         transform: translateY(-1px);
     }
 
-    /* Tombol simpan — hijau (Edit Plan) */
     .btn-save-modal-ijo {
         border: none;
         background: linear-gradient(135deg, #95cd41 0%, #6ab32b 100%);
@@ -2341,7 +2301,6 @@ body.modal-open {
         transform: translateY(-1px);
     }
 
-    /* Tombol hapus — merah tipis */
     .btn-delete-modal {
         border: 1.5px solid #FECACA;
         background: #FFF5F5;
@@ -2360,7 +2319,6 @@ body.modal-open {
         box-shadow: 0 3px 10px rgba(239, 68, 68, 0.2);
     }
 
-    /* ── Date chips ── */
     .date-chip {
         display: flex;
         flex-direction: column;
@@ -2406,7 +2364,6 @@ body.modal-open {
         line-height: 1.3;
     }
 
-    /* ── Time slot cards ── */
     .time-slots-modal {
         display: flex;
         gap: 6px;
@@ -2454,7 +2411,6 @@ body.modal-open {
         line-height: 1.2;
     }
 
-    /* ── Search input wrapper ── */
     .np-search-wrap {
         position: relative;
         display: flex;
@@ -2491,7 +2447,6 @@ body.modal-open {
         font-size: 0.78rem;
     }
 
-    /* ── Generic modal input ── */
     .np-input-modal {
         width: 100%;
         border-radius: 10px;
@@ -2510,7 +2465,6 @@ body.modal-open {
         background: #fff;
     }
 
-    /* ── Textarea ── */
     .np-textarea-modal {
         width: 100%;
         border-radius: 12px;
@@ -2537,7 +2491,6 @@ body.modal-open {
         font-size: 0.75rem;
     }
 
-    /* ── Meal result rows ── */
     .meal-scroll-modal {
         max-height: 180px;
         overflow-y: auto;
@@ -2630,7 +2583,6 @@ body.modal-open {
         color: #fff;
     }
 
-    /* ── Serving buttons ── */
     .serving-btn-modal {
         width: 28px;
         height: 28px;
@@ -2656,7 +2608,6 @@ body.modal-open {
         box-shadow: 0 3px 8px rgba(234, 92, 43, 0.25);
     }
 
-    /* ── Nutrition preview bar ── */
     .nutri-preview-modal {
         display: flex;
         align-items: center;
@@ -2698,7 +2649,6 @@ body.modal-open {
         flex-shrink: 0;
     }
 
-    /* ── Category / tab toggle (Add Meal) ── */
     .tab-toggle-modal {
         display: flex;
         gap: 5px;
@@ -2731,7 +2681,6 @@ body.modal-open {
         box-shadow: 0 2px 8px rgba(0, 0, 0, 0.10);
     }
 
-    /* ── Current meal card (Edit Plan) ── */
     .current-meal-card-modal {
         display: flex;
         align-items: center;
@@ -2778,7 +2727,6 @@ body.modal-open {
         box-shadow: 0 3px 10px rgba(234, 92, 43, 0.25);
     }
 
-    /* ── Badge "Editing" di header Edit Plan ── */
     .badge-editing {
         font-size: 0.62rem;
         font-weight: 700;
@@ -2792,7 +2740,6 @@ body.modal-open {
         vertical-align: middle;
     }
 
-    /* ── Nutrition breakdown rows (Edit Plan › Nutrition tab) ── */
     .nutri-breakdown-row {
         display: flex;
         align-items: center;
@@ -2816,34 +2763,23 @@ body.modal-open {
         color: #111827;
     }
 
-    /* ── Modal header accent bar ── */
-    .modal-content::before {
-        content: '';
-        display: block;
-        height: 3px;
-        background: linear-gradient(90deg, var(--warna-oren) 0%, var(--warna-ijo) 100%);
-        width: 100%;
-        border-radius: 20px 20px 0 0;
-    }
-
-    /* ── Subtle modal backdrop ── */
     .modal-content {
         box-shadow: 0 20px 60px rgba(0, 0, 0, 0.14) !important;
     }
 
-    /* ── Modal header icon tweak ── */
     .modal-header .btn-close {
         opacity: 0.45;
         transition: opacity 0.15s;
     }
+
     html {
-    scrollbar-gutter: stable;
+        scrollbar-gutter: stable;
     }
+
     .modal-header .btn-close:hover {
         opacity: 0.85;
     }
 
-    /* ── Scrollbar inside modal body ── */
     .modal-dialog-scrollable .modal-body::-webkit-scrollbar {
         width: 4px;
     }
@@ -2851,5 +2787,365 @@ body.modal-open {
     .modal-dialog-scrollable .modal-body::-webkit-scrollbar-thumb {
         background: #E5E7EB;
         border-radius: 4px;
+    }
+
+    .card-4 h6 {
+        font-size: clamp(0.42rem, 0.9vw, 0.875rem);
+        line-height: 1.3;
+        margin-bottom: 0.1rem !important;
+    }
+
+    .card-4 .checklist {
+        width: clamp(0.6rem, 1.2vw, 1rem);
+        height: clamp(0.6rem, 1.2vw, 1rem);
+        border-radius: 5px;
+        flex-shrink: 0;
+        margin-top: 0.15rem;
+    }
+
+    .card-4 .ktg-oren,
+    .card-4 .ktg-ijo {
+        font-size: clamp(0.35rem, 0.7vw, 0.625rem);
+        padding: 0 clamp(0.15rem, 0.4vw, 0.5rem);
+        border-radius: 4px;
+    }
+
+    .card-4 .mt-3 {
+        margin-top: clamp(0.4rem, 0.8vw, 0.75rem) !important;
+    }
+
+    .card-4 .clock-history {
+        width: clamp(0.7rem, 1.5vw, 1.5rem);
+        flex-shrink: 0;
+    }
+
+    .pnl-pg5 .txt-3 {
+        font-size: clamp(0.38rem, 0.75vw, 0.75rem);
+    }
+
+    .pnl-pg5 .p-card2 {
+        font-size: clamp(0.32rem, 0.65vw, 0.625rem);
+    }
+
+    .pnl-pg5 .p-card3 {
+        font-size: clamp(0.28rem, 0.55vw, 0.5rem);
+    }
+
+    .pnl-pg5 .elm {
+        font-size: clamp(0.28rem, 0.55vw, 0.625rem);
+        padding: 0 clamp(0.1rem, 0.3vw, 0.25rem);
+    }
+
+    .pnl-pg5 svg {
+        width: clamp(8px, 1.2vw, 16px);
+        height: clamp(8px, 1.2vw, 16px);
+    }
+
+    .tgl-day,
+    .tgl-day1 {
+        min-width: 10%;
+        border-radius: 3px;
+        padding-top: 1px;
+    }
+
+    .pnl-pg5>.d-flex.justify-content-center p {
+        font-size: clamp(0.26rem, 0.5vw, 0.5rem);
+    }
+
+    /* ── XL < 1400px ── */
+    @media (max-width: 1399.98px) {
+        .card-4 h6 {
+            font-size: 0.78rem;
+        }
+
+        .card-4 .ktg-oren,
+        .card-4 .ktg-ijo {
+            font-size: 0.55rem;
+            padding: 0 0.35rem;
+        }
+
+        .card-4 .checklist {
+            width: 0.9rem;
+            height: 0.9rem;
+        }
+
+        .pnl-pg5 .txt-3 {
+            font-size: 0.65rem;
+        }
+
+        .pnl-pg5 .p-card2 {
+            font-size: 0.55rem;
+        }
+
+        .pnl-pg5 .p-card3 {
+            font-size: 0.45rem;
+        }
+
+        .card-6 .crd6-content {
+            padding: 0.5rem 0.6rem;
+        }
+
+        .card-6 .p-water {
+            font-size: 0.6rem;
+        }
+
+        .card-6 .p-crd-home {
+            font-size: 0.38rem;
+        }
+    }
+
+    /* ── LG < 1200px ── */
+    @media (max-width: 1199.98px) {
+        .card-4 h6 {
+            font-size: 0.68rem;
+        }
+
+        .card-4 .ktg-oren,
+        .card-4 .ktg-ijo {
+            font-size: 0.48rem;
+            padding: 0 0.28rem;
+        }
+
+        .card-4 .checklist {
+            width: 0.78rem;
+            height: 0.78rem;
+        }
+
+        .card-4 .mt-3 {
+            margin-top: 0.55rem !important;
+        }
+
+        .pnl-pg5 .txt-3 {
+            font-size: 0.55rem;
+        }
+
+        .pnl-pg5 .p-card2 {
+            font-size: 0.48rem;
+        }
+
+        .pnl-pg5 .p-card3 {
+            font-size: 0.4rem;
+        }
+
+        .pnl-pg5 svg {
+            width: 12px;
+            height: 12px;
+        }
+
+        .card-4 .clock-history {
+            width: 1.2rem;
+        }
+
+        .card-6 .p-water {
+            font-size: 0.55rem;
+        }
+    }
+
+    /* ── MD < 992px ── */
+    @media (max-width: 991.98px) {
+        .card-4 h6 {
+            font-size: 0.58rem;
+            line-height: 1.25;
+        }
+
+        .card-4 .ktg-oren,
+        .card-4 .ktg-ijo {
+            font-size: 0.4rem;
+            padding: 0 0.22rem;
+            border-radius: 3px;
+        }
+
+        .card-4 .checklist {
+            width: 0.65rem;
+            height: 0.65rem;
+            border-radius: 4px;
+            margin-right: 0.45rem !important;
+        }
+
+        .card-4 .mt-3 {
+            margin-top: 0.45rem !important;
+        }
+
+        .pnl-pg5 {
+            padding: 0.25rem;
+        }
+
+        .pnl-pg5 .txt-3 {
+            font-size: 0.45rem;
+        }
+
+        .pnl-pg5 .p-card2 {
+            font-size: 0.4rem;
+        }
+
+        .pnl-pg5 .p-card3 {
+            font-size: 0.32rem;
+        }
+
+        .pnl-pg5 svg {
+            width: 10px;
+            height: 10px;
+        }
+
+        .pnl-pg5 .mb-2 {
+            margin-bottom: 0.2rem !important;
+        }
+
+        .pnl-pg5 .mb-1 {
+            margin-bottom: 0.1rem !important;
+        }
+
+        .card-4 .clock-history {
+            width: 1rem;
+        }
+
+        .card-4 {
+            padding: 0.5rem 0.65rem;
+        }
+    }
+
+    /* ── SM < 768px ── */
+    @media (max-width: 767.98px) {
+        .card-4 h6 {
+            font-size: 0.48rem;
+            line-height: 1.2;
+        }
+
+        .card-4 .ktg-oren,
+        .card-4 .ktg-ijo {
+            font-size: 0.34rem;
+            padding: 0 0.16rem;
+        }
+
+        .card-4 .checklist {
+            width: 0.55rem;
+            height: 0.55rem;
+            border-radius: 3px;
+            margin-right: 0.35rem !important;
+        }
+
+        .card-4 .mt-3 {
+            margin-top: 0.35rem !important;
+        }
+
+        .pnl-pg5 {
+            padding: 0.2rem;
+        }
+
+        .pnl-pg5 .txt-3 {
+            font-size: 0.38rem;
+        }
+
+        .pnl-pg5 .p-card2 {
+            font-size: 0.34rem;
+        }
+
+        .pnl-pg5 .p-card3 {
+            font-size: 0.28rem;
+        }
+
+        .pnl-pg5 svg {
+            width: 8px;
+            height: 8px;
+        }
+
+        .card-4 .clock-history {
+            width: 0.85rem;
+        }
+
+        .card-4 {
+            padding: 0.4rem 0.55rem;
+        }
+
+        .card-4 .d-flex.align-items-start.mb-2 h6 {
+            font-size: 0.42rem;
+        }
+
+        .card-6 .p-water {
+            font-size: 0.6rem;
+        }
+
+        .card-6 .p-crd-home {
+            font-size: 0.4rem;
+        }
+    }
+
+    /* ── XS < 576px ── */
+    @media (max-width: 575.98px) {
+        .card-4 h6 {
+            font-size: 0.38rem;
+            line-height: 1.15;
+        }
+
+        .card-4 .ktg-oren,
+        .card-4 .ktg-ijo {
+            font-size: 0.28rem;
+            padding: 0 0.12rem;
+            border-radius: 2px;
+        }
+
+        .card-4 .checklist {
+            width: 0.45rem;
+            height: 0.45rem;
+            border-radius: 2px;
+            margin-right: 0.28rem !important;
+        }
+
+        .card-4 .mt-3 {
+            margin-top: 0.28rem !important;
+        }
+
+        .pnl-pg5 {
+            padding: 0.15rem;
+        }
+
+        .pnl-pg5 .txt-3 {
+            font-size: 0.3rem;
+        }
+
+        .pnl-pg5 .p-card2 {
+            font-size: 0.28rem;
+        }
+
+        .pnl-pg5 .p-card3 {
+            font-size: 0.22rem;
+        }
+
+        .pnl-pg5 svg {
+            width: 6px;
+            height: 6px;
+        }
+
+        .card-4 .clock-history {
+            width: 0.7rem;
+        }
+
+        .card-4 {
+            padding: 0.3rem 0.4rem;
+        }
+
+        .card-4 .d-flex.align-items-start.mb-2 h6 {
+            font-size: 0.34rem;
+        }
+    }
+    .filter-search-box {
+    border-radius: 50px !important;
+    padding: 0.5rem 1.1rem;
+    font-size: 0.9rem;
+    border: none;
+    background: linear-gradient(90deg, #95cd41 0%, #ea5c2b 100%);
+    color: white;
+    width: 100%;
+    }
+
+    .filter-search-box::placeholder {
+        color: rgba(255, 255, 255, 0.75);
+    }
+
+    .filter-search-box:focus {
+        box-shadow: 0 0 0 3px rgba(149, 205, 65, 0.35);
+        outline: none;
+        background: linear-gradient(90deg, #95cd41 0%, #ea5c2b 100%);
+        color: white;
     }
 </style>
