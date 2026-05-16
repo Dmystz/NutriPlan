@@ -106,6 +106,18 @@ echo "body { background-color: #f0f0f0; }";
         background-color: #cd4c22;
     }
 
+    /* Override khusus untuk tombol Add Meal */
+    .oren.rounded-pill.add-meal-btn {
+        background: linear-gradient(90deg, #95cd41 0%, #ea5c2b 100%);
+        color: white;
+        border: none;
+    }
+
+    .oren.rounded-pill.add-meal-btn:hover {
+        background: linear-gradient(90deg, #7ab535 0%, #cd4c22 100%);
+        box-shadow: 0 0 0 3px rgba(149, 205, 65, 0.35);
+    }
+
     .nav-link {
         font-size: 1rem;
     }
