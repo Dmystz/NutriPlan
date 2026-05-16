@@ -1589,17 +1589,6 @@ echo "body { background-color: #f0f0f0; }";
         min-width: 160px;
     }
 
-    .filter-search-box {
-        border-radius: 50px;
-        border: 1px solid #E5E7EB;
-        background: #F9FAFB;
-        padding: 0.35rem 0.75rem;
-        font-size: 0.78rem;
-        outline: none;
-        width: 100%;
-        color: #374151;
-    }
-
     .filter-group-title {
         font-size: 0.72rem;
         font-weight: 700;

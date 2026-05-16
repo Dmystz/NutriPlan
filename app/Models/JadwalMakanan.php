@@ -2,58 +2,43 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Builder;
 
 class JadwalMakanan extends Model
 {
-    use HasFactory;
-
-    protected $table = 'jadwal_makanan';
+    protected $table = 'jadwal_makanan'; // or whatever your actual table name is
 
     protected $fillable = [
         'user_id',
         'katalog_resep_id',
-        'tanggal',
+        'tanggal',        // ← confirm this matches your actual column name
         'meal_type',
         'meal_time',
         'servings',
-        'is_consumed',
         'catatan',
+        'is_consumed',
     ];
 
     protected $casts = [
-        'tanggal'     => 'date',
         'is_consumed' => 'boolean',
-        'servings'    => 'integer',
+        'tanggal'     => 'date',
     ];
 
-    /* ── Relationships ─────────────────────────────── */
-
-    public function user()
-    {
-        return $this->belongsTo(User::class);
-    }
-
+    /* ── Relationships ─────────────────────────────────── */
     public function resep()
     {
         return $this->belongsTo(KatalogResep::class, 'katalog_resep_id');
     }
 
-    /* ── Scopes ────────────────────────────────────── */
-
-    public function scopeForUser($query, int $userId)
+    /* ── Scopes ────────────────────────────────────────── */
+    public function scopeForUser(Builder $query, int $userId): Builder
     {
         return $query->where('user_id', $userId);
     }
 
-    public function scopeForDate($query, string $date)
+    public function scopeForDate(Builder $query, string $date): Builder
     {
-        return $query->whereDate('tanggal', $date);
-    }
-
-    public function scopeForWeek($query, string $startDate, string $endDate)
-    {
-        return $query->whereBetween('tanggal', [$startDate, $endDate]);
+        return $query->whereDate('tanggal', $date); // ← match your real column
     }
 }

@@ -9,7 +9,7 @@ use Illuminate\Support\Facades\DB;
 class MealLog extends Model
 {
     use HasFactory;
-
+    protected $table = 'planner';
     protected $fillable = [
         'user_id',
         'food_id',
