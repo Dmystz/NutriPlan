@@ -385,7 +385,7 @@
     {{-- Recommendations sidebar --}}
     <div class="col-12 col-xl-2 pb-3">
         <div class="wrapper-home1 py-2 d-flex m-0">
-            @include('components.recipes_recomendation')
+            @include('components.recipes_recomendation', ['recommendedRecipe' => $recommendedRecipe])
         </div>
     </div>
 

@@ -2,7 +2,7 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Jadwalmakanan;
+use App\Models\JadwalMakanan; 
 use App\Models\KatalogResep;
 use App\Models\User;
 use Illuminate\Support\Facades\DB;
@@ -50,28 +50,31 @@ class HomeController extends Controller
         $bmiKategori = session('bmi_kategori', $user?->kategoriBmi() ?? 'Normal');
 
         // ── Rekomendasi resep (4 resep populer) ──
-        $rekomendasi = KatalogResep::public()
-            ->inRandomOrder()
+        $rekomendasi = KatalogResep::visible($userId)
+            ->latest()
             ->limit(4)
             ->get();
-
+    
         // ── Shopping list: ingredients dari jadwal minggu ini ──
         $shoppingList = $this->buildShoppingList($userId);
+        
+        $recommendedRecipe = $rekomendasi->first(); 
 
-        return view('layout.home', compact(
-            'user',
-            'jadwalHariIni',
-            'totalKalori',
-            'totalProtein',
-            'totalCarbs',
-            'totalFat',
-            'targetKalori',
-            'targetMakro',
-            'bmi',
-            'bmiKategori',
-            'rekomendasi',
-            'shoppingList',
-        ));
+        return view('layout.home', [
+            'user'            => $user,
+            'jadwalHariIni'   => $jadwalHariIni,
+            'totalKalori'     => $totalKalori,
+            'totalProtein'    => $totalProtein,
+            'totalCarbs'      => $totalCarbs,
+            'totalFat'        => $totalFat,
+            'targetKalori'    => $targetKalori,
+            'targetMakro'     => $targetMakro,
+            'bmi'             => $bmi,
+            'bmiKategori'     => $bmiKategori,
+            'rekomendasi'     => $rekomendasi,
+            'shoppingList'    => $shoppingList,
+            'recommendedRecipe' => $rekomendasi->first(),
+        ]);
     }
 
     // ══════════════════════════════

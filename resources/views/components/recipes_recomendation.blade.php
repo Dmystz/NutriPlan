@@ -1,8 +1,23 @@
+@if($recommendedRecipe)
+
 <div class="d-flex text-center w-100 flex-column align-items-center">
-    {{-- Ini gambarnya dengan rasio auto (bisa menyesuaikan lebar konten) --}}
+
     <div class="px-2 m-0 d-flex justify-content-center w-100">
-        <img src="{{ asset('img/recomendation_template.png') }}" alt="" class="gambar-rekomendasi p-0 m-0">
+        <img
+            src="{{ $recommendedRecipe->image_url }}"
+            alt="{{ $recommendedRecipe->nama_makanan }}"
+            class="gambar-rekomendasi p-0 m-0"
+        >
     </div>
-    {{-- Ini judul resepnya --}}
-    <h6 class="fw-bold px-2">Shrimp Stir Fry with Vegetables and Brown Rice</h6>
+
+    <h6 class="fw-bold px-2">
+        {{ $recommendedRecipe->nama_makanan }}
+    </h6>
+
 </div>
+
+@else
+
+<p class="text-muted">No recommendation available</p>
+
+@endif

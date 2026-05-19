@@ -10,6 +10,7 @@ use App\Http\Controllers\GoogleController;
 use App\Http\Controllers\AnalyticController;
 use App\Http\Controllers\NutritionController;   
 use App\Http\Controllers\ForgotPasswordController;
+use App\Http\Controllers\HomeController;
 
 /* ══════════════════════════════════════════════════════════
    PUBLIC — tidak perlu login
@@ -55,7 +56,7 @@ Route::post('/reset-password',         [ForgotPasswordController::class, 'resetP
 Route::middleware(['auth.custom', 'nocache'])->group(function () {
 
     // ── Halaman statik ──────────────────────────────────────────────────
-    Route::get('/home',    fn() => view('layout.home'))->name('home');
+    Route::get('/home', [HomeController::class, 'index'])->name('home');
     Route::get('/recipes', fn() => view('layout.recipes'))->name('recipes');
 
     // ── Nutrition (dynamic from DB) ─────────────────────────────────────
