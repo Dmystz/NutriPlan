@@ -82,10 +82,10 @@
                     </p>
                     <!-- Button main -->
                     <div class="col-md-12 d-md-flex">
-                        <a href="#"
+                        <a href="#calculator"
                             class="cust-btn btn ijo text-white rounded-pill fw-bold px-md-4 me-md-3 my-2">Calculate Your
                             Plan</a>
-                        <a href="#"
+                        <a href="#recipes"
                             class="cust-btn btn oren text-white rounded-pill fw-bold px-md-4 ms-md-3 my-2">Explore
                             Recipes</a>
                     </div>
