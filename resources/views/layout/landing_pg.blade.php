@@ -195,12 +195,12 @@
                         <div class="container px-0 d-flex justify-content-center">
                             <div class="col-12 col-md-10 col-lg-8 col-xl-6 justify-content-center d-flex">
                                 <div class="d-flex col-6 justify-content-center">
-                                    <a href="#"
+                                    <a href="#calculator"
                                         class="btn ijo text-white rounded-pill fw-bold my-5 mx-2 px-4">Calculate Your
                                         Plan</a>
                                 </div>
                                 <div class="col-6 d-flex justify-content-center">
-                                    <a href="#"
+                                    <a href="#recipes"
                                         class="btn oren text-white rounded-pill my-5 fw-bold mx-2 px-4">Explore
                                         Recipes</a>
                                 </div>
@@ -218,7 +218,7 @@
                         breakfast to balanced dinners, NutriPlan helps you find meals you’ll actually enjoy</h2>
                     <div class="container">
                         <div class="d-flex justify-content-center my-4">
-                            <a href="#" class="btn oren text-white rounded-pill fw-bold px-4"
+                            <a href="#recipes" class="btn oren text-white rounded-pill fw-bold px-4"
                                 width="33%">Explore Recipes</a>
                         </div>
                     </div>
@@ -280,7 +280,7 @@
                     </div>
                     <h2 class="pg3-h2 text-start">Use NutriPlan’s calculator to estimate your BMI, calori needs, and
                         personalized nutrition targets based on your body data and goals</h2>
-                    <a href="#" class="btn ijo text-white rounded-pill fw-bold mt-4" width="33%">Try
+                    <a href="#calculator" class="btn ijo text-white rounded-pill fw-bold mt-4" width="33%">Try
                         Calculator</a>
                 </div>
                 {{-- Panel Page 4 --}}
@@ -461,7 +461,7 @@
                     <h2 class="pg3-h2 text-end">NutriPlan makes it easy to plan and personalized your meals for the day
                         and the week. Stay organized, track your nutrition, and achieve your health goals!</h2>
                     <div class="d-flex justify-content-end mt-4">
-                        <a href="#" class="btn oren text-white rounded-pill fw-bold mt-4" width="33%">Start
+                        <a href="#planner" class="btn oren text-white rounded-pill fw-bold mt-4" width="33%">Start
                             Planning</a>
                     </div>
                 </div>
