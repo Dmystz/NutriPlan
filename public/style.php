@@ -123,7 +123,10 @@ echo "body { background-color: #f0f0f0; }";
     }
 
     .pg1-h1 {
-        color: #ffcc00;
+        background: linear-gradient(90deg, #ea5c2b 0%, #ffcc00 80%);
+        background-clip: text;
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
     }
 
     h1 {
@@ -131,7 +134,10 @@ echo "body { background-color: #f0f0f0; }";
     }
 
     h2 {
-        color: #ffcc00;
+        background: linear-gradient(90deg, #ea5c2b 0%, #ffcc00 80%);
+        background-clip: text;
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
     }
 
     .pg2-h1 {

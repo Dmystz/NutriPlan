@@ -20,7 +20,7 @@ class AuthController extends Controller
         $request->validate([
             'name'          => 'required|string|max:120',
             'email'         => 'required|email|unique:users,email',
-            'password'      => 'required|min:6',
+            'password'      => 'required|min:8',
             'umur'          => 'required|numeric|min:1|max:120',
             'berat_badan'   => 'required|numeric|min:10|max:500',
             'tinggi_badan'  => 'required|numeric|min:50|max:300',
@@ -46,9 +46,6 @@ class AuthController extends Controller
             'target'        => $request->target        ?? 'maintenance',
             'activity_level'=> 1.55,
         ]);
-
-        // Buat Planner otomatis
-        Planner::create(['user_id' => $user->id]);
 
         // Simpan catatan BMI pertama
         $h   = $user->tinggi_badan / 100;

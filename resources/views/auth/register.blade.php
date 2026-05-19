@@ -360,7 +360,7 @@
                     @error('password')
                         <div class="invalid-feedback ps-2">{{ $message }}</div>
                     @enderror
-                    <p class="hint-text">Minimal 6 karakter</p>
+                    <p class="hint-text">Minimal 8 karakter</p>
                 </div>
 
                 <button type="submit" class="btn btn-oren w-100 fw-bold">Create Account</button>

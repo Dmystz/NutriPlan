@@ -8,7 +8,8 @@ use App\Http\Controllers\MealPlanController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\GoogleController;
 use App\Http\Controllers\AnalyticController;
-use App\Http\Controllers\NutritionController;   // ← NEW
+use App\Http\Controllers\NutritionController;   
+use App\Http\Controllers\ForgotPasswordController;
 
 /* ══════════════════════════════════════════════════════════
    PUBLIC — tidak perlu login
@@ -43,6 +44,10 @@ Route::get('/auth/google/callback', [GoogleController::class, 'callback'])->name
 Route::get ('/complete-profile', [ProfileController::class, 'showComplete'])->name('profile.complete');
 Route::post('/complete-profile', [ProfileController::class, 'complete'])    ->name('profile.complete.store');
 
+Route::get ('/forgot-password',        [ForgotPasswordController::class, 'showForgotForm']) ->name('password.forgot.form');
+Route::post('/forgot-password',        [ForgotPasswordController::class, 'sendResetLink'])  ->name('password.forgot.send');
+Route::get ('/reset-password/{token}', [ForgotPasswordController::class, 'showResetForm'])  ->name('password.reset.form');
+Route::post('/reset-password',         [ForgotPasswordController::class, 'resetPassword'])  ->name('password.reset.process');
 /* ══════════════════════════════════════════════════════════
    PROTECTED — wajib login (session-based, bukan Sanctum)
    ══════════════════════════════════════════════════════════ */
