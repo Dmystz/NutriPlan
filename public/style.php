@@ -271,7 +271,42 @@ echo "body { background-color: #f0f0f0; }";
         top: 0;
         left: 0;
     }
+/* === Responsive Recipes Hero Banner — Mobile Fix === */
 
+@media (max-width: 767.98px) {
+
+    /* Stack banner & your-recipes button secara vertikal */
+    .recipes-hero-banner {
+        width: 100%;
+        padding: 1rem 1.25rem;
+    }
+
+    .btn-your-recipe {
+        width: 100%;
+        min-height: 70px;
+        flex-direction: row;
+        justify-content: center;
+        gap: 10px;
+        border-radius: 16px;
+    }
+}
+
+@media (max-width: 575.98px) {
+
+    /* Pastikan teks & tombol di dalam banner tidak terpotong */
+    .recipes-hero-banner h5 {
+        font-size: 0.95rem;
+    }
+
+    .recipes-hero-banner p {
+        font-size: 0.72rem;
+    }
+
+    .btn-add-recipe {
+        font-size: 0.75rem;
+        padding: 0.35rem 0.85rem;
+    }
+}
     .tgl-day1 {
         border-radius: 4px;
         background: rgba(43, 127, 255, 1);
