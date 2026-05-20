@@ -641,6 +641,29 @@ echo "body { background-color: #f0f0f0; }";
         }
     }
 
+    /* ================================================================
+   RESPONSIVE PAGE 4 — Calculator (card-2 & card-3 size ratio only)
+   ================================================================ */
+
+@media (max-width: 1199.98px) {
+    .card-2 { width: 15rem;   height: 24rem;   }
+    .card-3 { width: 22rem;   height: 10.5rem; }
+}
+
+@media (max-width: 991.98px) {
+    .card-2 { width: 12rem;   height: 20rem;   }
+    .card-3 { width: 17rem;   height: 9.5rem;  }
+}
+
+@media (max-width: 767.98px) {
+    .card-2 { width: 9.5rem;  height: 16.5rem; }
+    .card-3 { width: 13.5rem; height: 8.5rem;  }
+}
+
+@media (max-width: 575.98px) {
+    .card-2 { width: 7.5rem;  height: 13rem;   }
+    .card-3 { width: 10.5rem; height: 7.5rem;  }
+}
     /* Homepage */
     .form-control {
         background: linear-gradient(90deg, #EA5C2B 0%, #95CD41 100%);
