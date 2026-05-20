@@ -331,6 +331,412 @@ echo "body { background-color: #f0f0f0; }";
         width: 90px;
     }
 
+    /* ================================================================
+   NOTIFICATION MODAL — NutriPlan
+   Tambahkan blok ini ke bagian paling bawah style.php
+   Tidak ada perubahan pada atribut yang sudah ada.
+   ================================================================ */
+
+/* ── Navbar bell: wrapper posisi relatif untuk badge ── */
+.notif-bell-wrap {
+    position: relative;
+    display: inline-flex;
+}
+
+.notif-nav-badge {
+    position: absolute;
+    top: -4px;
+    right: -4px;
+    width: 16px;
+    height: 16px;
+    background: #EF4444;
+    border: 2px solid #fff;
+    border-radius: 50%;
+    font-size: 0.5rem;
+    font-weight: 800;
+    color: #fff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 10;
+    pointer-events: none;
+    box-shadow: 0 1px 4px rgba(239, 68, 68, 0.45);
+}
+
+/* ── Modal dialog sizing ── */
+.notif-modal-dialog {
+    max-width: 400px;
+    margin: 5rem auto 1rem;
+}
+
+/* ── Modal content shell ── */
+.notif-modal-content {
+    border-radius: 20px;
+    border: none;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.16);
+    overflow: hidden;
+    background: #fff;
+}
+
+/* ── Header ── */
+.notif-modal-header {
+    background: linear-gradient(135deg, #95cd41 0%, #ea5c2b 100%);
+    padding: 1.1rem 1.25rem;
+}
+
+.notif-header-icon {
+    width: 36px;
+    height: 36px;
+    background: rgba(255, 255, 255, 0.22);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+
+.notif-modal-title {
+    font-size: 0.95rem;
+    font-weight: 800;
+    color: #fff;
+    line-height: 1.2;
+}
+
+.notif-modal-subtitle {
+    font-size: 0.68rem;
+    color: rgba(255, 255, 255, 0.82);
+}
+
+.notif-unread-badge {
+    font-size: 0.62rem;
+    font-weight: 700;
+    background: rgba(255, 255, 255, 0.25);
+    color: #fff;
+    border-radius: 50px;
+    padding: 3px 10px;
+    border: 1px solid rgba(255, 255, 255, 0.35);
+    white-space: nowrap;
+}
+
+/* ── Tabs ── */
+.notif-tabs-wrap {
+    background: #fafafa;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.06);
+    padding-top: 0.6rem;
+    padding-bottom: 0;
+}
+
+.notif-tab-toggle {
+    display: flex;
+    gap: 4px;
+    background: #F3F4F6;
+    border-radius: 50px;
+    padding: 3px;
+    width: fit-content;
+}
+
+.notif-tab-btn {
+    border: none;
+    background: transparent;
+    border-radius: 50px;
+    padding: 0.28rem 0.85rem;
+    font-size: 0.72rem;
+    font-weight: 600;
+    color: #6B7280;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    white-space: nowrap;
+}
+
+.notif-tab-btn:hover {
+    color: #374151;
+    background: rgba(255, 255, 255, 0.7);
+}
+
+.notif-tab-btn.active {
+    background: #fff;
+    color: var(--warna-oren);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.10);
+}
+
+/* ── Body scroll ── */
+.notif-modal-body {
+    max-height: 55vh;
+    overflow-y: auto;
+}
+
+.notif-modal-body::-webkit-scrollbar {
+    width: 4px;
+}
+
+.notif-modal-body::-webkit-scrollbar-thumb {
+    background: #E5E7EB;
+    border-radius: 4px;
+}
+
+/* ── Section label ── */
+.notif-section-label {
+    font-size: 0.68rem;
+    font-weight: 700;
+    color: #9CA3AF;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    margin-bottom: 0.5rem;
+    margin-top: 0.25rem;
+    padding-left: 0.25rem;
+}
+
+/* ── Notification item row ── */
+.notif-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.5rem;
+    margin-bottom: 0.65rem;
+    padding: 0.55rem 0.6rem;
+    border-radius: 14px;
+    border: 1px solid rgba(0, 0, 0, 0.07);
+    background: rgba(252, 252, 252, 0.80);
+    transition: background 0.2s ease, border-color 0.2s ease, opacity 0.3s ease;
+    position: relative;
+}
+
+.notif-item--unread {
+    background: rgba(255, 248, 240, 0.95);
+    border-color: rgba(234, 92, 43, 0.18);
+}
+
+.notif-item--done {
+    opacity: 0.6;
+    background: rgba(240, 255, 223, 0.50);
+    border-color: rgba(149, 205, 65, 0.20);
+}
+
+/* ── Unread dot ── */
+.notif-item__dot {
+    width: 7px;
+    height: 7px;
+    background: var(--warna-oren);
+    border-radius: 50%;
+    margin-top: 0.45rem;
+    flex-shrink: 0;
+    box-shadow: 0 0 0 2px rgba(234, 92, 43, 0.18);
+    transition: background 0.3s ease;
+}
+
+.notif-item--done .notif-item__dot {
+    background: var(--warna-ijo);
+    box-shadow: 0 0 0 2px rgba(149, 205, 65, 0.18);
+}
+
+/* ── Time column ── */
+.notif-item__time-col {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    min-width: 2.4rem;
+    flex-shrink: 0;
+    padding-top: 0.15rem;
+}
+
+.notif-time-text {
+    font-size: 0.7rem;
+    font-weight: 800;
+    color: #374151;
+    white-space: nowrap;
+}
+
+.notif-time-rel {
+    font-size: 0.55rem;
+    color: #9CA3AF;
+    font-weight: 500;
+    white-space: nowrap;
+}
+
+/* ── Meal card inside notif ── */
+.notif-meal-card {
+    border-radius: 10px;
+    overflow: hidden;
+}
+
+.notif-meal-img {
+    width: 68px;
+    height: 68px;
+    border-radius: 10px;
+    object-fit: cover;
+    flex-shrink: 0;
+}
+
+.notif-meal-info {
+    overflow: hidden;
+}
+
+.notif-meal-type {
+    font-size: 0.6rem;
+    font-weight: 700;
+    color: var(--warna-oren);
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+}
+
+.notif-meal-name {
+    font-size: 0.75rem;
+    font-weight: 700;
+    color: #111827;
+    line-height: 1.3;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.notif-meal-badges {
+    margin: 0;
+}
+
+.notif-nutrition {
+    gap: 0.5rem !important;
+}
+
+/* ── Done badge (appears after marking) ── */
+.notif-done-badge {
+    display: inline-block;
+    font-size: 0.55rem;
+    font-weight: 700;
+    color: #446611;
+    background: rgba(149, 205, 65, 0.15);
+    border-radius: 50px;
+    padding: 1px 7px;
+    margin-top: 3px;
+}
+
+/* ── Mark done button ── */
+.notif-btn-done {
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    border: 1.5px solid #E5E7EB;
+    background: #F9FAFB;
+    color: #9CA3AF;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    flex-shrink: 0;
+    transition: all 0.18s ease;
+    padding: 0;
+    align-self: center;
+}
+
+.notif-btn-done:hover {
+    background: var(--warna-ijo);
+    border-color: var(--warna-ijo);
+    color: #fff;
+    box-shadow: 0 3px 8px rgba(149, 205, 65, 0.30);
+}
+
+/* ── Empty state ── */
+.notif-empty-state {
+    text-align: center;
+    padding: 2rem 1rem;
+}
+
+.notif-empty-icon {
+    font-size: 2.5rem;
+    margin-bottom: 0.5rem;
+}
+
+.notif-empty-text {
+    font-size: 0.78rem;
+    color: #9CA3AF;
+    margin: 0;
+}
+
+/* ── Footer ── */
+.notif-modal-footer {
+    background: #fafafa;
+    border-top: 1px solid rgba(0, 0, 0, 0.06);
+}
+
+.notif-btn-mark-all {
+    font-size: 0.72rem;
+    font-weight: 600;
+    color: #6B7280;
+    background: transparent;
+    border: 1.5px solid #E5E7EB;
+    border-radius: 50px;
+    padding: 0.35rem 0.9rem;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.notif-btn-mark-all:hover {
+    background: #F3F4F6;
+    color: #374151;
+    border-color: #D1D5DB;
+}
+
+.notif-btn-see-plan {
+    font-size: 0.72rem;
+    font-weight: 700;
+    color: var(--warna-oren);
+    text-decoration: none;
+    transition: opacity 0.18s;
+}
+
+.notif-btn-see-plan:hover {
+    opacity: 0.75;
+    color: var(--warna-oren);
+}
+
+/* ================================================================
+   RESPONSIVE — Notification Modal
+   ================================================================ */
+
+@media (max-width: 575.98px) {
+    .notif-modal-dialog {
+        max-width: calc(100% - 1.5rem);
+        margin: 5.5rem 0.75rem 1rem;
+    }
+
+    .notif-modal-body {
+        max-height: 60vh;
+    }
+
+    .notif-meal-img {
+        width: 56px;
+        height: 56px;
+    }
+
+    .notif-meal-name {
+        font-size: 0.68rem;
+    }
+
+    .notif-item__time-col {
+        min-width: 2rem;
+    }
+
+    .notif-tab-btn {
+        font-size: 0.65rem;
+        padding: 0.24rem 0.65rem;
+    }
+
+    .notif-modal-title {
+        font-size: 0.85rem;
+    }
+}
+
+@media (max-width: 767.98px) {
+    .notif-modal-dialog {
+        max-width: calc(100% - 2rem);
+        margin-left: auto;
+        margin-right: auto;
+    }
+}
+
+@media (min-width: 576px) and (max-width: 991.98px) {
+    .notif-modal-dialog {
+        max-width: 380px;
+    }
+}
     .card-5 {
         width: 13rem;
         height: 15rem;
